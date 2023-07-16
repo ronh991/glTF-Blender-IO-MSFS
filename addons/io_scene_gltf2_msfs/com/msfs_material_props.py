@@ -64,7 +64,9 @@ class AsoboMaterialCommon:
         max=1.0,
         size=4,
         default=Defaults.BaseColorFactor,
-        update=MSFS_Material_Property_Update.update_base_color,
+        get=MSFS_Material_Property_Update.get_base_color,
+        set=MSFS_Material_Property_Update.set_base_color,
+        #update=MSFS_Material_Property_Update.update_base_color,
         options={"ANIMATABLE"}
     )
 
@@ -76,7 +78,9 @@ class AsoboMaterialCommon:
         max=1.0,
         size=3,
         default=Defaults.EmissiveFactor,
-        update=MSFS_Material_Property_Update.update_emissive_color,
+        get=MSFS_Material_Property_Update.get_emissive_color,
+        set=MSFS_Material_Property_Update.set_emissive_color,
+        #update=MSFS_Material_Property_Update.update_emissive_color,
         options={"ANIMATABLE"},
     )
 
@@ -86,7 +90,9 @@ class AsoboMaterialCommon:
         min=0.0,
         max=1.0,
         default=Defaults.MetallicFactor,
-        update=MSFS_Material_Property_Update.update_metallic_scale,
+        get=MSFS_Material_Property_Update.get_metallic_scale,
+        set=MSFS_Material_Property_Update.set_metallic_scale,
+        #update=MSFS_Material_Property_Update.update_metallic_scale,
         options={"ANIMATABLE"},
     )
 
@@ -96,7 +102,9 @@ class AsoboMaterialCommon:
         min=0.0,
         max=1.0,
         default=Defaults.RoughnessFactor,
-        update=MSFS_Material_Property_Update.update_roughness_scale,
+        get=MSFS_Material_Property_Update.get_roughness_scale,
+        set=MSFS_Material_Property_Update.set_roughness_scale,
+        #update=MSFS_Material_Property_Update.update_roughness_scale,
         options={"ANIMATABLE"},
     )
 

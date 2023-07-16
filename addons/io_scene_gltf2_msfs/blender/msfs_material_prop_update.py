@@ -36,6 +36,7 @@ class MSFS_Material_Property_Update:
 
     @staticmethod
     def getMaterial(mat):
+        #print("Looking for MSFS Material to update - ", mat.msfs_material_type)
         if mat.msfs_material_type == "msfs_standard":
             return MSFS_Standard(mat)
         elif mat.msfs_material_type == "msfs_geo_decal":
@@ -68,9 +69,16 @@ class MSFS_Material_Property_Update:
             return MSFS_Environment_Occluder(mat)
         elif mat.msfs_material_type == "msfs_ghost":
             return MSFS_Ghost(mat)
+        #print("Found Material to update - ", mat.msfs_material_type)
+        return None
 
     @staticmethod
     def update_msfs_material_type(self, context):
+        from datetime import datetime
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        if self.msfs_material_type != "NONE":
+            print(current_time, " - Update Material- %s - %s"   % (self.name,self.msfs_material_type))
         msfs_mat = None
         if self.msfs_material_type == "msfs_standard":
             msfs_mat = MSFS_Standard(self, buildTree=True)
@@ -85,6 +93,7 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Windshield(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
             self.msfs_metallic_factor = 0.0
+            self.msfs_base_color_factor = [1.0, 1.0, 1.0, 0.1]
         elif self.msfs_material_type == "msfs_porthole":
             msfs_mat = MSFS_Porthole(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
@@ -92,6 +101,7 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Glass(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
             self.msfs_metallic_factor = 0.0
+            self.msfs_base_color_factor = [1.0, 1.0, 1.0, 0.1]
         elif self.msfs_material_type == "msfs_clearcoat":
             msfs_mat = MSFS_Clearcoat(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
@@ -108,9 +118,11 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_SSS(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
         elif self.msfs_material_type == "msfs_invisible":
-            msfs_mat = MSFS_Invisible(self, buildTree=True)
+            msfs_mat = MSFS_Invisible(self, buildTree=False)
             self.msfs_no_cast_shadow = True
             self.msfs_alpha_mode = "BLEND"
+            self.msfs_base_color_factor = [0.8, 0.0, 0.0, 0.1]
+            self.msfs_emissive_factor = [0.8, 0.0, 0.0]
         elif self.msfs_material_type == "msfs_fake_terrain":
             msfs_mat = MSFS_Fake_Terrain(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
@@ -118,19 +130,23 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Fresnel_Fade(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
         elif self.msfs_material_type == "msfs_environment_occluder":
-            msfs_mat = MSFS_Environment_Occluder(self, buildTree=True)
+            msfs_mat = MSFS_Environment_Occluder(self, buildTree=False)
             self.msfs_no_cast_shadow = True
             self.msfs_alpha_mode = "BLEND"
+            self.msfs_base_color_factor = [0.0, 0.8, 0.0, 0.1]
+            self.msfs_emissive_factor = [0.0, 0.8, 0.0]
         elif self.msfs_material_type == "msfs_ghost":
             msfs_mat = MSFS_Ghost(self, buildTree=True)
             self.msfs_no_cast_shadow = True
             self.msfs_alpha_mode = "BLEND"
         else:
+            print(current_time, " - Reset Material")
             MSFS_Material_Property_Update.reset_material_prop_object(self)
             msfs_mat = MSFS_Material(self)
             msfs_mat.revertToPBRShaderTree()
             self.msfs_alpha_mode = "OPAQUE"
             return
+        print(current_time, " - Update DONE")
     
     @staticmethod
     def reset_material_prop_object(self):
@@ -299,6 +315,61 @@ class MSFS_Material_Property_Update:
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None:
             msfs.setRoughnessScale(self.msfs_roughness_factor)
+
+    # Getters/setters for animatable properties
+    # The reason we need these instead of update callbacks is because we want to make sure the properties update when scrolling through
+    # the animation timeline. Update is not called unless the value is manually changed, while get/set is called anytime the value is
+    # internally updated, such as in the timeline
+
+    @staticmethod
+    def get_base_color(self):
+        return self.get("msfs_base_color_factor", [1.0, 1.0, 1.0, 1.0])
+
+    @staticmethod
+    def set_base_color(self, value):
+        msfs = MSFS_Material_Property_Update.getMaterial(self)
+        msfs.setBaseColor(value)
+
+        self["msfs_base_color_factor"] = value
+
+    @staticmethod
+    def get_emissive_color(self):
+        return self.get("msfs_emissive_factor", [0.0, 0.0, 0.0])
+
+    @staticmethod
+    def set_emissive_color(self, value):
+        nodes = self.id_data.node_tree.nodes
+        nodeEmissiveColorRGB = nodes.get(MSFS_ShaderNodes.emissiveColor.value)
+        if not nodeEmissiveColorRGB:
+            return
+        emissiveValue = nodeEmissiveColorRGB.outputs[0].default_value
+        emissiveValue[0] = value[0]
+        emissiveValue[1] = value[1]
+        emissiveValue[2] = value[2]
+
+        self["msfs_emissive_factor"] = value
+
+    @staticmethod
+    def get_metallic_scale(self):
+        return self.get("msfs_metallic_factor", 1.0)
+
+    @staticmethod
+    def set_metallic_scale(self, value):
+        msfs = MSFS_Material_Property_Update.getMaterial(self)
+        msfs.setMetallicScale(value)
+
+        self["msfs_metallic_factor"] = value
+
+    @staticmethod
+    def get_roughness_scale(self):
+        return self.get("msfs_roughness_factor", 1.0)
+
+    @staticmethod
+    def set_roughness_scale(self, value):
+        msfs = MSFS_Material_Property_Update.getMaterial(self)
+        msfs.setRoughnessScale(value)
+
+        self["msfs_roughness_factor"] = value
 
     @staticmethod
     def update_normal_scale(self, context):
