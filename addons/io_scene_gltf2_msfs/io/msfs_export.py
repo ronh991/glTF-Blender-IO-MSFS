@@ -16,6 +16,8 @@ import os
 import urllib
 
 from .. import get_version_string
+from .. import get_prefs
+from io_scene_gltf2 import ExportGLTF2_Base
 from .msfs_gizmo import MSFSGizmo
 from .msfs_light import MSFSLight
 from .msfs_material import MSFSMaterial
@@ -27,6 +29,18 @@ class Export:
 
     gathered_material_actions = []
     
+    # get the preferences set in add-on intall menu
+    #addonpreferences = get_prefs()
+    #texture_dir = ''
+    #copyright = ''
+    #print(addonpreferences)
+    #print("addon preferences - ", addonpreferences.export_texture_dir, addonpreferences.export_copyright)
+    #texture_dir = addonpreferences.export_texture_dir
+    #copyright = addonpreferences.export_copyright
+    #print("base GLTF", ExportGLTF2_Base.export_format)
+    # ExportGLTF2_Base.export_format = ''
+    # ExportGLTF2_Base.export_format.default = 'GLTF_SEPARATE'
+
     def gather_asset_hook(self, gltf2_asset, export_settings):
         if self.properties.enabled == True:
             if gltf2_asset.extensions is None:

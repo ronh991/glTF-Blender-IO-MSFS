@@ -368,6 +368,8 @@ class MSFSMaterialAnimation:
                 continue
 
             print("replace_channel_target - channel_target", channel)
+            # it's not the path we want because it's just a string now
+            # have to use a new class for channel target that is just a string not node/path
             gltf2_animation_channel_target.path = MSFSMaterialAnimationTarget(
                 blender_material, channel.data_path, channels
             )
@@ -451,6 +453,7 @@ class MSFSMaterialAnimation:
         :return:
         """
         material_animation_channels = []
+        print("finalize_animation - channels list Start")
         for channel in list(gltf2_animation.channels):
             if not isinstance(channel.target.path, MSFSMaterialAnimationTarget):
                 continue
@@ -488,6 +491,7 @@ class MSFSMaterialAnimation:
         :param gltf2_plan: the finalized glTF data
         :return:
         """
+        print("finalize_target - extension Start")
         if not gltf2_animation.extensions:
             return
 
