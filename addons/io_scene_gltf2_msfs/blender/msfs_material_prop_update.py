@@ -30,6 +30,13 @@ from .material.msfs_material_sss import MSFS_SSS
 from .material.msfs_material_standard import MSFS_Standard
 from .material.msfs_material_windshield import MSFS_Windshield
 from .msfs_material_function import MSFS_Material
+from .material.utils.msfs_material_enum import (MSFS_AnisotropicNodes,
+                                                MSFS_FrameNodes,
+                                                MSFS_PrincipledBSDFInputs,
+                                                MSFS_ShaderNodes,
+                                                MSFS_ShaderNodesTypes,
+                                                MSFS_MixNodeInputs,
+                                                MSFS_MixNodeOutputs)
 
 
 class MSFS_Material_Property_Update:
@@ -205,7 +212,7 @@ class MSFS_Material_Property_Update:
         self.msfs_responsive_aa = False
         self.msfs_road_collision_material = False
         self.msfs_roughness_blend_factor = 1.0
-        self.msfs_roughness_factor = 0.5
+        self.msfs_roughness_factor = 1.0
         self.msfs_sss_color = [0.8, 0.8, 0.8, 1.0]
         self.msfs_use_pearl = False
         self.msfs_uv_offset_u = 0.0
@@ -320,6 +327,9 @@ class MSFS_Material_Property_Update:
     # The reason we need these instead of update callbacks is because we want to make sure the properties update when scrolling through
     # the animation timeline. Update is not called unless the value is manually changed, while get/set is called anytime the value is
     # internally updated, such as in the timeline
+
+
+    # added different from 1.3.1
 
     @staticmethod
     def get_base_color(self):

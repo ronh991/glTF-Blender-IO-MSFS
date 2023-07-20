@@ -14,10 +14,12 @@
 
 import os
 import urllib
+import bpy
 
 from .. import get_version_string
-from .. import get_prefs
-from io_scene_gltf2 import ExportGLTF2_Base
+#from .. import get_prefs
+#from io_scene_gltf2 import ExportGLTF2_Base
+from io_scene_gltf2.blender.exp.gltf2_blender_gather_materials_emission import export_emission_factor
 from .msfs_gizmo import MSFSGizmo
 from .msfs_light import MSFSLight
 from .msfs_material import MSFSMaterial
@@ -54,12 +56,13 @@ class Export:
             gltf2_asset.generator += " and Asobo Studio MSFS Blender I/O v" + get_version_string()
 
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
+        print("gather_gltf_extensions_hook - start", self.properties.enabled)
         if self.properties.enabled:
             for i, image in enumerate(gltf2_plan.images):
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
-            print("Finalize Target - Start")
+            print("gather_gltf_extensions_hook - for animation", gltf2_plan.animations)
             for animation in gltf2_plan.animations:
-                print("Finalize Target - ", animation)
+                print("gather_gltf_extensions_hook - animation", animation)
                 MSFSMaterialAnimation.finalize_target(animation, gltf2_plan)
 
     def gather_node_hook(self, gltf2_object, blender_object, export_settings):
@@ -89,6 +92,25 @@ class Export:
 
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
         if self.properties.enabled:
+            # KHR_materials_emissive_strength issue with msfs materials for bloom
+
+            # KHR_materials_emissive_strength revert the Khronos gltf code to add an extension for emissive scale > 1.0
+            # return the emissive_factor back to the missive color multiplied by the emissive scale
+            for extension in gltf2_material.extensions:
+                if extension:
+                    print("gather_gltf_extensions_hook - KHR Extension", gltf2_material.name, gltf2_material.extensions, extension, gltf2_material.emissive_factor)
+                    if extension == "KHR_materials_emissive_strength":
+
+                        for colorChannel in blender_material.node_tree.nodes['Emissive RGB'].outputs[0].default_value[0:3]:
+                            print ("gather_gltf_extensions_hook - Color value", colorChannel)
+                        maxchannel = max(blender_material.node_tree.nodes['Emissive RGB'].outputs[0].default_value[0:3])
+                        emissive_scale = blender_material.node_tree.nodes['Emissive Scale'].outputs[0].default_value
+                        print("gather_gltf_extensions_hook - maxchannel", maxchannel, emissive_scale)
+
+                        print("gather_gltf_extensions_hook - change remove emissive_factor KHR_materials_emissive_strength")
+                        gltf2_material.emissive_factor = [f * maxchannel * emissive_scale for f in gltf2_material.emissive_factor]
+                        del gltf2_material.extensions['KHR_materials_emissive_strength']
+
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)
 
     def gather_actions_hook(self, blender_object, blender_actions, blender_tracks, action_on_type, export_settings):
@@ -113,7 +135,7 @@ class Export:
     # need a gather_animation_channel_hook ?????
     def gather_animation_channel_hook(self, gltf2_animation_channel, channels, blender_object, bake_bone, bake_channel, bake_range_start, bake_range_end, action_name, export_settings):
         print("gather_animation_channel_hook - Started with ", gltf2_animation_channel, channels, blender_object, action_name)
-        #MSFSMaterialAnimation.gather_channels(gltf2_animation_channel, channels, blender_object, bake_bone, bake_channel, bake_range_start, bake_range_end, action_name, export_settings)
+        # not needed???? MSFSMaterialAnimation.gather_channels(gltf2_animation_channel, channels, blender_object, bake_bone, bake_channel, bake_range_start, bake_range_end, action_name, export_settings)
         print("gather_animation_channel_hook - Done")
 
     def gather_animation_channel_target_hook(self, gltf2_animation_channel_target, channels, blender_object, bake_bone, bake_channel, export_settings):
@@ -122,11 +144,11 @@ class Export:
         print("gather_animation_channel_target_hook - Done")
 
     def pre_gather_animation_hook(self, gltf2_animation, blender_action, blender_object, export_settings):
-        print("pre_gather_animation_hook - Started")
+        print("pre_gather_animation_hook - add_placeholder_channel Started")
         MSFSMaterialAnimation.add_placeholder_channel(gltf2_animation, blender_action, blender_object, export_settings)
-        print("pre_gather_animation_hook - Done")
+        print("pre_gather_animation_hook - add_placeholder_channel Done")
 
     def gather_animation_hook(self, gltf2_animation, blender_action, blender_object, export_settings):
-        print("gather_animation_hook - Started")
+        print("gather_animation_hook - finalize_animation Started")
         MSFSMaterialAnimation.finalize_animation(gltf2_animation)
-        print("gather_animation_hook - Done")
+        print("gather_animation_hook - finalize_animation Done")

@@ -35,9 +35,11 @@ class MSFSMaterialAnimationTarget:
     """
 
     def __init__(self, material, data_path, channels):
+        print("MSFSMaterialAnimationTarget - init")
         self.material = material
         self.data_path = data_path
         self.channels = channels
+        print("MSFSMaterialAnimationTarget", self.material, self.data_path, self.channels)
 
 
 class MSFSMaterialAnimation:
@@ -224,25 +226,31 @@ class MSFSMaterialAnimation:
             if material is None:
                 continue
 
-            print("get_material_from_action - if", material.node_tree.animation_data)
+            print("get_material_from_action - if", blender_action, material, material.node_tree.animation_data)
             if material.node_tree.animation_data is not None:
                 if blender_action == material.node_tree.animation_data.action:
-                    print("get_material_from_action - return found", blender_action)
+                    print("get_material_from_action - return found", material, blender_action)
                     return material
                 elif (
                     export_settings["gltf_nla_strips"] is True
                 ):  # Check if the animation is an NLA strip
-                    print("get_material_from_action - nla_tracks", blender_action)
+                    print("get_material_from_action - nla_tracks", material, material.node_tree.animation_data.nla_tracks)
                     for track in material.node_tree.animation_data.nla_tracks:
+                        print("get_material_from_action - track", track, track.strips)
                         non_muted_strips = [
                             strip
                             for strip in track.strips
                             if strip.action is not None and strip.mute is False
                         ]
+                        print("get_material_from_action - len non_muted_strips", len(non_muted_strips))
                         if track.strips is None or len(non_muted_strips) != 1:
                             continue
                         for strip in non_muted_strips:
-                            if blender_action == strip.action:
+                            print("get_material_from_action - action,strip.action", blender_action, strip.action)
+                            # this if may not be what we want we have to get the material for the animation that is being exporter for animated material (property animation)extension
+                            # have to get the action name - like "Shader NodeTreeAction"
+                            if blender_action.id_root == strip.action.id_root:
+                                print("get_material_from_action - return", material)
                                 return material
 
     @staticmethod
@@ -340,6 +348,8 @@ class MSFSMaterialAnimation:
             force_range = True # keyframe_points is read-only, we can't restrict here
         #else:
 
+        print("gather_channels - Done")
+
     @staticmethod
     def replace_channel_target(gltf2_animation_channel_target, channels, blender_object, export_settings):
         """
@@ -351,7 +361,7 @@ class MSFSMaterialAnimation:
         :param gltf2_animation_channel_target: a glTF animation channel target
         :param channels: list of channel groups gathered by the Khronos exporter. This has the data_path that we're interested in.
         :param blender_object: the blender object that is being animated
-        :param action_name: the name of the blender action being exported
+        :don't have param action_name: the name of the blender action being exported
         :return:
         """
         # Seems when we get here there are no channels as the gltf Khronos code does not look for action channels on material.
@@ -360,14 +370,16 @@ class MSFSMaterialAnimation:
         print("replace_channel_target - Start")
 
         for channel in channels:
-            print("replace_channel_target - channels", channel)
+            print("replace_channel_target - channel", channel, channel.id_data)
             blender_material = MSFSMaterialAnimation.get_material_from_action(
                 blender_object, channel.id_data, export_settings
             )
-            if not blender_material:
+            print("replace_channel_target - blender material", blender_material)
+            # was checking       if not blender_material
+            if blender_material == None:
                 continue
 
-            print("replace_channel_target - channel_target", channel)
+            print("replace_channel_target - channel_target", channel, channel.data_path)
             # it's not the path we want because it's just a string now
             # have to use a new class for channel target that is just a string not node/path
             gltf2_animation_channel_target.path = MSFSMaterialAnimationTarget(
@@ -398,7 +410,7 @@ class MSFSMaterialAnimation:
             return
 
         for fcurve in blender_action.fcurves:
-            print("add_placeholder_channel - list fcurves", fcurve)
+            print("add_placeholder_channel - list fcurves", fcurve, fcurve.data_path)
             material = MSFSMaterialAnimation.get_material_from_action(
                 blender_object, blender_action, export_settings
             )
@@ -412,11 +424,29 @@ class MSFSMaterialAnimation:
         temp_animdata = blender_object.animation_data_create()
         print("add_placeholder_channel - create tempaction Start")
         temp_animdata.action = bpy.data.actions.new(name="TempAction")
-        temp_animdata.action.id_root = 'ACTION'
+        temp_animdata.action.id_root = 'NODETREE' # same as what we are replacing for an animated material
         print("add_placeholder_channel - create tempaction Done", temp_animdata.action, temp_animdata.action.id_root)
         # possibly need 4 f curves as the real on has 4
         print("add_placeholder_channel - create fcurve Start")
-        fcurve = temp_animdata.action.fcurves.new(data_path="scale", index=2)
+        # now have to determine what is being animated - msfs paramerter
+        # Data path string values mapping
+
+        # nodes["Base Color RGB"], msfs_base_color_factor
+        # nodes["Emissive RGB"],msfs_emissive_factor
+
+        # msfs_metallic_factor, msfs_metallic_factor
+        # msfs_roughness_factor, msfs_roughness_factor
+        # msfs_uv_offset_u, msfs_uv_offset_u
+        # msfs_uv_offset_v
+        # msfs_uv_tiling_u
+        # msfs_uv_tiling_v
+        # msfs_uv_offset_rotation
+
+        # testing hard coded the value
+        current_data_path =  blender_action.fcurves[0].data_path
+        print("add_placeholder_channel - fcurve.data_path")
+        current_data_path = "msfs_base_color_factor" + "," + material.name
+        fcurve = temp_animdata.action.fcurves.new(data_path=current_data_path, index=2)
         print("add_placeholder_channel - create tempaction Done", fcurve)
         k1 = fcurve.keyframe_points.insert(frame=START_FRAME, value=0)
         k1.interpolation = "LINEAR"
@@ -441,6 +471,7 @@ class MSFSMaterialAnimation:
             )
         )
 
+        print("add_placeholder_channel - remove action", temp_animdata.action)
         bpy.data.actions.remove(temp_animdata.action)
 
     @staticmethod
@@ -453,16 +484,19 @@ class MSFSMaterialAnimation:
         :return:
         """
         material_animation_channels = []
-        print("finalize_animation - channels list Start")
+        print("finalize_animation - channels list Start", gltf2_animation.channels)
         for channel in list(gltf2_animation.channels):
+            print("finalize_animation - channel in list", channel, channel.target, channel.target.path)
             if not isinstance(channel.target.path, MSFSMaterialAnimationTarget):
                 continue
 
+            print("finalize_animation - channels target path material", channel.target.path.material)
             if type(channel.target.path.material) != bpy.types.Material:
                 continue
 
+            print("finalize_animation - channel append", channel.sampler, channel.target.path, channel.target.path.data_path)
             material_animation_channels.append(
-                {"sampler": channel.sampler, "target": channel.target.path}
+                {"sampler": channel.sampler, "target": channel.target.path.data_path}
             )
 
             # Restore proper animation channel paths
@@ -471,6 +505,7 @@ class MSFSMaterialAnimation:
 
             gltf2_animation.channels.remove(channel)
 
+        print("finalize_animation - add extension", material_animation_channels)
         if material_animation_channels:
             gltf2_animation.extensions[
                 MSFSMaterialAnimation.extension_name
@@ -491,29 +526,35 @@ class MSFSMaterialAnimation:
         :param gltf2_plan: the finalized glTF data
         :return:
         """
-        print("finalize_target - extension Start")
+        print("finalize_target - extension Start", gltf2_plan, gltf2_animation)
         if not gltf2_animation.extensions:
             return
 
+        print("finalize_target - if", MSFSMaterialAnimation.extension_name)
         if (
             MSFSMaterialAnimation.extension_name
             not in gltf2_animation.extensions.keys()
         ):
             return
 
+        print("finalize_target - for channel", gltf2_animation.extensions[MSFSMaterialAnimation.extension_name])
         for channel in list(gltf2_animation.extensions[MSFSMaterialAnimation.extension_name][
             "channels"
         ]):
             material_index = None
+            print("finalize_target - materials", gltf2_plan.materials)
             for j, material in enumerate(gltf2_plan.materials):
-                if material.name == channel["target"].material.name:
+                # material name was storedin the target during tempaction placeholder.
+                print("finalize_target - material index j channel[target] (material name) ", j, channel["target"])
+                if material.name == channel["target"].split(',')[1]:
                     material_index = j
                     break
 
+            print("finalize_target - material", material_index, channel["target"].split(',')[1])
             if material_index is None:
                 continue
 
-            target_property = channel["target"].data_path
+            target_property = channel["target"].split(',')[0]
 
             if target_property == "msfs_base_color_factor":
                 channel[
