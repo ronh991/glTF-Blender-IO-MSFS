@@ -149,6 +149,6 @@ class Export:
         print("pre_gather_animation_hook - add_placeholder_channel Done")
 
     def gather_animation_hook(self, gltf2_animation, blender_action, blender_object, export_settings):
-        print("gather_animation_hook - finalize_animation Started")
+        print("gather_animation_hook - finalize_animation Started", gltf2_animation, blender_action, blender_object)
         MSFSMaterialAnimation.finalize_animation(gltf2_animation)
-        print("gather_animation_hook - finalize_animation Done")
+        print("gather_animation_hook - finalize_animation Done", gltf2_animation, blender_action, blender_object)
