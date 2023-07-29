@@ -58,7 +58,9 @@ class Export:
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
         print("gather_gltf_extensions_hook - start", self.properties.enabled)
         if self.properties.enabled:
+            print("gather_gltf_extensions_hook", gltf2_plan.images)
             for i, image in enumerate(gltf2_plan.images):
+                print("gather_gltf_extensions_hook", i, image)
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
             print("gather_gltf_extensions_hook - for animation", gltf2_plan.animations)
             for animation in gltf2_plan.animations:
@@ -92,26 +94,21 @@ class Export:
 
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
         if self.properties.enabled:
-            # KHR_materials_emissive_strength issue with msfs materials for bloom
-
-            # KHR_materials_emissive_strength revert the Khronos gltf code to add an extension for emissive scale > 1.0
-            # return the emissive_factor back to the missive color multiplied by the emissive scale
-            for extension in gltf2_material.extensions:
-                if extension:
-                    print("gather_gltf_extensions_hook - KHR Extension", gltf2_material.name, gltf2_material.extensions, extension, gltf2_material.emissive_factor)
-                    if extension == "KHR_materials_emissive_strength":
-
-                        for colorChannel in blender_material.node_tree.nodes['Emissive RGB'].outputs[0].default_value[0:3]:
-                            print ("gather_gltf_extensions_hook - Color value", colorChannel)
-                        maxchannel = max(blender_material.node_tree.nodes['Emissive RGB'].outputs[0].default_value[0:3])
-                        emissive_scale = blender_material.node_tree.nodes['Emissive Scale'].outputs[0].default_value
-                        print("gather_gltf_extensions_hook - maxchannel", maxchannel, emissive_scale)
-
-                        print("gather_gltf_extensions_hook - change remove emissive_factor KHR_materials_emissive_strength")
-                        gltf2_material.emissive_factor = [f * maxchannel * emissive_scale for f in gltf2_material.emissive_factor]
-                        del gltf2_material.extensions['KHR_materials_emissive_strength']
-
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)
+
+    # mesh hook to change vertex color attributes in vertex colors from Face Corner - Byte Color default to Face Corner Color (byte to float??)
+    # but data looks the same.
+    def gather_mesh_hook(self, gltf2_mesh, blender_mesh, blender_object, vertex_groups, modifiers, skip_filter, materials, export_settings):
+        print("gather_mesh_hookgather_mesh_hook - Started with ", gltf2_mesh, blender_mesh, blender_object)
+        for o in bpy.context.scene.objects:
+            print("Scene Object",o)
+            # only for meshes
+            if o.type == 'MESH' and o.data.name == blender_mesh.name:
+                obj = o
+        print("obj", obj)
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.geometry.attribute_convert(mode='GENERIC', domain='CORNER', data_type='FLOAT_COLOR')
+        print("gather_mesh_hook - Done")
 
     def gather_actions_hook(self, blender_object, blender_actions, blender_tracks, action_on_type, export_settings):
         print("gather_actions_hook - Started")
