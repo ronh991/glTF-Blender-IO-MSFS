@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import bpy
-
+from .. import get_prefs
 
 class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     #### General Options
@@ -30,18 +30,28 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         ),
         default=False,
     )
+
+    # get the preferences set in add-on intall menu
+    addonpreferences = get_prefs()
+    texture_dir = ''
+    copyright = ''
+    print(addonpreferences)
+    print("addon preferences - ", addonpreferences.export_texture_dir, addonpreferences.export_copyright)
+    texture_dir = addonpreferences.export_texture_dir
+    copyright = addonpreferences.export_copyright
+
     ## Texture directory path
     export_texture_dir: bpy.props.StringProperty(
         name="Textures",
         description="Folder to place texture files in. Relative to the .gltf file",
-        default="",
+        default=texture_dir,
     )
 
     ## Copyright string UI
     export_copyright: bpy.props.StringProperty(
         name="Copyright",
         description="Legal rights and conditions for the model",
-        default="",
+        default=copyright,
     )
 
     ## Remember export settings check
@@ -50,6 +60,9 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         description="Store glTF export settings in the Blender project.",
         default=False
     )
+
+    #This code assumes your folder name is the name of your addon
+    #It also assumes that this function is placed inside a .py file in the base folder
 
     ## MSFS extensions Check
     def msfs_enable_msfs_extension_update(self, context):
@@ -676,7 +689,7 @@ class MSFS_PT_export_animation_export(bpy.types.Panel):
         if settings.export_nla_strips is False:
             layout.prop(settings, 'export_nla_strips_merged_animation_name')
         layout.prop(settings, "optimize_animation_size")
-        if (bpy.app.version > (3, 3, 0)):
+        if (bpy.app.version >= (3, 3, 0)):
             layout.prop(settings, "export_all_armature_actions")
         else:
             layout.prop(settings, 'export_def_bones')
@@ -737,7 +750,7 @@ class MSFS_PT_export_animation_skinning(bpy.types.Panel):
         layout.active = settings.export_skins
         layout.prop(settings, "export_all_influences")
 
-        if bpy.app.version > (3, 3, 0):
+        if bpy.app.version >= (3, 3, 0):
             row = layout.row()
             row.prop(settings, 'export_def_bones')
             row.active = settings.export_force_sampling

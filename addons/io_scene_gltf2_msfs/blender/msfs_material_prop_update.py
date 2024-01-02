@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import bpy
+
 from .material.msfs_material_anisotropic import MSFS_Anisotropic
 from .material.msfs_material_clearcoat import MSFS_Clearcoat
 from .material.msfs_material_environment_occluder import \
@@ -68,13 +70,33 @@ class MSFS_Material_Property_Update:
             return MSFS_Environment_Occluder(mat)
         elif mat.msfs_material_type == "msfs_ghost":
             return MSFS_Ghost(mat)
+        #print("Found Material to update - ", mat.msfs_material_type)
+        return None
+
+    @staticmethod
+    def update_FBW_material(self, context):
+        self.msfs_FBW_material_needs_update = not self.msfs_FBW_material_needs_update
+
+    @staticmethod
+    def update_msfs_material_mode(self, context):
+        print("updating mode")
+        #if self.msfs_material_type == "NONE":
+        #    msfs_mat = MSFS_Standard(self, buildTree=False)
+        #msfs_material_mode = msfs_material_type
+        return
 
     @staticmethod
     def update_msfs_material_type(self, context):
+        from datetime import datetime
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        if self.msfs_material_type != "NONE":
+            print(current_time, " - Update Material- %s - %s"   % (self.name,self.msfs_material_type))
         msfs_mat = None
         if self.msfs_material_type == "msfs_standard":
             msfs_mat = MSFS_Standard(self, buildTree=True)
-            self.msfs_alpha_mode = "OPAQUE"
+            if self.msfs_alpha_mode is None:
+                self.msfs_alpha_mode = "OPAQUE"
         elif self.msfs_material_type == "msfs_geo_decal":
             msfs_mat = MSFS_Geo_Decal(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
@@ -85,6 +107,8 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Windshield(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
             self.msfs_metallic_factor = 0.0
+            self.msfs_roughness_factor = 0.0
+            self.msfs_base_color_factor = [1.0, 1.0, 1.0, 0.01]
         elif self.msfs_material_type == "msfs_porthole":
             msfs_mat = MSFS_Porthole(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
@@ -92,12 +116,16 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Glass(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
             self.msfs_metallic_factor = 0.0
+            self.msfs_roughness_factor = 0.0
+            self.msfs_base_color_factor = [1.0, 1.0, 1.0, 0.01]
         elif self.msfs_material_type == "msfs_clearcoat":
             msfs_mat = MSFS_Clearcoat(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
         elif self.msfs_material_type == "msfs_parallax":
             msfs_mat = MSFS_Parallax(self, buildTree=True)
             self.msfs_alpha_mode = "MASK"
+            # Material Setting Blend_Method per rumbaflappy
+            self.blend_method = 'OPAQUE'
         elif self.msfs_material_type == "msfs_anisotropic":
             msfs_mat = MSFS_Anisotropic(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
@@ -111,6 +139,8 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Invisible(self, buildTree=True)
             self.msfs_no_cast_shadow = True
             self.msfs_alpha_mode = "BLEND"
+            self.msfs_base_color_factor = [0.8, 0.0, 0.0, 0.1]
+            self.msfs_emissive_factor = [0.8, 0.0, 0.0]
         elif self.msfs_material_type == "msfs_fake_terrain":
             msfs_mat = MSFS_Fake_Terrain(self, buildTree=True)
             self.msfs_alpha_mode = "OPAQUE"
@@ -121,22 +151,26 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Environment_Occluder(self, buildTree=True)
             self.msfs_no_cast_shadow = True
             self.msfs_alpha_mode = "BLEND"
+            self.msfs_base_color_factor = [0.0, 0.8, 0.0, 0.1]
+            self.msfs_emissive_factor = [0.0, 0.8, 0.0]
         elif self.msfs_material_type == "msfs_ghost":
             msfs_mat = MSFS_Ghost(self, buildTree=True)
             self.msfs_no_cast_shadow = True
             self.msfs_alpha_mode = "BLEND"
         else:
+            print(current_time, " - Reset Material")
             MSFS_Material_Property_Update.reset_material_prop_object(self)
             msfs_mat = MSFS_Material(self)
             msfs_mat.revertToPBRShaderTree()
             self.msfs_alpha_mode = "OPAQUE"
             return
+        print(current_time, " - Update DONE")
     
     @staticmethod
     def reset_material_prop_object(self):
         self.msfs_alpha_cutoff = 0.5
         self.msfs_base_color_blend_factor = 1.0
-        self.msfs_base_color_factor = [0.8, 0.8, 0.8, 1.0]
+        self.msfs_base_color_factor = [1.0, 1.0, 1.0, 1.0]
         self.msfs_base_color_texture = None
         self.msfs_blend_mask_texture = None
         self.msfs_clamp_uv_x = False
@@ -206,6 +240,7 @@ class MSFS_Material_Property_Update:
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None and type(msfs) is not MSFS_Invisible:
             msfs.setBaseColorTex(self.msfs_base_color_texture)
+            msfs.set_vertex_color_white(self, self.msfs_base_color_texture)
 
     @staticmethod
     def update_comp_texture(self, context):
@@ -230,6 +265,7 @@ class MSFS_Material_Property_Update:
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None and type(msfs) is not MSFS_Invisible:
             msfs.setDetailColorTex(self.msfs_detail_color_texture)
+            msfs.set_vertex_color_white(self, self.msfs_detail_color_texture)
 
     @staticmethod
     def update_detail_comp_texture(self, context):
@@ -305,6 +341,12 @@ class MSFS_Material_Property_Update:
             msfs.setNormalScale(self.msfs_normal_scale)
 
     @staticmethod
+    def update_vertexcolor_scale(self, context):
+        msfs = MSFS_Material_Property_Update.getMaterial(self)
+        if msfs is not None:
+            msfs.setVertexColorScale(self.msfs_vertexcolor_scale)
+
+    @staticmethod
     def update_color_sss(self, context):
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None and type(msfs) is MSFS_SSS:
@@ -317,6 +359,10 @@ class MSFS_Material_Property_Update:
     @staticmethod
     def update_alpha_cutoff(self, context):
         self.alpha_threshold = self.msfs_alpha_cutoff
+
+    @staticmethod
+    def update_detail_blend_threshold(self, context):
+        self.detail_blend_threshold = self.msfs_detail_blend_threshold
         
     @staticmethod
     def update_detail_uv(self, context):
