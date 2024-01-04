@@ -152,7 +152,7 @@ Steps for migration of fbw imported objects is similar to the standard migration
 1. Open your blend file.
 2. Select a node/mesh
 3. Open the `MSFS Material Params` Panel in the Material Properties
-    - You may see a `Pre-Migrate` button above the MSFS Material Params type drop down list.
+    - You may see a `Pre-Migrate Legacy Data` button above the MSFS Material Params type drop down list.
     - You will see a `Migrate Material Data` button above the MSFS Material Params type drop down list.
     - **DO NOT Select a MSFS Material from the drop down**, this will erase the existing legacy data and you will lose all your material settings.
 4. In the Material panel section, there are a number of panels you can opne.  One panel you have open is the "MSFS Material Params".  You should alos open the Preview panel, usually at the top of the Material panel section.
@@ -197,3 +197,7 @@ Note that each Microsoft Flight Simulator material will need to be migrated, but
 
 Finally, you may also notice that some MSFS Material Parameters show data but *cannot* be adjusted. This is in keeping with the ASOBO 3DS Max exporter material parameters.  Please raise an issue if this is not to your requirements.
 
+
+Figure 7 Custom Properties fbw Pre-Migrate
+
+![Custom Properties](../misc/MaterialMigration/CustomPropertiesMigration.png)
