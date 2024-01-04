@@ -4,21 +4,22 @@
 
 This repository contains the current version of a non-official Microsoft Flight Simulator Blender Import/Export plugin. The flight sim community has already developed and forked the original project many times, and Asobo's intention is to fully support Blender with the help and contributions of all the developers that have already implemented features in the different unofficial Blender plugins.
 
->Asobo would especially like to thank the following people: <br>
+>Asobo would especially like to thank the following people:
 >Vitus of [Wing42](https://wing42.com/), [tml1024](https://github.com/tml1024), [ronh991](https://github.com/ronh991), [pepperoni505](https://github.com/pepperoni505) of [FlyByWire](https://flybywiresim.com/)
 
 :warning: This plugin cannot import glTF files that have been built into a Microsoft Flight Simulator package through the Sim's Package Builder.
-<br>
+
 :warning: This plugin is NOT compatible with the legacy exporter developed for FSX and P3D and MSFS.  Remove these plugin (Prefered) or disabled these plugins.
-<br>
+
 :warning: The version 1.6.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
 *******
 
 # Summary
+
 - [How to Install the Add-on](#how-to-install-the-add-on)
   - [How to Install the ASOBO Blender MSFS Importer/Exporter using Blender:](#how-to-install-the-asobo-blender-msfs-importerexporter-using-blender)
-  - [How to Install the ASOBO Blender msfs exporter by Copy/Paste to AppData](#how-to-install-the-asobo-blender-msfs-exporter-by-copypaste-to-appdata)
+  - [How to Install the ASOBO Blender MSFS exporter by Copy/Paste to AppData](#how-to-install-the-asobo-blender-msfs-exporter-by-copypaste-to-appdata)
 - [How to remove the Add-on](#how-to-remove-the-add-on)
 - [Documentation](#documentation)
 - [Notes On Shadertree](#notes-on-shadertree)
@@ -49,8 +50,6 @@ There are two ways to install the MSFS Blender exporter. Either using the Edit P
 
 ![Edit Preferences - Enable](misc/Install/Enable_checkbox_addon.png)
 
-<br>
-
 ## How to Install the ASOBO Blender msfs exporter by Copy/Paste to AppData
 
 1. Close Blender if you have it open.
@@ -74,15 +73,14 @@ After completing the process outlined above, you will need to start Blender and 
 
 ![Edit Preferences](misc/Install/Edit_Pref.png)
 
-
 2. Select the Add-ons tab. Search for the `Microsoft Flight Simulator glTF Extension` Importer/Exporter add-on in the search box. Delete the `Import-Export: Microsoft Flight Simulator gltf Extension` using the `Remove` button.<br>  
 :warning: DO NOT DELETE THE `Import-Export: gltf 2.0 format` Add-on.
 
 ![Search Remove](misc/Install/Edit_Pref_search_rem.png)
 
 3. You should now have only the `Import-Export: gltf 2.0 format` addon left.
-4. Close the Blender program.
 
+4. Close the Blender program.
 
 # Documentation
 If you want to learn how to use this add-on you can refer to the documentation page here :
@@ -96,5 +94,3 @@ Shadertree modification directly impacts the result of the exporter.
 The properties of your material must only be modified through the `MSFS Material Panel` section.
 
 :warning: If you work with an MSFS Material you should never modify the shader tree manually.
-
-
