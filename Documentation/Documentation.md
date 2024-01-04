@@ -74,7 +74,8 @@ You need to set an export path that defines where you want to export your LOD(s)
 If you tick "Generate XML" checkbox, it will create the XML file for the families of LOD selected. For example selecting Cube, Cube_LOD0 or all of Cube's LODs will produce the same result and generate one file "Cube.XML" for the Cube family. You can also work with multiple families at once.
 
 #### Example:
-```
+
+```xml
     <?xml version="1.0" encoding="utf-8"?>
         <ModelInfo guid="{1b7127b5-7223-4980-8cc0-3b5417cb2412}" version="1.1">
             <LODS>
@@ -101,7 +102,7 @@ When all your presets are set up you can click on "Export" Button:
 
 ![Export Preset](../misc/MultiExporter/Preset_Export.png)
 
-### Settings View :
+### Settings View:
 
 Here you can find the various export settings (geometry, animations, materials...etc) from the glTF export in Blender. You can disable the Microsoft Flight Simulator Extensions if you want to export your models as pure glTF(s) following the Khronos Schemas.
 

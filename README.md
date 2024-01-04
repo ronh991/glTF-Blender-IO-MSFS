@@ -1,8 +1,44 @@
 [![MSFS](misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](misc/Logos/asobo_logo.png)](https://www.asobostudio.com/) <img src="misc/Logos/glTF_logo.png" width="180" height="90">
 
 # Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
-
+  
 This repository contains the current version of a non-official Microsoft Flight Simulator Blender Import/Export plugin. The flight sim community has already developed and forked the original project many times, and Asobo's intention is to fully support Blender with the help and contributions of all the developers that have already implemented features in the different unofficial Blender plugins.
+
+:warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
+
+v1.3.20 (Blender 3.3.x and 3.6.x) v2.0.1 (Blender 4.0.x)
+
+# ASOBO issues and enhancements
+
+  #213 Emissive strength
+
+  #214 Parallax (should work)
+
+  #220 Projected Mesh invisible in Simulator - Not fixed
+
+  #248 Multiple empty animations on export - you must manually checkboxes
+
+  #252 Vertex Color Rainbow -  mod applied - fixed
+
+  #266 Glass and standard render in sim differently - with same parameters. - not fixed
+
+  #269 Comp textures are not being included from saved v292 .blend files - fbw migration added to help fix this
+
+  #279 Addon defaults to a base color value of 0.8 - modified numerous default values.
+
+  #280 Blender Exporting ERROR (Long Code) - core Khronos code issue - not fixed
+
+  #281 Exporter doesn't take collections in account - not fixed
+
+  #284 Current XML are being completely overwritten on export - not fixed
+
+  #289 Color Attributes (Vertex Painting) wrong in shader - mod added
+
+  #290 Add function - To delete all glTf Settings.xxx and reassign to Proper glTf Settings - mod added
+
+  #291 Jetway wheel animation not working. not fixed
+
+  #294 Enhancement - Change RGB Curves to show Blue channel as all 1's (white) - mod added
 
 >Asobo would especially like to thank the following people:
 >Vitus of [Wing42](https://wing42.com/), [tml1024](https://github.com/tml1024), [ronh991](https://github.com/ronh991), [pepperoni505](https://github.com/pepperoni505) of [FlyByWire](https://flybywiresim.com/)
@@ -73,7 +109,7 @@ After completing the process outlined above, you will need to start Blender and 
 
 ![Edit Preferences](misc/Install/Edit_Pref.png)
 
-2. Select the Add-ons tab. Search for the `Microsoft Flight Simulator glTF Extension` Importer/Exporter add-on in the search box. Delete the `Import-Export: Microsoft Flight Simulator gltf Extension` using the `Remove` button.<br>  
+2. Select the Add-ons tab. Search for the `Microsoft Flight Simulator glTF Extension` Importer/Exporter add-on in the search box. Delete the `Import-Export: Microsoft Flight Simulator gltf Extension` using the `Remove` button.
 :warning: DO NOT DELETE THE `Import-Export: gltf 2.0 format` Add-on.
 
 ![Search Remove](misc/Install/Edit_Pref_search_rem.png)
