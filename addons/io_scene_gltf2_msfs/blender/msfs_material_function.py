@@ -1101,7 +1101,7 @@ class MSFS_Material:
             for obj in bpy.context.scene.objects:
                 if obj.type == 'MESH':
                     for mat_slot in obj.material_slots:
-                        if mat_slot.material.name == mat.name:
+                        if mat_slot.material is not None and mat_slot.material.name == mat.name:
                             if len(obj.data.color_attributes) > 0:
                             #for ca in obj.data.color_attributes:
                                 #if ca.name == 'Vertex_Color_White':

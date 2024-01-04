@@ -89,14 +89,13 @@ class MSFSMaterial:
         if type == "DEFAULT":
             link = links.new(shader_node.inputs["Base Color"], texture_node.outputs[0])
 
-# had to add in a default texture argument for compatability with 4.0+  added (),
+            # had to add in a default texture argument for compatability with 4.0+  added (),
             texture_info = gather_texture_info(
                 shader_node.inputs["Base Color"],
                 (shader_node.inputs["Base Color"],),
                 (),
                 export_settings,
             )
-            print("MSFSMaterial - texture_info", texture_info)
         elif type == "NORMAL":
             normal_node = nodes.new("ShaderNodeNormalMap")
             if normal_scale:
