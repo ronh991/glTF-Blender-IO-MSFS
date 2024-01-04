@@ -105,9 +105,10 @@ class Export:
         base_color = blender_material.msfs_base_color_factor
         gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
         print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3])
-        if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
-            print("gather_material_hook - changing")
-            gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
+        if  not (base_color is None or gltf2_base_color is None):
+            if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
+                print("gather_material_hook - changing")
+                gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
         print("gather_material_hook - blender material - set base color after", blender_material, blender_material.msfs_base_color_texture, blender_material.msfs_base_color_factor, gltf2_material.pbr_metallic_roughness.base_color_factor)
         if self.properties.enabled:
             print("gather_material_hook - export")

@@ -6,7 +6,7 @@ This repository contains the current version of a non-official Microsoft Flight 
 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
 
-v1.3.20 (Blender 3.3.x and 3.6.x) v2.0.1 (Blender 4.0.x)
+v1.6.2.20 (Blender 3.3.x and 3.6.x) v2.0.1.20 (Blender 4.0.x)
 
 # ASOBO issues and enhancements
 
