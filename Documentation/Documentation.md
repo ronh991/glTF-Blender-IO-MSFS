@@ -125,7 +125,7 @@ Once you have performed a migration, you should look at the shader nodes in your
     - You will see a `Migrate Material Data` button above the MSFS Material Params type drop down list.
     - **DO NOT Select a MSFS Material from the drop down**, this will erase the existing legacy data and you will lose all your material settings.
 4. Click on the "Migrate Material Data" button
-    - Your existing legacy material type/mode will be conoverted to the new ASOBO MSFS material type shader node structure.
+    - Your existing legacy material type/mode will be converted to the new ASOBO MSFS material type shader node structure.
 
 Figure 1 Before migration
 
@@ -147,7 +147,7 @@ After migration SAVE YOUR FILE AS A NEW FILE and keep your legacy blend file for
 
 ### Migration of fbw (Fly-By-Wire) Blend File Material Types/Modes
 
-Steps for migration of fbw imported objects is similar to the standard migration described above.  However the fbw importer creates materials that may not be one-to-one compatable with the ASOBO exporter. As an example the glass material in the fbw node structure may translate to PortHole material.  In this case the material may have a "Pre-Migrate" button that will help with the translation of data.
+Steps for migration of fbw imported objects is similar to the standard migration described above.  However the fbw importer creates materials that may not be one-to-one compatable with the ASOBO exporter. As an example the Glass material in the fbw node structure may translate to PortHole material.  In this case the material may have a "Pre-Migrate Legacy Data" button that will help with the translation of data.
 
 1. Open your blend file.
 2. Select a node/mesh
@@ -155,37 +155,29 @@ Steps for migration of fbw imported objects is similar to the standard migration
     - You may see a `Pre-Migrate Legacy Data` button above the MSFS Material Params type drop down list.
     - You will see a `Migrate Material Data` button above the MSFS Material Params type drop down list.
     - **DO NOT Select a MSFS Material from the drop down**, this will erase the existing legacy data and you will lose all your material settings.
-4. In the Material panel section, there are a number of panels you can opne.  One panel you have open is the "MSFS Material Params".  You should alos open the Preview panel, usually at the top of the Material panel section.
+4. In the Material panel section, there are a number of panels you can open.  One panel you have open is the "MSFS Material Params".  You should also open the Preview panel, usually at the top of the Material panel section.
 5. View the material in the Preview panel of the object you have selected. Note how it looks. Note the MSFS Material Params - Type (drop down box)
 6. Click on the "Pre-Migrate" button
     - Your existing legacy/fbw material type/mode data will replace default data so it will/can be converted to the new ASOBO MSFS material type shader node structure in a later step.
 
 Figure 3 Before fbw Pre-Migrate
 
-![Before](../misc/MaterialMigration/BeforeMigration.png)
+![Before](../misc/MaterialMigration/FBWBeforeMigration.png)
 
 Figure 4 After fbw Pre-Migrate
 
-![After](../misc/MaterialMigration/AfterMigration.png)
+![After](../misc/MaterialMigration/FBWAfterMigration.png)
 
 7. Now note how the Preview looks.  If the preview has NOT changed significantly, it is safe to do the final Migration step.
-    - If the preview has changed significantly, then further manula migration notations and adjustments will be require - see bolow
+    - If the preview has changed significantly, then further manual migration notations and adjustments will be require - see bolow
 8. Click on the "Migrate Material Data" button
-    - Your existing legacy material type/mode will be conoverted to the new ASOBO MSFS material type shader node structure.
-
-Figure 5 Before fbw Pre-Migrate
-
-![Before](../misc/MaterialMigration/FBWBeforeMigration.png)
-
-Figure 6 After fbw Pre-Migrate
-
-![After](../misc/MaterialMigration/FBWAfterMigration.png)
+    - Your existing legacy material type/mode will be converted to the new ASOBO MSFS material type shader node structure.
 
 ### Pre-Migration Preview has changed the material significantly
 
 1. Open the Custom Properties panel in the Material panel section.
 
-2. You will see the behind the scenes data and variables that the exporter, both legacy, fbw and current ASOBO exporter use in exporting data to the gltf files for the material (BTW this is why modifying the surface panel or nodes directly is not recommended, these custom properties DO NOT get updated)
+2. You will see the behind the scenes data and variables that the exporter, both legacy, fbw and current ASOBO exporter use in exporting data to the gltf files for the material (BTW this is why modifying the surface panel or nodes directly is not recommended, these custom properties DO NOT get updated). Note in this case the fbw material is GeoDecalFrosted, but should be Windshield as seen in the Custom Properties
 
 3. Note down any specific colors, textures that did not seem to get "migrated".  You may need to do a Pre-mirate and or Migrate and a CTRL+Z(Undo) back and forth to see what gets migrated and what does not.
 
@@ -198,6 +190,18 @@ Note that each Microsoft Flight Simulator material will need to be migrated, but
 Finally, you may also notice that some MSFS Material Parameters show data but *cannot* be adjusted. This is in keeping with the ASOBO 3DS Max exporter material parameters.  Please raise an issue if this is not to your requirements.
 
 
-Figure 7 Custom Properties fbw Pre-Migrate
+
+Figure 5 Custom Properties fbw Pre-Migrate
 
 ![Custom Properties](../misc/MaterialMigration/CustomPropertiesMigration.png)
+Figure 6 Before fbw Pre-Migrate
+
+![Before](../misc/MaterialMigration/FBWSigBeforePreMigration.png)
+
+Figure 7 After fbw Pre-Migrate
+
+![After](../misc/MaterialMigration/FBWsigAfterPreMigration.png)
+
+Figure 8 After fbw Pre-Migrate
+
+![After](../misc/MaterialMigration/FBWsigAfterMigration.png)
