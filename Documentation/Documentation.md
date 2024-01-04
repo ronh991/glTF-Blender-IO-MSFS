@@ -202,6 +202,6 @@ Figure 7 After fbw Pre-Migrate
 
 ![After](../misc/MaterialMigration/FBWsigAfterPreMigration.png)
 
-Figure 8 After fbw Pre-Migrate
+Figure 8 After Migrate Data
 
 ![After](../misc/MaterialMigration/FBWsigAfterMigration.png)
