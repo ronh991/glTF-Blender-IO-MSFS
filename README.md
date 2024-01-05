@@ -6,7 +6,7 @@ This repository contains the current version of a non-official Microsoft Flight 
 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
 
-v1.6.2.20 (Blender 3.3.x and 3.6.x) v2.0.1.20 (Blender 4.0.x)
+v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
 
 # ASOBO issues and enhancements
 
@@ -40,6 +40,17 @@ v1.6.2.20 (Blender 3.3.x and 3.6.x) v2.0.1.20 (Blender 4.0.x)
 
   #294 Enhancement - Change RGB Curves to show Blue channel as all 1's (white) - mod added
 
+# My Issues
+
+  #8 not export emission day night cycle extension - fixed bug introduced
+
+# Enhancements
+
+  Some default values for Metallic, Roughness, Emissive, Base Color have been reset
+  Max emissive strength now 100 (not the same a Emissive Factor)
+  Vertex Color added to exported data and now shows in Blender - Shader nodes added with links
+  Normal - Blue Channel set to default to 1 (White)
+
 >Asobo would especially like to thank the following people:
 >Vitus of [Wing42](https://wing42.com/), [tml1024](https://github.com/tml1024), [ronh991](https://github.com/ronh991), [pepperoni505](https://github.com/pepperoni505) of [FlyByWire](https://flybywiresim.com/)
 
@@ -47,7 +58,9 @@ v1.6.2.20 (Blender 3.3.x and 3.6.x) v2.0.1.20 (Blender 4.0.x)
 
 :warning: This plugin is NOT compatible with the legacy exporter developed for FSX and P3D and MSFS.  Remove these plugin (Prefered) or disabled these plugins.
 
-:warning: The version 1.6.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
+:warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
+
+:warning: The version 2.0.1.x is only compatible with Blender 4.0.x. Other versions are not supported.
 
 *******
 
