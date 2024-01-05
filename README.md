@@ -81,7 +81,7 @@ There are two ways to install the MSFS Blender exporter. Either using the Edit P
 
 ## How to Install the ASOBO Blender MSFS Importer/Exporter using Blender:
 
-1. Go to the Releases section of the https://github.com/AsoboStudio/glTF-Blender-IO-MSFS repository. Then download the zip file `io_scene_gltf2_msfs.zip`.
+1. Go to the Releases section of the https://github.com/ronh991/glTF-Blender-IO-MSFS/releases repository. Then download the zip file `io_scene_gltf2_msfs_for36.zip` for Blender 3.6.x or the pre-release version `io_scene_gltf2_msfs_for40.zip` for Blender 4.0.x.
 
 ![Download Release](misc/Install/Download_rel.png)
 
