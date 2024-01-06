@@ -1,8 +1,18 @@
 <!-- [![MSFS](../misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](../misc/Logos/asobo_logo.png)](https://www.asobostudio.com/) <img src="../misc/Logos/glTF_logo.png" width="180" height="90"> -->
 
-# Documentation for Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
+# Documentation for Microsoft Flight Simulator glTF 2.0 Exporter for Blender
 
 First of all, this addon adds some panels and options needed to have a correct model export ready to be used in the sim.
+
+## ONLY USE THE MSFS MATERIAL PARMS panel
+
+The exporter plugin works in the following manner. You add an object/mesh to build your aircraft/scenery and then you add a Blender material to that object. At this point there is NO MSFS Material data associated to the mesh, so if you export the mesh to create a glTf file, there will be no material shown in the sim.  The default material nodes in Blender are not associated to MSFS Material data. Blender has a default "Surface" panel and the ASOBO exporter adds an "MSFS Material Params" panel to the Data Properties - Blender Material section. To add/change the way the object/mesh looks, always manipulate the data in the "MSFS Material Params" panel.
+
+The Shader nodes and Blender data work together with the ASOBO exporter msfs_* data.  The msfs_* variables are what's used to export data values to the glTf file, NOT the shader nodes.  The shader nodes are only used to "show" you how the material will be represented in the sim. The data flows in one direction only.  From MSFS Material Params panel to msfs_* variables to shader nodes to Blender renderer.  If you manipulate the shader nodes directly, there is no mechanism to adjust the export msfs_* variable data. If you manipulate the "Surface" panel, there is no mechanism to update the msfs_* variable data also.
+
+These msfs_* variables can be seen in the "Custom Properties" in the Data Properties - Blender Material section. (But don't manipulate these either.)
+
+The Material Properties section below shows you how to build/add an MSFS Material to the blend file for use in the sim. One example of the msfs_* data variable is msfs_base_color_texture, which in this case holds the name of the base color texture filename.
 
 ## Summary
 
@@ -23,7 +33,7 @@ First of all, this addon adds some panels and options needed to have a correct m
 
 ![Set Material Type](../misc/Materials/Set_Material_Type.png)
 
-- When you set a Flight Simulator Material, you have to edit the material propreties from the MSFS Material Params only, if you edit the shader nodes it will break the export :
+- When you set a Flight Simulator Material, you have to edit the material properties from the MSFS Material Params only, if you edit the shader nodes it will break the export :
 
 ![Edit Material](../misc/Materials/Edit_Material.png)
 
