@@ -81,33 +81,38 @@ There are two ways to install the MSFS Blender exporter. Either using the Edit P
 
 ## How to Install the ASOBO Blender MSFS Importer/Exporter using Blender:
 
-1. Go to the Releases section of the https://github.com/AsoboStudio/glTF-Blender-IO-MSFS repository. Then download the zip file `io_scene_gltf2_msfs.zip`.
+1. Go to the Releases section of the https://github.com/ronh991/glTF-Blender-IO-MSFS/releases repository. Then download the zip file `io_scene_gltf2_msfs_for36.zip` for Blender 3.6.x or the pre-release version `io_scene_gltf2_msfs_for40.zip` for Blender 4.0.x.
 
 ![Download Release](misc/Install/Download_rel.png)
 
 2. Open Blender and go to : Edit > Preferences.
 
-![Edit Preferences - Add](misc/Install/Edit_Pref.png)
+ ![Edit Preferences - Add](misc/Install/Edit_Pref.png)
 
 3. Go to Add-ons and click on Install an add-on. This will bring up a file dialog, where you navigate to the folder where you have your `io_scene_gltf2_msfs.zip` downloaded file.
 
 4. Select the `io_scene_gltf2_msfs.zip` file.  And click on the Install Add-on button.
 
-![Edit Preferences - Install](misc/Install/Edit_Pref_install.png)
+ ![Edit Preferences - Install](misc/Install/Edit_Pref_install.png)
 
 5. Enable the Add-on by clicking on the checkbox.
 
-![Edit Preferences - Enable](misc/Install/Enable_checkbox_addon.png)
+ ![Edit Preferences - Enable](misc/Install/Enable_checkbox_addon.png)
 
 ## How to Install the ASOBO Blender msfs exporter by Copy/Paste to AppData
 
 1. Close Blender if you have it open.
-2. Go to the Releases section of the https://github.com/AsoboStudio/glTF-Blender-IO-MSFS repository. Then download the zip file `io_scene_gltf2_msfs.zip`
+
+2. Go to the Releases section of the https://github.com/ronh991/glTF-Blender-IO-MSFS/releases repository. Then download the zip file `io_scene_gltf2_msfs_for36.zip` for Blender 3.6.x or the pre-release version `io_scene_gltf2_msfs_for40.zip` for Blender 4.0.x.
+
 3. Decompress the contents of the file to a temporary location.
+
 4. Select the `io_scene_gltf2_msfs` folder then copy it to the clipboard (Ctrl + "C").
+
 5. Now browse to the Blender `addons` folder, which - by default - can be found in the following locations:
    - **Windows**: This will usually be in `%AppData%\Blender Foundation\Blender\<blender-version>\scripts\addons\`.
    - **Mac OS X**: This will be in your Library (Press the *Option* key when in Finder's `Go` menu to open your Library folder): `\Users\<username>\Library\Application Support\Blender\<blender-version>\scripts\addons\`.
+
 6. Paste the `io_scene_gltf2_msfs` into the Blender `addons` folder (Ctrl + V).
 
 After completing the process outlined above, you will need to start Blender and then activate the plugin. Activation is done from Edit > Preferences, as shown in the image below:
