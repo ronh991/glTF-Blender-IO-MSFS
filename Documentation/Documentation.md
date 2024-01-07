@@ -125,27 +125,47 @@ You can also just export LODs one at a time manually from the File menu then sel
 Depending on your model the following settings are also needed (recommended):
 
   Include
+
      Selected Objects
+
      Visible Objects
 
   Transform - leave default
+
   Data
+
     Mesh
+
       Apply Modifiers
+
       remainder set to defaults
+
   Material - leave default
+
   Shape Keys - leave default
+
   Armature - leave default
+
   Skinning - leave default
+
   Lighting - leave default
+
   Compression - leave default unchecked
+
   Animation
+
     Animation mode - leave default - Actions
+
     Rest & Ranges - leave default
+
     Armature - leave default
+
     Shapekeys Animation - leave default
+
     Sampling Animations - uncheck this as it will bake all your animations and make the export run 10x longer.
+
     Optimize Animations - leave default - Optimize or the node will create numerous duplicate animations
+    
     Export Extensions - leave default as you will be exporting for MSFS
 
 You will be able to save these settings in the export dialog by first setting all the above values and then adding a name to the drop down at the top  "Operator Presets".  Press the + (plus sign) and give your presets a name.  This way starting a new project will be a one click process.  You could make a number of these presets for different export options.
