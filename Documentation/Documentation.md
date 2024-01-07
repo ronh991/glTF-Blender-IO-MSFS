@@ -152,11 +152,11 @@ You will be able to save these settings in the export dialog by first setting al
 
 Figure 1 File Export
 
-![File Export 1](../misc/exporter/FileExport1.png)
+![File Export 1](../misc/Exporter/FileExport1.png)
 
 Figure 2 File Export - Con't
 
-![File Export 2](../misc/exporter/FileExport2.png)
+![File Export 2](../misc/Exporter/FileExport2.png)
 
 ## Migrate Materials
 
