@@ -1,10 +1,10 @@
 <!-- [![MSFS](../misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](../misc/Logos/asobo_logo.png)](https://www.asobostudio.com/) <img src="../misc/Logos/glTF_logo.png" width="180" height="90"> -->
 
-# Documentation for Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
+# Documentation for Microsoft Flight Simulator glTF 2.0 Exporter for Blender
 
 First of all, this addon adds some panels and options needed to have a correct model export ready to be used in the sim.
 
-## ONLY USE THE MSFS MATERIAL PARMS panel
+## ONLY USE THE MSFS MATERIAL PARAMS panel
 
 The exporter plugin works in the following manner. You add an object/mesh to build your aircraft/scenery and then you add a Blender material to that object. At this point there is NO MSFS Material data associated to the mesh, so if you export the mesh to create a glTf file, there will be no material shown in the sim.  The default material nodes in Blender are not associated to MSFS Material data. Blender has a default "Surface" panel and the ASOBO exporter adds an "MSFS Material Params" panel to the Data Properties - Blender Material section. To add/change the way the object/mesh looks, always manipulate the data in the "MSFS Material Params" panel.
 
@@ -17,15 +17,15 @@ The Material Properties section below shows you how to build/add an MSFS Materia
 ## Summary
 
 1. [Materials Properties](#materials-properties)  
-2. [Lights Properties](#lights-propreties)
-3. [Objects Properties](#objects-propreties)
+2. [Lights Properties](#lights-properties)
+3. [Objects Properties](#objects-properties)
 4. [Multi-Exporter glTF 2.0](#multi-exporter-gltf-20)
-5. [Material Migration from Legacy and fbw (Fly-By-Wire importer)](#migrate-materials)
-
+5. [File Export glTF 2.0](#file-export-gltf-20)
+6. [Material Migration from Legacy and fbw (Fly-By-Wire importer)](#migrate-materials)
 
 ## Materials Properties:
 
-- When you select an object in Blender, you can access the material properties from the Object Ribbon on the right, under the Material Properties button. 
+- When you select an object in Blender, you can access the material properties from the Object Ribbon on the right, under the Material Properties button.
 
 ![Material Properties](../misc/Materials/Material_Propreties.png)
 
@@ -43,17 +43,17 @@ The Material Properties section below shows you how to build/add an MSFS Materia
 
 - If you want to learn more about the different materials listed and how to use them, you can refer to the SDK documentation on materials here: https://docs.flightsimulator.com/html/Asset_Creation/3DS_Max_Plugin/Materials.htm
 
-## Lights Propreties
+## Lights Properties
 
-Once you have created your model in Blender and are ready to start adding lights you can add a spot light and see a list of new parameters to be setted:
+Once you have created your model in Blender and are ready to start adding lights you can add a spot light and see a list of new parameters to be set:
 
 ![Light](../misc/MultiExporter/Lights.png)
 
 If you want to lean more on what are these parameters, you can refer to the SDK Documentation on lights here: https://docs.flightsimulator.com/html/Asset_Creation/3DS_Max_Plugin/Lights.htm
 
-## Objects Propreties
+## Objects Properties
 
-When you select an object, you can override its Unique ID that will be interprated by the sim using this checkbox here:
+When you select an object, you can override its Unique ID that will be interpreted by the sim using this checkbox here:
 
 ![Override Unique ID](../misc/MultiExporter/Override_Unique_ID.png)
 
@@ -117,6 +117,46 @@ When all your presets are set up you can click on "Export" Button:
 Here you can find the various export settings (geometry, animations, materials...etc) from the glTF export in Blender. You can disable the Microsoft Flight Simulator Extensions if you want to export your models as pure glTF(s) following the Khronos Schemas.
 
 ![Settings](../misc/MultiExporter/Settings.png)
+
+## File Export glTF 2.0:
+
+You can also just export LODs one at a time manually from the File menu then select Export.  Then select glTf 2.0 (gltf/glb).  You will be shown an export dialog like the Multi-Exporter.  Set the file type to "glTf Separate" from the default "glb" file type and add the folder used to save the textures you have used in you model. Usually it's ../texture, A relative path from where you will save the glTf model exported.  Check the "Remember Export Settings".
+
+Depending on your model the following settings are also needed (recommended):
+
+  Include
+     Selected Objects
+     Visible Objects
+
+  Transform - leave default
+  Data
+    Mesh
+      Apply Modifiers
+      remainder set to defaults
+  Material - leave default
+  Shape Keys - leave default
+  Armature - leave default
+  Skinning - leave default
+  Lighting - leave default
+  Compression - leave default unchecked
+  Animation
+    Animation mode - leave default - Actions
+    Rest & Ranges - leave default
+    Armature - leave default
+    Shapekeys Animation - leave default
+    Sampling Animations - uncheck this as it will bake all your animations and make the export run 10x longer.
+    Optimize Animations - leave default - Optimize or the node will create numerous duplicate animations
+    Export Extensions - leave default as you will be exporting for MSFS
+
+You will be able to save these settings in the export dialog by first setting all the above values and then adding a name to the drop down at the top  "Operator Presets".  Press the + (plus sign) and give your presets a name.  This way starting a new project will be a one click process.  You could make a number of these presets for different export options.
+
+Figure 1 File Export
+
+![File Export 1](../misc/exporter/FileExport1.png)
+
+Figure 2 File Export - Con't
+
+![File Export 2](../misc/exporter/FileExport2.png)
 
 ## Migrate Materials
 
