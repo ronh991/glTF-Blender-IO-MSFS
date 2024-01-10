@@ -51,6 +51,8 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
   Vertex Color added to exported data and now shows in Blender - Shader nodes added with links
   Normal - Blue Channel set to default to 1 (White)
 
+  Added more functionality to the migration of materials. If you import a glTF file using the fbw (Fly-By-Wire) importer, you will get material nodes that are not one for one in synch with the ASOBO exporter and a Pre-Migration will be required. The fbw materials will now carry over it's data to the new ASOBO shaders with better accuracy.  You will still need to monitor the migration of those materials.
+
 >Asobo would especially like to thank the following people:
 >Vitus of [Wing42](https://wing42.com/), [tml1024](https://github.com/tml1024), [ronh991](https://github.com/ronh991), [pepperoni505](https://github.com/pepperoni505) of [FlyByWire](https://flybywiresim.com/)
 
