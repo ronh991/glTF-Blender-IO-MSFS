@@ -705,6 +705,7 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                     for principled in bsdfnodes:
                         BSDF_Base_Color = principled.inputs["Base Color"].default_value
                         print("execute - BSDF to MSFS base color alpha", BSDF_Base_Color[0], mat.msfs_base_color_factor[0], BSDF_Base_Color[1], mat.msfs_base_color_factor[1], BSDF_Base_Color[2], mat.msfs_base_color_factor[2], BSDF_Base_Color[3], mat.msfs_base_color_factor[3])
+                        alpha = BSDF_Base_Color[3]
                         if BSDF_Base_Color[3] != mat.msfs_base_color_factor[3]:
                             print("alpha diff", BSDF_Base_Color[3], mat.msfs_base_color_factor[3])
                             if BSDF_Base_Color[3] == 1.0:
