@@ -1,4 +1,4 @@
-[![MSFS](misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](misc/Logos/asobo_logo.png)](https://www.asobostudio.com/) <img src="misc/Logos/glTF_logo.png" width="180" height="90">
+[![MSFS](misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](misc/Logos/asobo_logo.png)](https://www.asobostudio.com/)[![GS614](misc/Logos/gs614_logo.png)](https://www.gs614.ca/) <img src="misc/Logos/glTF_logo.png" width="180" height="90">
 
 # Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
   
