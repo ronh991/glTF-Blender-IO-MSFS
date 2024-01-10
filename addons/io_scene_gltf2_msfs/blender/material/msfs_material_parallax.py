@@ -58,7 +58,7 @@ class MSFS_Parallax(MSFS_Material):
         nodeAlbedoDetailMix = self.getNodeByName(MSFS_ShaderNodes.albedoDetailMix.value)
         nodeBehindGlassTex = self.getNodeByName(MSFS_ShaderNodes.behindGlassTex.value)
         nodeBaseColorMulRGB = self.getNodeByName(MSFS_ShaderNodes.baseColorMulRGB.value)
-        nodeVertexColorBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.vertexColorBaseMul.value)
+        nodeVertexColorBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.vertexBaseColorMul.value)
         nodeVertexColor = self.getNodeByName(MSFS_ShaderNodes.vertexColor.value)
         nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
 

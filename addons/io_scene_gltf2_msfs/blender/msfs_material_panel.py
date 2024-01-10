@@ -499,6 +499,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
             finally:
                 pass
 
+
             # put Emissive color stuff here
 
 
@@ -528,8 +529,10 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                             mat.msfs_emissive_factor = mat.msfs_emissive_factor.default
                         if not equality_check(BSDF_Emission, mat.msfs_emissive_factor, len(BSDF_Emission), len(mat.msfs_emissive_factor)):
                             print("1")
-                            mat.msfs_emissive_factor = BSDF_Emission
+                            mat.msfs_emissive_factor = emissive_tint_checkval
                             print("2")
+                        else:
+                            mat.msfs_emissive_factor = BSDF_Emissive
                         print("old_emissive_tint_color_diff - execute - Emissive Done")
                     elif mat.msfs_material_type == "NONE" and mat.msfs_material_mode == "NONE":
                         # SPECIAL now if you have had msfs properties values - assume msfs_standard - make a wild guess because there was data here from before.
@@ -668,6 +671,7 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                     for principled in bsdfnodes:
                         BSDF_Base_Color = principled.inputs["Base Color"].default_value
                         print("execute - BSDF to MSFS base color alpha", BSDF_Base_Color[0], mat.msfs_base_color_factor[0], BSDF_Base_Color[1], mat.msfs_base_color_factor[1], BSDF_Base_Color[2], mat.msfs_base_color_factor[2], BSDF_Base_Color[3], mat.msfs_base_color_factor[3])
+                        alpha = BSDF_Base_Color[3]
                         if BSDF_Base_Color[3] != mat.msfs_base_color_factor[3]:
                             print("alpha diff", BSDF_Base_Color[3], mat.msfs_base_color_factor[3])
                             if BSDF_Base_Color[3] == 1.0:
@@ -717,6 +721,7 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
         emissive_color = [0, 0, 0]
         if mat.get("msfs_color_emissive_mix"):
             mat.msfs_emissive_factor = mat.get("msfs_color_emissive_mix")[0:3]
+            print("execute - msfs_color_emissive_mix - Done", mat.msfs_emissive_factor)
         else:
             try:
                 print("execute - no msfs_color_emissive_mix", mat)
@@ -728,12 +733,16 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                 print("execute - Emissive Color - Error - emissive_tint not found skipping")
                 try:
                     nodes = mat.node_tree.nodes
-                    bsdfnodes = [n for n in nodes 
-                            if isinstance(n, bpy.types.ShaderNodeBsdfPrincipled)]
+                    bsdfnodes = [n for n in nodes if isinstance(n, bpy.types.ShaderNodeBsdfPrincipled)]
                     for principled in bsdfnodes:
                         BSDF_Emissive = principled.inputs["Emission"].default_value[0:3]
-                        print("execute - BSDF to MSFS base color alpha", BSDF_Emissive[0], mat.msfs_emissive_factor[0], BSDF_Emissive[1], mat.msfs_emissive_factor[1], BSDF_Emissive[2], mat.msfs_emissive_factor[2])
-                        emissive_color = BSDF_Emissive
+                        print("execute - BSDF to MSFS emissive", BSDF_Emissive[0], mat.msfs_emissive_factor[0], BSDF_Emissive[1], mat.msfs_emissive_factor[1], BSDF_Emissive[2], mat.msfs_emissive_factor[2])
+                        if not equality_check(BSDF_Emissive, mat.msfs_emissive_factor, len(BSDF_Emissive), len(mat.msfs_emissive_factor)):
+                            print("1M")
+                            emissive_color = mat.msfs_emissive_factor
+                            print("2M")
+                        else:
+                            emissive_color = BSDF_Emissive
                 except:
                     pass
             finally:
