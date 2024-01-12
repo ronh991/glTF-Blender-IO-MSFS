@@ -1,7 +1,9 @@
 [![MSFS](misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](misc/Logos/asobo_logo.png)](https://www.asobostudio.com/)[![GS614](misc/Logos/gs614_logo.png)](https://www.gs614.ca/) <img src="misc/Logos/glTF_logo.png" width="180" height="90">
 
-# Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
-  
+# Unofficial Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
+
+:warning: If you use this unofficial version of the ASOBO exporter, be aware that you will need to or it is highly recommended that you migrate your MSFS materials. They will NOT display with the Migrate Data button.  However this exporter has a number of shader node, shader node link changes and default factor value changes.  These changes will only be utilized if you reselect the MSFS material.  That is reselect the same MSFS material from the drop down - DO NOT SELECT DISABLED in the drop down.  Please make a backup of your original work before migration.
+
 This repository contains the current version of a non-official Microsoft Flight Simulator Blender Import/Export plugin. The flight sim community has already developed and forked the original project many times, and Asobo's intention is to fully support Blender with the help and contributions of all the developers that have already implemented features in the different unofficial Blender plugins.
 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
@@ -40,7 +42,7 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
 
   #294 Enhancement - Change RGB Curves to show Blue channel as all 1's (white) - mod added
 
-# My Issues
+# Unofficial Version (this version) Issues
 
   #8 not export emission day night cycle extension - fixed bug introduced
 
