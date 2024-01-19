@@ -60,13 +60,13 @@ def get_node_socket_msfs(blender_material, type, name, nodename):
     :param blender_material: a blender material for which to get the socket
     :return: a blender NodeSocket for a given type
     """
-    print("get_node_socket_msfs - start")
+    #print("get_node_socket_msfs - start")
     nodes = get_material_nodes_msfs(blender_material.node_tree, [blender_material], type, nodename)
     #TODOSNode : Why checking outputs[0] ? What about alpha for texture node, that is outputs[1] ????
     #nodes = [node for node in nodes if check_if_is_linked_to_active_output(node[0].outputs[0], node[1])]
     nodes = [node for node in nodes]
     inputs = sum([[(input, node[1]) for input in node[0].inputs if input.name == name] for node in nodes], [])
-    print("get_node_socket_msfs - done")
+    #print("get_node_socket_msfs - done")
     if inputs:
         return NodeSocket(inputs[0][0], inputs[0][1])
     return NodeSocket(None, None)
@@ -80,7 +80,7 @@ def get_socket_msfs(blender_material: bpy.types.Material, name: str, nodename: s
     :param name: the name of the socket
     :return: a blender NodeSocket
     """
-    print("get_socket_msfs - start")
+    #print("get_socket_msfs - start")
     if blender_material.node_tree and blender_material.use_nodes:
         #i = [input for input in blender_material.node_tree.inputs]
         #o = [output for output in blender_material.node_tree.outputs]
@@ -104,7 +104,7 @@ def get_socket_msfs(blender_material: bpy.types.Material, name: str, nodename: s
 
         return get_node_socket_msfs(blender_material, type, name, nodename)
 
-    print("get_socket_msfs - done")
+    #print("get_socket_msfs - done")
     return NodeSocket(None, None)
 
 
@@ -175,23 +175,23 @@ class MSFSMaterial:
 
         # Gather texture info
         if type == "DEFAULT":
+            link = links.new(shader_node.inputs["Base Color"], texture_node.outputs[0])
             # from Khronos gltf core example pbr sockets geather_texture_info
 
-            print("MSFSMaterial - export_image DEFAULT if")
+            print("MSFSMaterial - export_image DEFAULT if", link)
             base_color_socket = get_socket_msfs(blender_material, "Base Color", "FakeBSDFNode")
-            alpha_socket = get_socket_msfs(blender_material, "Alpha", "FakeBSDFNode")
+            #alpha_socket = get_socket_msfs(blender_material, "Alpha", "FakeBSDFNode")
 
             # keep sockets that have some texture : color and/or alpha
-            print("MSFSMaterial - socket", base_color_socket, alpha_socket)
+            print("MSFSMaterial - socket", base_color_socket)
             inputs = tuple(
-                socket for socket in [base_color_socket, alpha_socket]
+                socket for socket in [base_color_socket]
             )
             print("MSFSMaterial - inputs", inputs)
-            link = links.new(shader_node.inputs[0], texture_node.outputs[0])
 
             # had to add in a default socket argument for compatability with 4.0  added (),
             # had to remove the default socket argument for compatability with 4.1+  removed (),
-            print("MSFSMaterial - export_image DEFAULT if - sockets", shader_node.inputs[0], (shader_node.inputs[0],), shader_node.inputs[0].type)
+            print("MSFSMaterial - export_image DEFAULT if - sockets", inputs[0], inputs)
             for inp in inputs:
                 print("inputs",inp)
             texture_info = gather_texture_info(
@@ -204,19 +204,9 @@ class MSFSMaterial:
                 # (shader_node.inputs[0],),
                 # export_settings
             # )
-            print("MSFSMaterial - export_image DEFAULT if - return")
+            print("MSFSMaterial - export_image DEFAULT if - return", texture_info)
         elif type == "NORMAL":
             print("MSFSMaterial - export_image NORMAL if")
-
-            # from Khronos gltf core example pbr sockets geather_texture_info
-            normal_socket = get_socket_msfs(blender_material, "Normal", "FakeBSDFNode")
-
-            # keep sockets that have some texture : color and/or alpha
-            print("MSFSMaterial - normal socket", normal_socket)
-            inputs = tuple(
-                socket for socket in [normal_socket]
-            )
-            print("MSFSMaterial - inputs Normal", inputs)
 
             normal_node = nodes.new("ShaderNodeNormalMap")
             if normal_scale:
@@ -226,6 +216,15 @@ class MSFSMaterial:
                 shader_node.inputs["Normal"], normal_node.outputs[0]
             )
 
+           # from Khronos gltf core example pbr sockets geather_texture_info
+            normal_socket = get_socket_msfs(blender_material, "Normal", "FakeBSDFNode")
+
+            # keep sockets that have some texture : color and/or alpha
+            print("MSFSMaterial - normal socket", normal_socket)
+            inputs = tuple(
+                socket for socket in [normal_socket]
+            )
+            print("MSFSMaterial - inputs Normal", inputs)
             texture_info = gather_material_normal_texture_info_class(
                 inputs[0],
                 inputs,
@@ -238,6 +237,7 @@ class MSFSMaterial:
             # )
 
             links.remove(normal_blend_link)
+            print("MSFSMaterial - export_image NORMAL if - return", texture_info)
         elif type == "OCCLUSION":
             print("MSFSMaterial - export_image OCCLUSION if")
             # TODO: handle this - may not be needed
@@ -326,5 +326,5 @@ class MSFSMaterial:
     def export(gltf2_material, blender_material, export_settings):
         print("MSFSMaterial - export")
         for extension in MSFSMaterial.extensions:
-            print("MSFSMaterial - exlist", extension)
+            #print("MSFSMaterial - exlist", extension)
             extension.to_extension(blender_material, gltf2_material, export_settings)

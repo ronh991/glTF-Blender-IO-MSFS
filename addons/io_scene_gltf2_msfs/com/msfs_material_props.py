@@ -1203,15 +1203,15 @@ class AsoboMaterialDetail:
         from ..io.msfs_material import MSFSMaterial
         hasTexture = False
         result = {}
-        print("AsoboMaterialDetail - to extension")
+        print("AsoboMaterialDetail - to extension start")
         if (blender_material.msfs_material_type != "NONE" 
             and blender_material.msfs_material_type != "msfs_parallax" 
             and blender_material.msfs_material_type != "msfs_invisible" 
             and blender_material.msfs_material_type != "msfs_environment_occluder"):
 
-            print("AsoboMaterialDetail - to extension", blender_material.msfs_material_type)
+            print("AsoboMaterialDetail - to extension mat type", blender_material.msfs_material_type)
             if blender_material.msfs_detail_color_texture is not None:
-                print("AsoboMaterialDetail - to extension", blender_material.msfs_detail_color_texture)
+                print("AsoboMaterialDetail - to extension detail", blender_material.msfs_detail_color_texture)
                 result["detailColorTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_detail_color_texture,
@@ -1221,7 +1221,7 @@ class AsoboMaterialDetail:
                 hasTexture = True
 
             if blender_material.msfs_detail_normal_texture is not None:
-                print("AsoboMaterialDetail - to extension", blender_material.msfs_detail_normal_texture)
+                print("AsoboMaterialDetail - to extension normal", blender_material.msfs_detail_normal_texture)
                 result["detailNormalTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_detail_normal_texture,
@@ -1232,7 +1232,7 @@ class AsoboMaterialDetail:
                 hasTexture = True
 
             if blender_material.msfs_detail_occlusion_metallic_roughness_texture is not None:
-                print("AsoboMaterialDetail - to extension", blender_material.msfs_detail_occlusion_metallic_roughness_texture)
+                print("AsoboMaterialDetail - to extension Occlusion", blender_material.msfs_detail_occlusion_metallic_roughness_texture)
                 result["detailMetalRoughAOTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_detail_occlusion_metallic_roughness_texture,
@@ -1242,7 +1242,7 @@ class AsoboMaterialDetail:
                 hasTexture = True
 
             if blender_material.msfs_blend_mask_texture is not None:
-                print("AsoboMaterialDetail - to extension", blender_material.msfs_blend_mask_texture)
+                print("AsoboMaterialDetail - to extension blend mask", blender_material.msfs_blend_mask_texture)
                 result["blendMaskTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_blend_mask_texture,
@@ -1252,7 +1252,7 @@ class AsoboMaterialDetail:
                 hasTexture = True
             
             if hasTexture:
-                print("AsoboMaterialDetail - to extension  has texture")
+                print("AsoboMaterialDetail - to extension has texture")
                 if (blender_material.msfs_detail_uv_scale != AsoboMaterialDetail.Defaults.UVScale):
                     result["UVScale"] = blender_material.msfs_detail_uv_scale
                 if (blender_material.msfs_detail_blend_threshold != AsoboMaterialDetail.Defaults.blendThreshold):

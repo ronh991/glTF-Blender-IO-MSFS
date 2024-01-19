@@ -52,23 +52,27 @@ class Export:
         # does not work in:
         # def gather_mesh_hook(self, gltf2_mesh, blender_mesh, blender_object, vertex_groups, modifiers, skip_filter, materials, export_settings):
 
-        print("gather_asset_hook - Started with ", gltf2_asset)
-        for o in bpy.context.scene.objects:
-            print("gather_asset_hook - Scene Object",o)
+        #print("gather_asset_hook - Started with ", gltf2_asset)
+        selected_objects = bpy.context.selected_objects
+        active_object = bpy.context.active_object
+        for o in selected_objects:
+        #for o in bpy.context.scene.objects:
+            #print("gather_asset_hook - Scene Object",o)
             # only for meshes
             if o.type == 'MESH':
                 obj = o
-                print("gather_asset_hook - obj", obj, obj.data)
+                #print("gather_asset_hook - obj", obj, obj.data)
                 for ca in obj.data.color_attributes:
                     if ca.data_type != 'FLOAT_COLOR':
-                        print("gather_asset_hook - col before", obj, ca.domain, ca.data_type)
+                        #print("gather_asset_hook - col before", obj, ca.domain, ca.data_type)
                         bpy.context.view_layer.objects.active = obj
-                        print("gather_asset_hook - col view_layer", obj, ca.domain, ca.data_type)
+                        #print("gather_asset_hook - col view_layer", obj, ca.domain, ca.data_type)
                         bpy.ops.geometry.attribute_convert(mode='GENERIC', domain='CORNER', data_type='FLOAT_COLOR')
-                        print("gather_asset_hook - After", obj, obj.data)
+                        #print("gather_asset_hook - After", obj, obj.data)
                         for ca in obj.data.color_attributes:
-                            print("gather_asset_hook - col after", obj, ca.data_type)
-        print("gather_asset_hook - Done")
+                            #print("gather_asset_hook - col after", obj, ca.data_type)
+                            pass
+        #print("gather_asset_hook - Done")
 
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
         if self.properties.enabled:
@@ -105,9 +109,10 @@ class Export:
         # if it has a detail color texture then set basecolor to none
         print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
         print("gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
-        #if blender_material.msfs_detail_color_texture is not None:
-        #    gltf2_material.pbr_metallic_roughness.base_color_texture = None
-        #    print("gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        if blender_material.msfs_detail_color_texture is not None and blender_material.msfs_base_color_texture is None:
+            #blender_material.msfs_material_type == "msfs_windshield":
+            gltf2_material.pbr_metallic_roughness.base_color_texture = None
+            print("gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
         print("gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
 
         # blender 3.3 removes base color values with base color texture - have to add back in
@@ -118,7 +123,7 @@ class Export:
         if  not (base_color is None or gltf2_base_color is None):
             if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
                 print("gather_material_hook - changing")
-                #gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
+                gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
         print("gather_material_hook - blender material - set base color after", blender_material, blender_material.msfs_base_color_texture, blender_material.msfs_base_color_factor, gltf2_material.pbr_metallic_roughness.base_color_factor)
 
 
@@ -127,14 +132,14 @@ class Export:
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)
         print("gather_material_hook - Done")
 
-    def gather_texture_info_hook(self, gltf2_io, blender_shader_sockets, export_settings):
-        print("gather_texture_info_hook - Started with ", blender_shader_sockets)
-        print("exportsettings", export_settings)
-        print("io", gltf2_io.extensions, gltf2_io.extras, gltf2_io.index, gltf2_io.tex_coord)
-        if self.properties.enabled:
-            pass
-            #MSFSMaterial.export(gltf2_material, blender_material, export_settings)
-        print("gather_texture_info_hook - Done")
+    # def gather_texture_info_hook(self, gltf2_io, blender_shader_sockets, export_settings):
+        # print("gather_texture_info_hook - Started with ", blender_shader_sockets)
+        # print("exportsettings", export_settings)
+        # print("gather_texture_info_hook - io", gltf2_io.extensions, gltf2_io.extras, gltf2_io.index, gltf2_io.tex_coord)
+        # if self.properties.enabled:
+            # pass
+            # #MSFSMaterial.export(gltf2_material, blender_material, export_settings)
+        # print("gather_texture_info_hook - Done")
 
     # def gather_material_pbr_metallic_roughness_hook(self, gltf2_material, blender_material, orm_texture, export_settings):
         # print("gather_material_pbr_metallic_roughness_hook - Started with ", gltf2_material.base_color_texture)
