@@ -888,12 +888,14 @@ class MSFS_Material:
         self.link(nodeDetailColorTex.outputs[1], nodeBlendAlphaMap.inputs[1])
         self.link(nodeBaseColorA.outputs[0], nodeMulBaseColorA.inputs[1])
         self.link(nodeBaseColorRGB.outputs[0], nodeMulBaseColorRGB.inputs[self.inputs1])
-        self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
-        self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+        if nodeVertexColorBaseColorRGB is not None:
+            self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
+            self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no tex
         if not nodeBaseColorTex.image and not nodeDetailColorTex.image:
-            self.link(nodeBaseColorRGB.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs1])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeBaseColorRGB.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs1])
             self.link(nodeBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
 
         # has basecolor - no detailColor
@@ -902,7 +904,8 @@ class MSFS_Material:
             #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorTex.outputs[1], nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
-            self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
         # no basecolor - has detailColor
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
@@ -912,16 +915,18 @@ class MSFS_Material:
             # Alpha links
             self.link(nodeDetailColorTex.outputs[1],nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
-            self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
         # has both tex
         else:
             nodeBlendColorMap.blend_type = "MULTIPLY"
             nodeMulBaseColorRGB.blend_type = "MULTIPLY"
             #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
-            self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
+                self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
     def updateNormalLinks(self):
         nodeNormalTex = self.getNodeByName(MSFS_ShaderNodes.normalTex.value)
