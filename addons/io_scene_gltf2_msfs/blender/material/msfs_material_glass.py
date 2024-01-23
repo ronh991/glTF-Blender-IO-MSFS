@@ -21,3 +21,4 @@ class MSFS_Glass(MSFS_Material):
 
     def customShaderTree(self):
         super(MSFS_Glass, self).defaultShadersTree()
+        super(MSFS_Glass, self).createVertextFrame()

@@ -233,6 +233,7 @@ class MSFS_Material_Property_Update:
         self.msfs_wiper_2_state = 0.0
         self.msfs_wiper_3_state = 0.0
         self.msfs_wiper_4_state = 0.0
+        self.msfs_vertexcolor_scale = 0.5
         return
 
     @staticmethod
@@ -319,8 +320,12 @@ class MSFS_Material_Property_Update:
     @staticmethod
     def update_emissive_scale(self, context):
         msfs = MSFS_Material_Property_Update.getMaterial(self)
+        #if msfs is not None:
         if msfs is not None:
-            msfs.setEmissiveScale(self.msfs_emissive_scale)
+            if type(msfs) is MSFS_Windshield:
+                msfs.setEmissiveScale(0.1)
+            else:
+                msfs.setEmissiveScale(self.msfs_emissive_scale)
 
     @staticmethod
     def update_metallic_scale(self, context):

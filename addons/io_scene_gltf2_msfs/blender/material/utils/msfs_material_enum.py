@@ -68,6 +68,7 @@ class MSFS_ShaderNodesTypes(Enum):
     shaderNodeRGB = "ShaderNodeRGB"
     shaderNodeValue = "ShaderNodeValue"
     shaderNodeRGBCurve = "ShaderNodeRGBCurve"
+    shaderNodeCombineColor = "ShaderNodeCombineColor"
 
 class MSFS_FrameNodes(Enum):
     baseColorFrame = "Base Color Frame"
@@ -79,6 +80,7 @@ class MSFS_FrameNodes(Enum):
     anisotropicFrame = "Anisotropic Frame"
     parallaxFrame = "Parallax Frame"
     clearcoatFrame = "Clearcoat Frame"
+    vertexFrame = "Vertex Color and Alpha Painting"
 
 class MSFS_ShaderNodes(Enum):
     glTFSettings = "glTF Settings"
@@ -130,11 +132,18 @@ class MSFS_ShaderNodes(Enum):
     ShaderOutputMaterial = "Shader Output Material"
     vertexBaseColorMul = "Vertex Base Color Mul"
     principledBSDF = "Principled BSDF"
+    principledBSDFVertex = "Principled BSDF Vertex"
+    vertexcolorSeparate = "SplitVertexColor"
+    vertexalphaSeparate = "SplitVertexAlpha"
+    vertexcolorCombine = "CombineVertexColor"
+    vertexalphaCombine = "CombineVertexAlpha"
 
 class MSFS_AnisotropicNodes(Enum):
     anisotropicTex = "Anisotropic Texture"
     separateAnisotropic = "Separate Anisotropic"
 
+# Blender 4.0 has changed these names
+# fix with enum tuples https://jwodder.github.io/kbits/posts/multi-value-enum/
 class MSFS_PrincipledBSDFInputs(Enum):
     baseColor = "Base Color"
     subsurfaceColor = "Subsurface Color"
@@ -142,9 +151,10 @@ class MSFS_PrincipledBSDFInputs(Enum):
     roughness = "Roughness"
     anisotropic = "Anisotropic"
     anisotropicRotation = "Anisotropic Rotation"
-    clearcoat = "Clearcoat"
-    clearcoatRoughness = "Clearcoat Roughness"
-    emission = "Emission"
+    clearcoat = "Coat Weight" # need new name for blender 4.0
+    clearcoatRoughness = "Coat Roughness" # need new name for blender 4.0
+    clearcoatNormal = "Coat Normal" # need new name for blender 4.0
+    emission = "Emission Color"
     emissionStrength = "Emission Strength"
     alpha = "Alpha"
     normal = "Normal"
@@ -154,3 +164,7 @@ class MSFS_MixNodeInputs:
 
 class MSFS_MixNodeOutputs:
     outputs = [[0], [2]]
+
+# metallic factor, roughness factor, emissive strength, Alpha - Blender v 4.0+
+class MSFS_BSDFNodeInputs:
+    inputs = [[6, 9, 20, 21], [1, 2, 27, 4]]

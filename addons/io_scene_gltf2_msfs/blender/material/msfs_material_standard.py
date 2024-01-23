@@ -21,3 +21,4 @@ class MSFS_Standard(MSFS_Material):
 
     def customShaderTree(self):
         super(MSFS_Standard, self).defaultShadersTree()
+        super(MSFS_Standard, self).createVertextFrame()

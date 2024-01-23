@@ -24,11 +24,11 @@ bl_info = {
     "name": "Microsoft Flight Simulator glTF Extension",
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
-    "blender": (3, 3, 0),
-    "version": (1, 6, 2, 23),
+    "blender": (4, 1, 0),
+    "version": (2, 1, 0, 4),
     "location": "File > Import-Export",
     "category": "Import-Export",
-    "tracker_url": "https://github.com/AsoboStudio/glTF-Blender-IO-MSFS"
+    "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
 }
 
 #get the folder path for the .py file containing this function
@@ -279,5 +279,8 @@ class glTF2ExportUserExtension(Export):
         # We need to wait until we create the gltf2UserExtension to import the gltf2 modules
         # Otherwise, it may fail because the gltf2 may not be loaded yet
         from io_scene_gltf2.io.com.gltf2_io_extensions import Extension
+        #print("glTF2ExportUserExtension - __init__ start")
         self.Extension = Extension
+        #print("glTF2ExportUserExtension - __init__ extension", Extension)
         self.properties = bpy.context.scene.msfs_exporter_properties
+        #print("glTF2ExportUserExtension - __init__ properties", bpy.context.scene.msfs_exporter_properties)
