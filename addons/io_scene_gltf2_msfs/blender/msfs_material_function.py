@@ -55,11 +55,6 @@ class MSFS_Material:
         self.bsdfinputs9 = MSFS_BSDFNodeInputs.inputs[index_B4][1]
         self.bsdfinputs20 = MSFS_BSDFNodeInputs.inputs[index_B4][2]
         self.bsdfinputs21 = MSFS_BSDFNodeInputs.inputs[index_B4][3]
-
-        #print(self.outputs0)
-        #print(self.inputs0)
-        #print(self.inputs1)
-        #print(self.inputs2)
         
     def revertToPBRShaderTree(self):
         self.cleanNodeTree()
@@ -138,13 +133,9 @@ class MSFS_Material:
         else:
             gltfSettingsNodeTree = bpy.data.node_groups.new(MSFS_ShaderNodes.glTFSettings.value, MSFS_ShaderNodesTypes.shaderNodeTree.value)
             gltfSettingsNodeTree.nodes.new("NodeGroupInput")
-            if(bpy.app.version < (4, 0, 0)):
-                gltfSettingsNodeTree.inputs.new("NodeSocketFloat", "Occlusion")
-                gltfSettingsNodeTree.inputs[0].default_value = 1.000
-            else:
-                # now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
-                gltfSettingsNodeTree_socket = gltfSettingsNodeTree.interface.new_socket(name="Occlusion", description="", in_out='INPUT', socket_type="NodeSocketFloat")
-                gltfSettingsNodeTree_socket.default_value = 1.000
+            # now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
+            gltfSettingsNodeTree_socket = gltfSettingsNodeTree.interface.new_socket(name="Occlusion", description="", in_out='INPUT', socket_type="NodeSocketFloat")
+            gltfSettingsNodeTree_socket.default_value = 1.000
 
         nodeglTFSettings = self.addNode(
             name = MSFS_ShaderNodes.glTFSettings.value,
@@ -160,6 +151,65 @@ class MSFS_Material:
 
     def customShaderTree(self):
         raise NotImplementedError()
+
+    def createVertextFrame(self, All = False):
+        ## Vertex Frame                
+        vertexFrame = self.addNode(
+            name = MSFS_FrameNodes.vertexFrame.value,
+            typeNode = MSFS_ShaderNodesTypes.nodeFrame.value,
+            color = (0.65, 0.0, 0.73)  # 9900B7 needs changing
+        )
+
+        principledBSDFVertex = self.addNode(
+            name = MSFS_ShaderNodes.principledBSDFVertex.value,
+            typeNode = MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value,
+            location = (750.0, 1000.0),
+            hidden = True,
+            frame = vertexFrame
+        )
+
+        if All:
+            splitVertexColorNode = self.addNode(
+                name = MSFS_ShaderNodes.vertexcolorSeparate.value,
+                typeNode = MSFS_ShaderNodesTypes.shaderNodeSeparateColor.value,
+                location = (200.0, 1000.0),
+                width = 200.0,
+                hidden = False,
+                frame = vertexFrame
+            )
+
+        if All:
+            combineVertexColorNode = self.addNode(
+                name = MSFS_ShaderNodes.vertexcolorCombine.value,
+                typeNode = MSFS_ShaderNodesTypes.shaderNodeCombineColor.value,
+                location = (500.0, 1000.0),
+                width = 200.0,
+                hidden = False,
+                frame = vertexFrame
+            )
+
+        combineVertexAlphaNode = self.addNode(
+            name = MSFS_ShaderNodes.vertexalphaCombine.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeCombineColor.value,
+            location = (500.0, 800.0) if All else (500.0, 1000.0),
+            width = 200.0,
+            hidden = False,
+            frame = vertexFrame
+        )
+
+        vertexColorNode = self.getNodeByName(MSFS_ShaderNodes.vertexColor.value)
+
+        if All:
+            self.link(vertexColorNode.outputs[0], splitVertexColorNode.inputs[0])
+        if All:
+            self.link(splitVertexColorNode.outputs[0], combineVertexColorNode.inputs[0])
+        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[0])
+        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[1])
+        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[2])
+        if All:
+            self.link(combineVertexColorNode.outputs[0], principledBSDFVertex.inputs[0])
+        else:
+            self.link(combineVertexAlphaNode.outputs[0], principledBSDFVertex.inputs[0])
 
     def defaultShadersTree(self):
         principledBSDFNode = self.getNodesByClassName(MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value)[0]
@@ -376,8 +426,8 @@ class MSFS_Material:
             frame = baseColorFrame
         )
         
-        ## Links
-        VertexColorBaseColorMulNode.inputs[self.inputs0].default_value = 0.0
+        ## Links and default vertex scale
+        VertexColorBaseColorMulNode.inputs[self.inputs0].default_value = 0.5
         self.link(VertexColorBaseColorMulNode.inputs[self.inputs1], vertexColorNode.outputs[0])
 
         #### UV MAPS
@@ -734,6 +784,7 @@ class MSFS_Material:
         self.updateCompLinks()
         self.updateEmissiveLinks()
 
+
     def setAnisotropicTex(self, tex):
         nodeAnisotropicTex = self.getNodeByName(MSFS_AnisotropicNodes.anisotropicTex.value)
         nodeAnisotropicTex.image = tex
@@ -1053,6 +1104,7 @@ class MSFS_Material:
         # Since Eevee doesn't provide a dither mode, we'll just use alpha-blend instead.
         # It sucks, but what else is there to do?
         self.material.blend_method = "BLEND"
+
 
     #########################################################################
     def addNode(self, name = "", typeNode = "", location = (0.0, 0.0), hidden = True, width = 150.0, frame = None, color = (1.0, 1.0, 1.0), blend_type = "MIX", operation =  "ADD", data_type = "RGBA"):

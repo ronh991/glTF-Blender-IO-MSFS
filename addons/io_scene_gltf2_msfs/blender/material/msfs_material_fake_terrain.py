@@ -21,3 +21,4 @@ class MSFS_Fake_Terrain(MSFS_Material):
 
     def customShaderTree(self):
         super(MSFS_Fake_Terrain, self).defaultShadersTree()
+        super(MSFS_Fake_Terrain, self).createVertextFrame()

@@ -233,6 +233,7 @@ class MSFS_Material_Property_Update:
         self.msfs_wiper_2_state = 0.0
         self.msfs_wiper_3_state = 0.0
         self.msfs_wiper_4_state = 0.0
+        self.msfs_vertexcolor_scale = 0.5
         return
 
     @staticmethod

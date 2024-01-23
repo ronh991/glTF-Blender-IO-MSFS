@@ -106,7 +106,7 @@ class AsoboMaterialCommon:
         RoughnessFactor = 0.5
         NormalScale = 1.0
         EmissiveScale = 1.0
-        VertexColorScale = 0.0
+        VertexColorScale = 0.5
         AlphaMode = "OPAQUE"
         AlphaCutoff = 0.5
         DoubleSided = False
@@ -1553,7 +1553,6 @@ class AsoboWindshield:
 
         result = {}
         if blender_material.msfs_material_type == "msfs_windshield":
-            print("windshield - to_extension")
             result["rainDropScale"] = blender_material.msfs_rain_drop_scale
             result["wiper1State"] = blender_material.msfs_wiper_1_state
             result["wiper2State"] = blender_material.msfs_wiper_2_state

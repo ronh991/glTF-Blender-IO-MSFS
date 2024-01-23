@@ -64,8 +64,8 @@ class MSFS_Clearcoat(MSFS_Material):
             nodeClearcoat.image = tex
             nodeClearcoat.image.colorspace_settings.name = "Non-Color"
 
-            self.link(nodeClearcoatSeparate.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.clearcoat.value]) # input named Weight?
-            self.link(nodeClearcoatSeparate.outputs[1], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.clearcoatRoughness.value])  # input 19 just roughness??
+            self.link(nodeClearcoatSeparate.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.clearcoat.value])
+            self.link(nodeClearcoatSeparate.outputs[1], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.clearcoatRoughness.value])
         else:
-            self.unLinkNodeInput(nodePrincipledBSDF, MSFS_PrincipledBSDFInputs.clearcoat.value)   # probably need new nodelinks
+            self.unLinkNodeInput(nodePrincipledBSDF, MSFS_PrincipledBSDFInputs.clearcoat.value)
             self.unLinkNodeInput(nodePrincipledBSDF, MSFS_PrincipledBSDFInputs.clearcoatRoughness.value)

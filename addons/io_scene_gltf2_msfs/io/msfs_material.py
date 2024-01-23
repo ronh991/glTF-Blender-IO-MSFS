@@ -199,11 +199,6 @@ class MSFSMaterial:
                 inputs,
                 export_settings
             )
-            # texture_info = gather_texture_info(
-                # shader_node.inputs[0],
-                # (shader_node.inputs[0],),
-                # export_settings
-            # )
             print("MSFSMaterial - export_image DEFAULT if - return", texture_info)
         elif type == "NORMAL":
             print("MSFSMaterial - export_image NORMAL if")
@@ -230,11 +225,6 @@ class MSFSMaterial:
                 inputs,
                 export_settings
             )
-            # texture_info = gather_material_normal_texture_info_class(
-                # shader_node.inputs["Normal"],
-                # (shader_node.inputs["Normal"],),
-                # export_settings
-            # )
 
             links.remove(normal_blend_link)
             print("MSFSMaterial - export_image NORMAL if - return", texture_info)
@@ -324,7 +314,5 @@ class MSFSMaterial:
 
     @staticmethod
     def export(gltf2_material, blender_material, export_settings):
-        print("MSFSMaterial - export")
         for extension in MSFSMaterial.extensions:
-            #print("MSFSMaterial - exlist", extension)
             extension.to_extension(blender_material, gltf2_material, export_settings)
