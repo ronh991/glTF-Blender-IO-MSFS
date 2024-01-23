@@ -47,11 +47,6 @@ class MSFS_Material:
         self.inputs0 = MSFS_MixNodeInputs.inputs[index1][0]
         self.inputs1 = MSFS_MixNodeInputs.inputs[index1][1]
         self.inputs2 = MSFS_MixNodeInputs.inputs[index1][2]
-
-        #print(self.outputs0)
-        #print(self.inputs0)
-        #print(self.inputs1)
-        #print(self.inputs2)
         
     def revertToPBRShaderTree(self):
         self.cleanNodeTree()
@@ -147,6 +142,65 @@ class MSFS_Material:
 
     def customShaderTree(self):
         raise NotImplementedError()
+
+    def createVertextFrame(self, All = False):
+        ## Vertex Frame                
+        vertexFrame = self.addNode(
+            name = MSFS_FrameNodes.vertexFrame.value,
+            typeNode = MSFS_ShaderNodesTypes.nodeFrame.value,
+            color = (0.65, 0.0, 0.73)  # 9900B7 needs changing
+        )
+
+        principledBSDFVertex = self.addNode(
+            name = MSFS_ShaderNodes.principledBSDFVertex.value,
+            typeNode = MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value,
+            location = (750.0, 1000.0),
+            hidden = True,
+            frame = vertexFrame
+        )
+
+        if All:
+            splitVertexColorNode = self.addNode(
+                name = MSFS_ShaderNodes.vertexcolorSeparate.value,
+                typeNode = MSFS_ShaderNodesTypes.shaderNodeSeparateColor.value,
+                location = (200.0, 1000.0),
+                width = 200.0,
+                hidden = False,
+                frame = vertexFrame
+            )
+
+        if All:
+            combineVertexColorNode = self.addNode(
+                name = MSFS_ShaderNodes.vertexcolorCombine.value,
+                typeNode = MSFS_ShaderNodesTypes.shaderNodeCombineColor.value,
+                location = (500.0, 1000.0),
+                width = 200.0,
+                hidden = False,
+                frame = vertexFrame
+            )
+
+        combineVertexAlphaNode = self.addNode(
+            name = MSFS_ShaderNodes.vertexalphaCombine.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeCombineColor.value,
+            location = (500.0, 800.0) if All else (500.0, 1000.0),
+            width = 200.0,
+            hidden = False,
+            frame = vertexFrame
+        )
+
+        vertexColorNode = self.getNodeByName(MSFS_ShaderNodes.vertexColor.value)
+
+        if All:
+            self.link(vertexColorNode.outputs[0], splitVertexColorNode.inputs[0])
+        if All:
+            self.link(splitVertexColorNode.outputs[0], combineVertexColorNode.inputs[0])
+        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[0])
+        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[1])
+        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[2])
+        if All:
+            self.link(combineVertexColorNode.outputs[0], principledBSDFVertex.inputs[0])
+        else:
+            self.link(combineVertexAlphaNode.outputs[0], principledBSDFVertex.inputs[0])
 
     def defaultShadersTree(self):
         principledBSDFNode = self.getNodesByClassName(MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value)[0]
@@ -363,8 +417,8 @@ class MSFS_Material:
             frame = baseColorFrame
         )
         
-        ## Links
-        VertexColorBaseColorMulNode.inputs[self.inputs0].default_value = 0.0
+        ## Links and default vertex scale
+        VertexColorBaseColorMulNode.inputs[self.inputs0].default_value = 0.5
         self.link(VertexColorBaseColorMulNode.inputs[self.inputs1], vertexColorNode.outputs[0])
 
         #### UV MAPS
@@ -721,6 +775,7 @@ class MSFS_Material:
         self.updateCompLinks()
         self.updateEmissiveLinks()
 
+
     def setAnisotropicTex(self, tex):
         nodeAnisotropicTex = self.getNodeByName(MSFS_AnisotropicNodes.anisotropicTex.value)
         nodeAnisotropicTex.image = tex
@@ -875,12 +930,14 @@ class MSFS_Material:
         self.link(nodeDetailColorTex.outputs[1], nodeBlendAlphaMap.inputs[1])
         self.link(nodeBaseColorA.outputs[0], nodeMulBaseColorA.inputs[1])
         self.link(nodeBaseColorRGB.outputs[0], nodeMulBaseColorRGB.inputs[self.inputs1])
-        self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
-        self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+        if nodeVertexColorBaseColorRGB is not None:
+            self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
+            self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no tex
         if not nodeBaseColorTex.image and not nodeDetailColorTex.image:
-            self.link(nodeBaseColorRGB.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs1])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeBaseColorRGB.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs1])
             self.link(nodeBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
 
         # has basecolor - no detailColor
@@ -889,7 +946,8 @@ class MSFS_Material:
             #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorTex.outputs[1], nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
-            self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
         # no basecolor - has detailColor
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
@@ -899,16 +957,18 @@ class MSFS_Material:
             # Alpha links
             self.link(nodeDetailColorTex.outputs[1],nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
-            self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
         # has both tex
         else:
             nodeBlendColorMap.blend_type = "MULTIPLY"
             nodeMulBaseColorRGB.blend_type = "MULTIPLY"
             #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
-            self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            if nodeVertexColorBaseColorRGB is not None:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
+                self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
     def updateNormalLinks(self):
         nodeNormalTex = self.getNodeByName(MSFS_ShaderNodes.normalTex.value)
@@ -1035,6 +1095,7 @@ class MSFS_Material:
         # Since Eevee doesn't provide a dither mode, we'll just use alpha-blend instead.
         # It sucks, but what else is there to do?
         self.material.blend_method = "BLEND"
+
 
     #########################################################################
     def addNode(self, name = "", typeNode = "", location = (0.0, 0.0), hidden = True, width = 150.0, frame = None, color = (1.0, 1.0, 1.0), blend_type = "MIX", operation =  "ADD", data_type = "RGBA"):

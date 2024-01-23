@@ -54,7 +54,7 @@ class MSFSMaterial:
         MSFSMaterialExtensions.AsoboParallaxWindow,
         MSFSMaterialExtensions.AsoboGlass,
         MSFSMaterialExtensions.AsoboTags,
-        MSFSMaterialExtensions.AsoboMaterialCode,
+        MSFSMaterialExtensions.AsoboMaterialCode
     ]
 
     def __new__(cls, *args, **kwargs):
@@ -77,17 +77,25 @@ class MSFSMaterial:
     ):
         nodes = blender_material.node_tree.nodes
         links = blender_material.node_tree.links
+        
+        # should all be in a try finally to remove Fake nodes
+        # Fake Fake Fake Fake Fake Fake Fake Fake Fake Fake 
 
         # Create a fake texture node temporarily (unfortunately this is the only solid way of doing this)
         texture_node = nodes.new("ShaderNodeTexImage")
+        texture_node.name = "FakeTextureNode"
         texture_node.image = blender_image
 
         # Create shader to plug texture into
         shader_node = nodes.new("ShaderNodeBsdfPrincipled")
+        shader_node.name = "FakeBSDFNode"
+        print("MSFSMaterial - export_image type", type)
+
 
         # Gather texture info
         if type == "DEFAULT":
             link = links.new(shader_node.inputs["Base Color"], texture_node.outputs[0])
+            # from Khronos gltf core example pbr sockets geather_texture_info
 
             texture_info = gather_texture_info(
                 shader_node.inputs["Base Color"],
@@ -113,10 +121,12 @@ class MSFSMaterial:
         elif type == "OCCLUSION":
             # TODO: handle this - may not be needed
             texture_info = gather_material_occlusion_texture_info_class(
-                shader_node.inputs[0], (shader_node.inputs[0],), export_settings
+                shader_node.inputs[0],
+                (shader_node.inputs[0],),
+                export_settings
             )
 
-        # Delete temp nodes
+        # Delete temp Fake nodes
         links.remove(link)
         nodes.remove(shader_node)
         nodes.remove(texture_node)

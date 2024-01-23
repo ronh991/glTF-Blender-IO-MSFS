@@ -68,6 +68,7 @@ class MSFS_ShaderNodesTypes(Enum):
     shaderNodeRGB = "ShaderNodeRGB"
     shaderNodeValue = "ShaderNodeValue"
     shaderNodeRGBCurve = "ShaderNodeRGBCurve"
+    shaderNodeCombineColor = "ShaderNodeCombineColor"
 
 class MSFS_FrameNodes(Enum):
     baseColorFrame = "Base Color Frame"
@@ -79,6 +80,7 @@ class MSFS_FrameNodes(Enum):
     anisotropicFrame = "Anisotropic Frame"
     parallaxFrame = "Parallax Frame"
     clearcoatFrame = "Clearcoat Frame"
+    vertexFrame = "Vertex Color and Alpha Painting"
 
 class MSFS_ShaderNodes(Enum):
     glTFSettings = "glTF Settings"
@@ -130,6 +132,11 @@ class MSFS_ShaderNodes(Enum):
     ShaderOutputMaterial = "Shader Output Material"
     vertexBaseColorMul = "Vertex Base Color Mul"
     principledBSDF = "Principled BSDF"
+    principledBSDFVertex = "Principled BSDF Vertex"
+    vertexcolorSeparate = "SplitVertexColor"
+    vertexalphaSeparate = "SplitVertexAlpha"
+    vertexcolorCombine = "CombineVertexColor"
+    vertexalphaCombine = "CombineVertexAlpha"
 
 class MSFS_AnisotropicNodes(Enum):
     anisotropicTex = "Anisotropic Texture"
