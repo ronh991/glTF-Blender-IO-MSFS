@@ -151,13 +151,13 @@ class MSFS_Material:
             color = (0.65, 0.0, 0.73)  # 9900B7 needs changing
         )
 
-        principledBSDFVertex = self.addNode(
-            name = MSFS_ShaderNodes.principledBSDFVertex.value,
-            typeNode = MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value,
-            location = (750.0, 1000.0),
-            hidden = True,
-            frame = vertexFrame
-        )
+        # principledBSDFVertex = self.addNode(
+            # name = MSFS_ShaderNodes.principledBSDFVertex.value,
+            # typeNode = MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value,
+            # location = (750.0, 1000.0),
+            # hidden = False,
+            # frame = vertexFrame
+        # )
 
         if All:
             splitVertexColorNode = self.addNode(
@@ -183,6 +183,7 @@ class MSFS_Material:
             name = MSFS_ShaderNodes.vertexalphaCombine.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeCombineColor.value,
             location = (500.0, 800.0) if All else (500.0, 1000.0),
+            mode = "HSV",
             width = 200.0,
             hidden = False,
             frame = vertexFrame
@@ -194,13 +195,13 @@ class MSFS_Material:
             self.link(vertexColorNode.outputs[0], splitVertexColorNode.inputs[0])
         if All:
             self.link(splitVertexColorNode.outputs[0], combineVertexColorNode.inputs[0])
-        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[0])
-        self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[1])
+        #self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[0])
+        #self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[1])
         self.link(vertexColorNode.outputs[1], combineVertexAlphaNode.inputs[2])
-        if All:
-            self.link(combineVertexColorNode.outputs[0], principledBSDFVertex.inputs[0])
-        else:
-            self.link(combineVertexAlphaNode.outputs[0], principledBSDFVertex.inputs[0])
+        # if All:
+            # self.link(combineVertexColorNode.outputs[0], principledBSDFVertex.inputs[0])
+        # else:
+            # self.link(combineVertexAlphaNode.outputs[0], principledBSDFVertex.inputs[0])
 
     def defaultShadersTree(self):
         principledBSDFNode = self.getNodesByClassName(MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value)[0]
@@ -1098,7 +1099,7 @@ class MSFS_Material:
 
 
     #########################################################################
-    def addNode(self, name = "", typeNode = "", location = (0.0, 0.0), hidden = True, width = 150.0, frame = None, color = (1.0, 1.0, 1.0), blend_type = "MIX", operation =  "ADD", data_type = "RGBA"):
+    def addNode(self, name = "", typeNode = "", location = (0.0, 0.0), hidden = True, width = 150.0, frame = None, color = (1.0, 1.0, 1.0), blend_type = "MIX", operation =  "ADD", data_type = "RGBA", mode = "RGB"):
         if(self.nodes is not None):
             try:
                 node = self.nodes.new(typeNode)
@@ -1117,6 +1118,8 @@ class MSFS_Material:
                         node.data_type = data_type
                 elif(typeNode == MSFS_ShaderNodesTypes.shaderNodeMath.value or typeNode == MSFS_ShaderNodesTypes.shaderNodeVectorMath.value):
                     node.operation = operation
+                elif(typeNode == MSFS_ShaderNodesTypes.shaderNodeCombineColor.value):
+                    node.mode = mode
                 return node
             except ValueError:
                 print ("[ValueError] Type mismatch affectation.")
