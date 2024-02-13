@@ -334,6 +334,7 @@ class MSFS_Material:
             width = 200.0,
             frame = baseColorFrame
         )
+        #Input Factor
         blendColorMapNode.inputs[self.inputs0].default_value = 1.0
         
         # links
@@ -376,6 +377,8 @@ class MSFS_Material:
             width = 200.0,
             frame = baseColorFrame
         )
+        #Input Factor
+        mulBaseColorRGBNode.inputs[self.inputs0].default_value = 1.0
         
         ## Links
         self.link(mulBaseColorRGBNode.inputs[self.inputs0], vertexColorNode.outputs[1])
@@ -393,6 +396,7 @@ class MSFS_Material:
             width = 200.0,
             frame = baseColorFrame
         )
+        #Input Factor
         blendAlphaMapNode.inputs[0].default_value = 1.0
         
         ## Links
@@ -426,9 +430,20 @@ class MSFS_Material:
             width = 220.0,
             frame = baseColorFrame
         )
-        
-        ## Links and default vertex scale
+        #Input Factor
         VertexColorBaseColorMulNode.inputs[self.inputs0].default_value = 0.5
+
+        ## Vertex Color scale
+        # Out[0] : Vertex Base Color Multiplier -> In[0] 
+        vertexcolorScaleNode = self.addNode(
+            name = MSFS_ShaderNodes.vertexcolorScale.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeValue.value,
+            location = (50.0, 550.0), 
+            frame = baseColorFrame
+        )
+        vertexcolorScaleNode.outputs[0].default_value = 0.5
+        ## Links and default vertex scale
+        self.link(VertexColorBaseColorMulNode.inputs[self.inputs0], vertexcolorScaleNode.outputs[0])
         self.link(VertexColorBaseColorMulNode.inputs[self.inputs1], vertexColorNode.outputs[0])
 
         #### UV MAPS
@@ -575,12 +590,15 @@ class MSFS_Material:
             name = MSFS_ShaderNodes.blendCompMap.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeMixRGB.value if bpy.app.version < (3, 4, 0) else MSFS_ShaderNodesTypes.shaderNodeMix.value,
             data_type = "RGBA",
-            blend_type = "MULTIPLY",
+            blend_type = "ADD",
+            clamp_factor = False,
+            clamp_result = True,
             location = (-150.0, 200.0),
             width = 300.0,
             frame = omrFrame
-        )     
-        blendCompMapNode.inputs[0].default_value = 1.0
+        )
+        # Factor input
+        blendCompMapNode.inputs[self.inputs0].default_value = 1.0
         
         ## Links
         self.link(blendCompMapNode.inputs[self.inputs0], vertexColorNode.outputs[1])
@@ -662,6 +680,8 @@ class MSFS_Material:
             location = (200.0, 0.0),
             frame = emissiveFrame
         )
+        # Factor input
+        emissiveMulNode.inputs[self.inputs0].default_value = 1.0
 
         ## Emissive Color
         emissiveColorNode = self.addNode(
@@ -683,7 +703,9 @@ class MSFS_Material:
         self.link(emissiveTexNode.outputs[0], emissiveMulNode.inputs[self.inputs1])
         self.link(emissiveColorNode.outputs[0], principledBSDFNode.inputs[MSFS_PrincipledBSDFInputs.emission.value])
         self.link(emissiveScaleNode.outputs[0], principledBSDFNode.inputs[MSFS_PrincipledBSDFInputs.emissionStrength.value])
-        
+        # Input Factor
+        emissiveMulNode.inputs[self.inputs0].default_value = 1.0
+
         ################## 
         ## Normal Frame
         normalFrame = self.addNode(
@@ -700,7 +722,7 @@ class MSFS_Material:
             location = (-300.0, -350.0),
             frame = normalFrame
         )
-
+        #Input Factor
         normalScaleNode.outputs[0].default_value = 1.0
 
         # Fix the normal view by reversing the green channel
@@ -770,7 +792,8 @@ class MSFS_Material:
             location = (200.0, -400.0),
             frame = normalFrame
         )
-        blendNormalMapNode.inputs[0].default_value = 1.0
+        # Input Factor
+        blendNormalMapNode.inputs[self.inputs0].default_value = 1.0
         
         # Links
         self.link(blendNormalMapNode.inputs[self.inputs0], vertexColorNode.outputs[1])
@@ -862,9 +885,9 @@ class MSFS_Material:
             self.updateEmissiveLinks()
 
     def setVertexColorScale(self, scale):
-        nodeVertexColorScale = self.getNodeByName(MSFS_ShaderNodes.vertexBaseColorMul.value)
+        nodeVertexColorScale = self.getNodeByName(MSFS_ShaderNodes.vertexcolorScale.value)
         if nodeVertexColorScale is not None:
-            nodeVertexColorScale.inputs[0].default_value = scale
+            nodeVertexColorScale.outputs[0].default_value = scale
             self.updateColorLinks()
 
     def setEmissiveColor(self, color):
@@ -959,7 +982,7 @@ class MSFS_Material:
             if nodeVertexColorBaseColorRGB is not None:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
-        # no basecolor - has detailColor
+        # no basecolor - has detailColor - Is this a thing????
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
         elif not nodeBaseColorTex.image and nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
@@ -977,7 +1000,6 @@ class MSFS_Material:
             #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
             if nodeVertexColorBaseColorRGB is not None:
-                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
     def updateNormalLinks(self):
@@ -1017,8 +1039,8 @@ class MSFS_Material:
 
         # emissive
         if nodeEmissiveTex.image:
-            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[0])
-            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[1])
+            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[self.inputs2])
+            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[self.inputs1])
             self.link(nodeMulEmissive.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])
         else:
             self.link(nodeEmissiveColor.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])
@@ -1059,10 +1081,10 @@ class MSFS_Material:
             self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
             self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
 
-            if nodeCompTex.image and nodeDetailCompTex.image:
-                nodeBlendCompMap.blend_type = "MULTIPLY"
-            else: # we have only one of the two images
-                nodeBlendCompMap.blend_type = "ADD"
+            # if nodeCompTex.image and nodeDetailCompTex.image:
+                # nodeBlendCompMap.blend_type = "MULTIPLY"
+            # else: # we have only one of the two images
+                # nodeBlendCompMap.blend_type = "ADD"
 
 
 
@@ -1108,7 +1130,8 @@ class MSFS_Material:
 
 
     #########################################################################
-    def addNode(self, name = "", typeNode = "", location = (0.0, 0.0), hidden = True, width = 150.0, frame = None, color = (1.0, 1.0, 1.0), blend_type = "MIX", operation =  "ADD", data_type = "RGBA", mode = "RGB"):
+    def addNode(self, name = "", typeNode = "", location = (0.0, 0.0), hidden = True, width = 150.0, frame = None, color = (1.0, 1.0, 1.0), 
+                  blend_type = "MIX", operation =  "ADD", data_type = "RGBA", mode = "RGB", clamp_factor = False, clamp_result = True):
         if(self.nodes is not None):
             try:
                 node = self.nodes.new(typeNode)
@@ -1123,6 +1146,8 @@ class MSFS_Material:
                     node.color = color
                 elif(typeNode == MSFS_ShaderNodesTypes.shaderNodeMixRGB.value or typeNode == MSFS_ShaderNodesTypes.shaderNodeMix.value):
                     node.blend_type = blend_type
+                    node.clamp_factor = clamp_factor
+                    node.clamp_result = clamp_result
                     if(typeNode == MSFS_ShaderNodesTypes.shaderNodeMix.value):
                         node.data_type = data_type
                 elif(typeNode == MSFS_ShaderNodesTypes.shaderNodeMath.value or typeNode == MSFS_ShaderNodesTypes.shaderNodeVectorMath.value):

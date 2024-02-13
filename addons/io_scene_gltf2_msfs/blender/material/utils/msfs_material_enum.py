@@ -137,6 +137,7 @@ class MSFS_ShaderNodes(Enum):
     vertexalphaSeparate = "SplitVertexAlpha"
     vertexcolorCombine = "CombineVertexColor"
     vertexalphaCombine = "CombineVertexAlpha"
+    vertexcolorScale = "Vertex Color Scale"
 
 class MSFS_AnisotropicNodes(Enum):
     anisotropicTex = "Anisotropic Texture"
