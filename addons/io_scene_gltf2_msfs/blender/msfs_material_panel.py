@@ -378,7 +378,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                         found_diff = True
                     #print("after rough", found_diff)
                     # input 20 Emissive Scale
-                    if not principled.inputs[20].links and principled.inputs[20].default_value != mat.msfs_emissive_scale:
+                    if not principled.inputs[20].links and principled.inputs[20].default_value != mat.msfs_emissive_scale and principled.inputs[20].default_value > 0.0:
                         found_diff = True
                     #print("after emissive - diff", found_diff, principled.inputs[6].default_value, principled.inputs[9].default_value, principled.inputs[20].default_value, principled.inputs[21].default_value)
         #print("on return - diff", found_diff)
@@ -554,7 +554,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
             if not principled.inputs[9].links and principled.inputs[9].default_value != mat.msfs_roughness_factor:
                 mat.msfs_roughness_factor = principled.inputs[9].default_value
             # input 20 Emissive Scale
-            if not principled.inputs[20].links and principled.inputs[20] != mat.msfs_emissive_scale:
+            if not principled.inputs[20].links and principled.inputs[20].default_value != mat.msfs_emissive_scale and principled.inputs[20].default_value > 0.0:
                 mat.msfs_emissive_scale = principled.inputs[20].default_value
             print("8")
         return {"FINISHED"}
