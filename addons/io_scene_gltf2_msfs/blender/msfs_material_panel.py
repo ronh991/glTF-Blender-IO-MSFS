@@ -396,7 +396,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                         found_diff = True
                     #print("after rough", found_diff)
                     # input 20 Emissive Scale
-                    if not principled.inputs[bsdfinputs20].links and principled.inputs[bsdfinputs20].default_value != mat.msfs_emissive_scale:
+                    if not principled.inputs[bsdfinputs20].links and principled.inputs[bsdfinputs20].default_value != mat.msfs_emissive_scale and principled.inputs[bsdfinputs20].default_value > 0.0:
                         found_diff = True
                     #print("after emissive - diff", found_diff, principled.inputs[6].default_value, principled.inputs[9].default_value, principled.inputs[20].default_value, principled.inputs[21].default_value)
         #print("on return - diff", found_diff)
@@ -584,12 +584,15 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
             print("7")
             if not principled.inputs[bsdfinputs6].links and principled.inputs[bsdfinputs6].default_value != mat.msfs_metallic_factor:
                 mat.msfs_metallic_factor = principled.inputs[bsdfinputs6].default_value
+                print("7- metallic_factor",mat.msfs_metallic_factor)
             # input 9 Roughness
             if not principled.inputs[bsdfinputs9].links and principled.inputs[bsdfinputs9].default_value != mat.msfs_roughness_factor:
                 mat.msfs_roughness_factor = principled.inputs[bsdfinputs9].default_value
+                print("7- roughness_factor",mat.msfs_roughness_factor)
             # input 20 Emissive Scale
-            if not principled.inputs[bsdfinputs20].links and principled.inputs[bsdfinputs20] != mat.msfs_emissive_scale:
+            if not principled.inputs[bsdfinputs20].links and principled.inputs[bsdfinputs20].default_value != mat.msfs_emissive_scale and principled.inputs[bsdfinputs20].default_value > 0.0:
                 mat.msfs_emissive_scale = principled.inputs[bsdfinputs20].default_value
+                print("7- emissive_scale",mat.msfs_emissive_scale)
             print("8")
         return {"FINISHED"}
 

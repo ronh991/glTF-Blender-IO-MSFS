@@ -101,7 +101,8 @@ class Export:
                 MSFS_unique_id.export(gltf2_node, blender_bone)
 
     def gather_scene_hook(self, gltf2_scene, blender_scene, export_settings):
-        if self.properties.enabled:
+        if self.properties.enabled and MSFSGizmo:
+            #print("gather_scene_hook - properties enabled", MSFSGizmo)
             MSFSGizmo.export(gltf2_scene.nodes, blender_scene, export_settings)
 
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):

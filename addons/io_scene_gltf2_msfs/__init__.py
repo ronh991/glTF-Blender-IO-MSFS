@@ -25,7 +25,7 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 1, 0),
-    "version": (2, 1, 0, 4),
+    "version": (2, 2, 0, 2),
     "location": "File > Import-Export",
     "category": "Import-Export",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
@@ -40,6 +40,21 @@ def get_path():
 def get_name():
     return os.path.basename(get_path())
 
+## somehow these should also update the gltf export settings
+def on_export_texture_changed(self, context):
+    # Update the texture folder name
+    # changes
+    settings = bpy.context.scene.msfs_multi_exporter_settings
+    settings.export_texture_dir = self.export_texture_dir
+    return
+
+def on_export_copyright_changed(self, context):
+    # Update the copyright data
+    # changes
+    settings = bpy.context.scene.msfs_multi_exporter_settings
+    settings.export_copyright = self.export_copyright
+    return
+
 
 #now that we have the addons name we can get the preferences
 def get_prefs():
@@ -52,13 +67,15 @@ class addSettingsPanel(bpy.types.AddonPreferences):
     export_texture_dir: bpy.props.StringProperty (
         name = "Default Texture Location",
         description = "Default Texture Location",
-        default = "../texture/"
+        default = "../texture/",
+        update=on_export_texture_changed
     )
 
     export_copyright: bpy.props.StringProperty (
         name = "Default Copyright Name",
         description = "Default Copyright Name",
-        default = "Your Copyright Here"
+        default = "Your Copyright Here",
+        update=on_export_copyright_changed
     )
 
     ## draw the panel in the addon preferences
