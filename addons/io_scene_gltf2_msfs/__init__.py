@@ -55,7 +55,6 @@ def on_export_copyright_changed(self, context):
     settings.export_copyright = self.export_copyright
     return
 
-
 #now that we have the addons name we can get the preferences
 def get_prefs():
     return bpy.context.preferences.addons[get_name()].preferences
