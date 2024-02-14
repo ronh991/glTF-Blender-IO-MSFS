@@ -422,9 +422,19 @@ class MSFS_Material:
             frame = baseColorFrame
         )
         #Input Factor
-        VertexColorBaseColorMulNode.inputs[self.inputs0].default_value = 1.0
-        ## Links and default vertex scale
         VertexColorBaseColorMulNode.inputs[self.inputs0].default_value = 0.5
+
+        ## Vertex Color scale
+        # Out[0] : Vertex Base Color Multiplier -> In[0] 
+        vertexcolorScaleNode = self.addNode(
+            name = MSFS_ShaderNodes.vertexcolorScale.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeValue.value,
+            location = (50.0, 550.0), 
+            frame = baseColorFrame
+        )
+        vertexcolorScaleNode.outputs[0].default_value = 0.5
+        ## Links and default vertex scale
+        self.link(VertexColorBaseColorMulNode.inputs[self.inputs0], vertexcolorScaleNode.outputs[0])
         self.link(VertexColorBaseColorMulNode.inputs[self.inputs1], vertexColorNode.outputs[0])
 
         #### UV MAPS
@@ -866,9 +876,9 @@ class MSFS_Material:
             self.updateEmissiveLinks()
 
     def setVertexColorScale(self, scale):
-        nodeVertexColorScale = self.getNodeByName(MSFS_ShaderNodes.vertexBaseColorMul.value)
+        nodeVertexColorScale = self.getNodeByName(MSFS_ShaderNodes.vertexcolorScale.value)
         if nodeVertexColorScale is not None:
-            nodeVertexColorScale.inputs[0].default_value = scale
+            nodeVertexColorScale.outputs[0].default_value = scale
             self.updateColorLinks()
 
     def setEmissiveColor(self, color):
