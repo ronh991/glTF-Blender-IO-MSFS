@@ -25,7 +25,7 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 1, 0),
-    "version": (2, 2, 0, 2),
+    "version": (2, 2, 0, 3),
     "location": "File > Import-Export",
     "category": "Import-Export",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
@@ -54,6 +54,7 @@ def on_export_copyright_changed(self, context):
     settings = bpy.context.scene.msfs_multi_exporter_settings
     settings.export_copyright = self.export_copyright
     return
+
 
 #now that we have the addons name we can get the preferences
 def get_prefs():

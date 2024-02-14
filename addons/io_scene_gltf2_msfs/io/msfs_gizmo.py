@@ -148,6 +148,7 @@ class MSFSGizmo:
                         continue
 
                     if blender_object.msfs_gizmo_type != "NONE":
+                        print("gizmo child", child, blender_object.msfs_gizmo_type)
                         result = {}
                         result["type"] = blender_object.msfs_gizmo_type
                         result["translation"] = child.translation

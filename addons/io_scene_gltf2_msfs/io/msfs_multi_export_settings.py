@@ -31,6 +31,25 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False,
     )
 
+    export_import_convert_lighting_mode: bpy.props.EnumProperty(
+        name='Lighting Mode',
+        items=(
+            ('SPEC', 'Standard', 'Physically-based glTF lighting units (cd, lx, nt)'),
+            ('COMPAT', 'Unitless', 'Non-physical, unitless lighting. Useful when exposure controls are not available'),
+            ('RAW', 'Raw (Deprecated)', 'Blender lighting strengths with no conversion'),
+        ),
+        description='Optional backwards compatibility for non-standard render engines. Applies to lights',# TODO: and emissive materials',
+        default='SPEC'
+    )
+
+    export_jpeg_quality: bpy.props.IntProperty(
+        name='JPEG quality',
+        description='Quality of JPEG export',
+        default=75,
+        min=0,
+        max=100
+    )
+
     # get the preferences set in add-on intall menu
     addonpreferences = get_prefs()
     texture_dir = ''
@@ -115,6 +134,12 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False,
     )
 
+    use_active_collection_with_nested: bpy.props.BoolProperty(
+        name='Include Nested Collections',
+        description='Include active collection and nested collections',
+        default=True
+    )
+
     ## Export Active Collection Check
     use_active_collection: bpy.props.BoolProperty(
         name="Active Collection",
@@ -192,6 +217,12 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         description="Export vertex colors with meshes",
         default=True,
     )
+
+    export_attributes: bpy.props.BoolProperty(
+        name='Attributes',
+        description='Export Attributes (when starting with underscore)',
+        default=False
+    )
     
     ## Export Loose Edge Check
     use_mesh_edges: bpy.props.BoolProperty(
@@ -229,6 +260,14 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         ),
         description="Export materials ",
         default="EXPORT",
+    )
+
+    export_original_specular: bpy.props.BoolProperty(
+        name='Export original PBR Specular',
+        description=(
+            'Export original glTF PBR Specular, instead of Blender Principled Shader Specular'
+        ),
+        default=False,
     )
 
     ## Export Image format UI (Auto/Jpeg/None)
@@ -322,9 +361,21 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     #### Animation Options
     ## Use Current Frame Check
     export_current_frame: bpy.props.BoolProperty(
-        name="Use Current Frame",
-        description="Export the scene in the current animation frame",
-        default=False,
+        name='Use Current Frame as Object Rest Transformations',
+        description=(
+            'Export the scene in the current animation frame. '
+            'When off, frame 0 is used as rest transformations for objects'
+        ),
+        default=False
+    )
+
+    export_rest_position_armature: bpy.props.BoolProperty(
+        name='Use Rest Position Armature',
+        description=(
+            "Export armatures using rest position as joints' rest pose. "
+            "When off, current frame pose is used as rest pose"
+        ),
+        default=True
     )
     
     ##* Export Animation Options Check
@@ -426,10 +477,127 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         ),
         default=False
     )
+
+    export_morph_animation: bpy.props.BoolProperty(
+        name='Shape Key Animations',
+        description='Export shape keys animations (morph targets)',
+        default=True
+    )
     
     ##* Skinning Option Check
     export_skins: bpy.props.BoolProperty(
         name="Skinning", description="Export skinning (armature) data", default=True
+    )
+
+    export_morph_reset_sk_data: bpy.props.BoolProperty(
+        name='Reset shape keys between actions',
+        description=(
+            "Reset shape keys between each action exported. "
+            "This is needed when some SK channels are not keyed on some animations"
+        ),
+        default=True
+    )
+
+    export_animation_mode: bpy.props.EnumProperty(
+        name='Animation mode',
+        items=(('ACTIONS', 'Actions',
+        'Export actions (actives and on NLA tracks) as separate animations'),
+        ('ACTIVE_ACTIONS', 'Active actions merged',
+        'All the currently assigned actions become one glTF animation'),
+        ('NLA_TRACKS', 'NLA Tracks',
+        'Export individual NLA Tracks as separate animation'),
+        ('SCENE', 'Scene',
+        'Export baked scene as a single animation')
+        ),
+        description='Export Animation mode',
+        default='ACTIONS'
+    )
+
+    export_bake_animation: bpy.props.BoolProperty(
+        name='Bake All Objects Animations',
+        description=(
+            "Force exporting animation on every object. "
+            "Can be useful when using constraints or driver. "
+            "Also useful when exporting only selection"
+        ),
+        default=False
+    )
+
+    export_anim_slide_to_zero: bpy.props.BoolProperty(
+        name='Set all glTF Animation starting at 0',
+        description=(
+            "Set all glTF animation starting at 0.0s. "
+            "Can be useful for looping animations"
+        ),
+        default=False
+    )
+
+    export_anim_scene_split_object: bpy.props.BoolProperty(
+        name='Split Animation by Object',
+        description=(
+            "Export Scene as seen in Viewport, "
+            "But split animation by Object"
+        ),
+        default=True
+    )
+
+    export_negative_frame: bpy.props.EnumProperty(
+        name='Negative Frames',
+        items=(('SLIDE', 'Slide',
+        'Slide animation to start at frame 0'),
+        ('CROP', 'Crop',
+        'Keep only frames above frame 0'),
+        ),
+        description='Negative Frames are slid or cropped',
+        default='SLIDE'
+    )
+
+    export_anim_single_armature: bpy.props.BoolProperty(
+        name='Export all Armature Actions',
+        description=(
+            "Export all actions, bound to a single armature. "
+            "WARNING: Option does not support exports including multiple armatures"
+        ),
+        default=True
+    )
+
+    export_optimize_animation_size: bpy.props.BoolProperty(
+        name='Optimize Animation Size',
+        description=(
+            "Reduce exported file size by removing duplicate keyframes"
+        ),
+        default=True
+    )
+
+    export_optimize_animation_keep_anim_armature: bpy.props.BoolProperty(
+        name='Force keeping channels for bones',
+        description=(
+            "if all keyframes are identical in a rig, "
+            "force keeping the minimal animation. "
+            "When off, all possible channels for "
+            "the bones will be exported, even if empty "
+            "(minimal animation, 2 keyframes)"
+        ),
+        default=True
+    )
+
+    export_optimize_animation_keep_anim_object: bpy.props.BoolProperty(
+        name='Force keeping channel for objects',
+        description=(
+            "If all keyframes are identical for object transformations, "
+            "force keeping the minimal animation"
+        ),
+        default=False
+    )
+
+
+    export_reset_pose_bones: bpy.props.BoolProperty(
+        name='Reset pose bones between actions',
+        description=(
+            "Reset pose bones between each action exported. "
+            "This is needed when some bones are not keyed on some animations"
+        ),
+        default=True
     )
 
     ## Export All Bone Influences Check
@@ -444,6 +612,12 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         name="Export Deformation Bones Only",
         description="Export Deformation bones only (and needed bones for hierarchy)",
         default=False,
+    )
+
+    export_hierarchy_flatten_bones: bpy.props.BoolProperty(
+        name='Flatten Bone Hierarchy',
+        description='Flatten Bone Hierarchy. Useful in case of non decomposable transformation matrix',
+        default=False
     )
 
     ## Export displacement Check (works with Blender < 3.3 versions)
@@ -537,6 +711,8 @@ class MSFS_PT_export_include(bpy.types.Panel):
         col2.prop(settings, "use_visible")
         col2.prop(settings, "use_renderable")
         col2.prop(settings, "use_active_collection")
+        if settings.use_active_collection:
+            col2.prop(settings, 'use_active_collection_with_nested')
         col2.prop(settings, "use_active_scene")
 
         col2 = layout.column(heading="Data", align=True)
@@ -566,12 +742,26 @@ class MSFS_PT_export_transform(bpy.types.Panel):
         layout.prop(settings, "export_yup")
 
 
-class MSFS_PT_export_geometry(bpy.types.Panel):
+class MSFS_PT_export_data(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_label = "Geometry"
+    bl_label = "Data"
     bl_parent_id = "MSFS_PT_MultiExporter"
-    bl_options = {"DEFAULT_CLOSED"}
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        pass
+
+class MSFS_PT_export_data_mesh(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Mesh"
+    bl_parent_id = "MSFS_PT_export_data"
+    bl_options = {'DEFAULT_CLOSED'}
 
     @classmethod
     def poll(cls, context):
@@ -584,28 +774,179 @@ class MSFS_PT_export_geometry(bpy.types.Panel):
 
         settings = context.scene.msfs_multi_exporter_settings
 
-        layout.prop(settings, "export_apply")
-        layout.prop(settings, "export_texcoords")
-        layout.prop(settings, "export_normals")
+        layout.prop(settings, 'export_apply')
+        layout.prop(settings, 'export_texcoords')
+        layout.prop(settings, 'export_normals')
         col = layout.column()
         col.active = settings.export_normals
-        col.prop(settings, "export_tangents")
-        layout.prop(settings, "export_colors")
+        col.prop(settings, 'export_tangents')
+        layout.prop(settings, 'export_colors')
+        layout.prop(settings, 'export_attributes')
 
         col = layout.column()
-        col.prop(settings, "use_mesh_edges")
-        col.prop(settings, "use_mesh_vertices")
+        col.prop(settings, 'use_mesh_edges')
+        col.prop(settings, 'use_mesh_vertices')
 
-        layout.prop(settings, "export_materials")
+
+class MSFS_PT_export_data_material(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Material"
+    bl_parent_id = "MSFS_PT_export_data"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.prop(settings, 'export_materials')
         col = layout.column()
         col.active = settings.export_materials == "EXPORT"
-        col.prop(settings, "export_image_format")
+        col.prop(settings, 'export_image_format')
+        if settings.export_image_format in ["AUTO", "JPEG"]:
+            col.prop(settings, 'export_jpeg_quality')
 
-class MSFS_PT_export_geometry_compression(bpy.types.Panel):
+# this may not be required in Multi export for MSFS as Specular is not allowed or ignored
+class MSFS_PT_export_data_original_pbr(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "PBR Extensions"
+    bl_parent_id = "MSFS_PT_export_data_material"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.prop(settings, 'export_original_specular')
+
+
+class MSFS_PT_export_data_shapekeys(bpy.types.Panel):
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_label = "Shape Keys"
+    bl_parent_id = "MSFS_PT_export_data"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw_header(self, context):
+        settings = context.scene.msfs_multi_exporter_settings
+        self.layout.prop(settings, "export_morph", text="")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.active = settings.export_morph
+
+        layout.prop(settings, 'export_morph_normal')
+        col = layout.column()
+        col.active = settings.export_morph_normal
+        col.prop(settings, 'export_morph_tangent')
+
+
+class MSFS_PT_export_data_armature(bpy.types.Panel):
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_label = "Armature"
+    bl_parent_id = "MSFS_PT_export_data"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.active = settings.export_skins
+
+        layout.prop(settings, 'export_rest_position_armature')
+
+        row = layout.row()
+        row.active = settings.export_force_sampling
+        row.prop(settings, 'export_def_bones')
+        if settings.export_force_sampling is False and settings.export_def_bones is True:
+            layout.label(text="Export only deformation bones is not possible when not sampling animation")
+        row = layout.row()
+        row.prop(settings, 'export_hierarchy_flatten_bones')
+
+
+class MSFS_PT_export_data_skinning(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Skinning"
+    bl_parent_id = "MSFS_PT_export_data"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw_header(self, context):
+        settings = context.scene.msfs_multi_exporter_settings
+        self.layout.prop(settings, "export_skins", text="")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.active = settings.export_skins
+        layout.prop(settings, "export_all_influences")
+
+
+class MSFS_PT_export_data_lighting(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Lighting"
+    bl_parent_id = "MSFS_PT_export_data"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.prop(settings, 'export_import_convert_lighting_mode')
+
+class MSFS_PT_export_data_compression(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_label = "Compression"
-    bl_parent_id = "MSFS_PT_export_geometry"
+    bl_parent_id = "MSFS_PT_export_data"
     bl_options = {'DEFAULT_CLOSED'}
 
     def __init__(self):
@@ -637,32 +978,12 @@ class MSFS_PT_export_geometry_compression(bpy.types.Panel):
         col.prop(settings, 'export_draco_color_quantization', text="Color")
         col.prop(settings, 'export_draco_generic_quantization', text="Generic")
 
+
 class MSFS_PT_export_animation(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_label = "Animation"
     bl_parent_id = "MSFS_PT_MultiExporter"
-    bl_options = {"DEFAULT_CLOSED"}
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
-
-    def draw(self, context):
-        layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
-
-        settings = context.scene.msfs_multi_exporter_settings
-
-        layout.prop(settings, "export_current_frame")
-
-
-class MSFS_PT_export_animation_export(bpy.types.Panel):
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_label = "Animation"
-    bl_parent_id = "MSFS_PT_export_animation"
     bl_options = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -682,23 +1003,108 @@ class MSFS_PT_export_animation_export(bpy.types.Panel):
 
         layout.active = settings.export_animations
 
-        layout.prop(settings, "export_frame_range")
-        layout.prop(settings, "export_frame_step")
-        layout.prop(settings, "export_force_sampling")
-        layout.prop(settings, "export_nla_strips")
-        if settings.export_nla_strips is False:
+        layout.prop(settings, 'export_animation_mode')
+        if settings.export_animation_mode == "ACTIVE_ACTIONS":
             layout.prop(settings, 'export_nla_strips_merged_animation_name')
-        layout.prop(settings, "optimize_animation_size")
-        if (bpy.app.version >= (3, 3, 0)):
-            layout.prop(settings, "export_all_armature_actions")
-        else:
-            layout.prop(settings, 'export_def_bones')
 
+        row = layout.row()
+        row.active = settings.export_force_sampling and settings.export_animation_mode in ['ACTIONS', 'ACTIVE_ACTIONS']
+        row.prop(settings, 'export_bake_animation')
+        if settings.export_animation_mode == "SCENE":
+            layout.prop(settings, 'export_anim_scene_split_object')
+
+        # layout.prop(settings, "export_frame_range")
+        # layout.prop(settings, "export_frame_step")
+        # layout.prop(settings, "export_force_sampling")
+        # layout.prop(settings, "export_nla_strips")
+        # if settings.export_nla_strips is False:
+            # layout.prop(settings, 'export_nla_strips_merged_animation_name')
+        # layout.prop(settings, "optimize_animation_size")
+        # if (bpy.app.version >= (3, 3, 0)):
+            # layout.prop(settings, "export_all_armature_actions")
+        # else:
+            # layout.prop(settings, 'export_def_bones')
+
+class MSFS_PT_export_animation_notes(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Notes"
+    bl_parent_id = "MSFS_PT_export_animation"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        settings = context.scene.msfs_multi_exporter_settings
+        layout = self.layout
+        if settings.export_animation_mode == "SCENE":
+            layout.label(text="Scene mode uses full bake mode:")
+            layout.label(text="- sampling is active")
+            layout.label(text="- baking all objects is active")
+            layout.label(text="- Using scene frame range")
+        elif settings.export_animation_mode == "NLA_TRACKS":
+            layout.label(text="Track mode uses full bake mode:")
+            layout.label(text="- sampling is active")
+            layout.label(text="- baking all objects is active")
+
+class MSFS_PT_export_animation_ranges(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Rest & Ranges"
+    bl_parent_id = "MSFS_PT_export_animation"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.active = settings.export_animations
+
+        layout.prop(settings, 'export_current_frame')
+        row = layout.row()
+        row.active = settings.export_animation_mode in ['ACTIONS', 'ACTIVE_ACTIONS', 'NLA_TRACKS']
+        row.prop(settings, 'export_frame_range')
+        layout.prop(settings, 'export_anim_slide_to_zero')
+        row = layout.row()
+        row.active = settings.export_animation_mode in ['ACTIONS', 'ACTIVE_ACTIONS', 'NLA_TRACKS']
+        layout.prop(settings, 'export_negative_frame')
+
+class MSFS_PT_export_animation_armature(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Armature"
+    bl_parent_id = "MSFS_PT_export_animation"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.active = settings.export_animations
+
+        layout.prop(settings, 'export_anim_single_armature')
+        layout.prop(settings, 'export_reset_pose_bones')
 
 class MSFS_PT_export_animation_shapekeys(bpy.types.Panel):
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_label = "Shape Keys"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Shapekeys Animation"
     bl_parent_id = "MSFS_PT_export_animation"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -708,7 +1114,8 @@ class MSFS_PT_export_animation_shapekeys(bpy.types.Panel):
 
     def draw_header(self, context):
         settings = context.scene.msfs_multi_exporter_settings
-        self.layout.prop(settings, "export_morph", text="")
+        self.layout.active = settings.export_animations and settings.export_morph
+        self.layout.prop(settings, "export_morph_animation", text="")
 
     def draw(self, context):
         layout = self.layout
@@ -717,20 +1124,16 @@ class MSFS_PT_export_animation_shapekeys(bpy.types.Panel):
 
         settings = context.scene.msfs_multi_exporter_settings
 
-        layout.active = settings.export_morph
+        layout.active = settings.export_animations
 
-        layout.prop(settings, 'export_morph_normal')
-        col = layout.column()
-        col.active = settings.export_morph_normal
-        col.prop(settings, 'export_morph_tangent')
+        layout.prop(settings, 'export_morph_reset_sk_data')
 
-
-class MSFS_PT_export_animation_skinning(bpy.types.Panel):
+class MSFS_PT_export_animation_sampling(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_label = "Skinning"
+    bl_label = "Sampling Animations"
     bl_parent_id = "MSFS_PT_export_animation"
-    bl_options = {"DEFAULT_CLOSED"}
+    bl_options = {'DEFAULT_CLOSED'}
 
     @classmethod
     def poll(cls, context):
@@ -738,7 +1141,8 @@ class MSFS_PT_export_animation_skinning(bpy.types.Panel):
 
     def draw_header(self, context):
         settings = context.scene.msfs_multi_exporter_settings
-        self.layout.prop(settings, "export_skins", text="")
+        self.layout.active = settings.export_animations and settings.export_animation_mode in ['ACTIONS', 'ACTIVE_ACTIONS']
+        self.layout.prop(settings, "export_force_sampling", text="")
 
     def draw(self, context):
         layout = self.layout
@@ -747,16 +1151,37 @@ class MSFS_PT_export_animation_skinning(bpy.types.Panel):
 
         settings = context.scene.msfs_multi_exporter_settings
 
-        layout.active = settings.export_skins
-        layout.prop(settings, "export_all_influences")
+        layout.active = settings.export_animations
 
-        if bpy.app.version >= (3, 3, 0):
-            row = layout.row()
-            row.prop(settings, 'export_def_bones')
-            row.active = settings.export_force_sampling
-            if settings.export_force_sampling is False and settings.export_def_bones is True:
-                layout.label(text="Export only deformation bones is not possible when not sampling animation")
-        
+        layout.prop(settings, 'export_frame_step')
+
+class MSFS_PT_export_animation_optimize(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Optimize Animations"
+    bl_parent_id = "MSFS_PT_export_animation"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+
+        layout.active = settings.export_animations
+
+        layout.prop(settings, 'export_optimize_animation_size')
+
+        row = layout.row()
+        row.prop(settings, 'export_optimize_animation_keep_anim_armature')
+
+        row = layout.row()
+        row.prop(settings, 'export_optimize_animation_keep_anim_object')
 
 
 def register():
