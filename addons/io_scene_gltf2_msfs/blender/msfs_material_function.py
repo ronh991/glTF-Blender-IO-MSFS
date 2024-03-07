@@ -152,7 +152,7 @@ class MSFS_Material:
     def customShaderTree(self):
         raise NotImplementedError()
 
-    def createVertextFrame(self, All = False):
+    def createVertexFrame(self, All = False):
         ## Vertex Frame                
         vertexFrame = self.addNode(
             name = MSFS_FrameNodes.vertexFrame.value,

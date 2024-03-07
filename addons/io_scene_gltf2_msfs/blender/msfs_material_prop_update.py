@@ -322,7 +322,7 @@ class MSFS_Material_Property_Update:
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         #if msfs is not None:
         if msfs is not None:
-            if type(msfs) is MSFS_Windshield:
+            if type(msfs) is MSFS_Windshield or type(msfs) is MSFS_Glass:
                 msfs.setEmissiveScale(0.1)
             else:
                 msfs.setEmissiveScale(self.msfs_emissive_scale)
