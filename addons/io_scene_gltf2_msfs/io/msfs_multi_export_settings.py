@@ -80,6 +80,13 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False
     )
 
+    ## Vertex Color Project
+    export_vertexcolor_project: bpy.props.BoolProperty(
+        name="Vertex color Project Settings",
+        description="Store glTF vertex Color project has vertex color added in the Blender project.",
+        default=False
+    )
+
     #This code assumes your folder name is the name of your addon
     #It also assumes that this function is placed inside a .py file in the base folder
 

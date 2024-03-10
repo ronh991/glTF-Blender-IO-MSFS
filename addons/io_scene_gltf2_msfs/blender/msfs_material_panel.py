@@ -145,7 +145,7 @@ class MSFS_OT_vertex_color_white_Data(bpy.types.Operator):
                 return True
         return False
 
-
+# could be an issue with vertex color - application - but bad for aircraft.
     def execute(self, context):
         # Ensure the mesh has vertex_color_white attribute
         mat = context.active_object.active_material
@@ -915,9 +915,10 @@ class MSFS_PT_Material(bpy.types.Panel):
 
         mat = context.active_object.active_material
         obj = context.active_object
-
+        settings = bpy.context.scene.msfs_multi_exporter_settings
         if mat:
-            if MSFS_OT_vertex_color_white_Data.vertex_color_white_attribute_is_required(mat, obj):
+            # test if project needs vertex colors
+            if MSFS_OT_vertex_color_white_Data.vertex_color_white_attribute_is_required(mat, obj) and settings.export_vertexcolor_project:
                 layout.operator(MSFS_OT_vertex_color_white_Data.bl_idname)
 
             if MSFS_OT_glTfSettingsMaterialData.gltf_settings_with_dot_present():
@@ -1092,6 +1093,7 @@ class MSFS_PT_Material(bpy.types.Panel):
                         not in ["msfs_invisible", "msfs_environment_occluder"]
                     ),
                 )
+                # check if project need vertex colors
                 self.draw_prop(
                     box,
                     mat,

@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import bpy
+
 from ..msfs_material_function import MSFS_Material
 from .utils.msfs_material_enum import (MSFS_FrameNodes,
                                        MSFS_PrincipledBSDFInputs,
@@ -46,7 +49,7 @@ class MSFS_Parallax(MSFS_Material):
         # In[2] :  Behind Glass Texture -> Out[0]
         albedoDetailMixNode = self.addNode(
             name = MSFS_ShaderNodes.albedoDetailMix.value,
-            typeNode = MSFS_ShaderNodesTypes.shaderNodeMixRGB.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeMixRGB.value if bpy.app.version < (3, 4, 0) else MSFS_ShaderNodesTypes.shaderNodeMix.value,
             blend_type = "MIX",
             location = (800.0, 500.0),
             frame = parallaxFrame

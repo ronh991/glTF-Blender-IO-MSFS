@@ -808,7 +808,6 @@ class MSFS_Material:
         self.updateCompLinks()
         self.updateEmissiveLinks()
 
-
     def setAnisotropicTex(self, tex):
         nodeAnisotropicTex = self.getNodeByName(MSFS_AnisotropicNodes.anisotropicTex.value)
         nodeAnisotropicTex.image = tex
@@ -941,6 +940,7 @@ class MSFS_Material:
     
     ##############################################
     def updateColorLinks(self):
+        settings = bpy.context.scene.msfs_multi_exporter_settings
         # relink nodes
         nodeBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.baseColorRGB.value)
         nodeBaseColorA = self.getNodeByName(MSFS_ShaderNodes.baseColorA.value)
@@ -963,14 +963,18 @@ class MSFS_Material:
         self.link(nodeDetailColorTex.outputs[1], nodeBlendAlphaMap.inputs[1])
         self.link(nodeBaseColorA.outputs[0], nodeMulBaseColorA.inputs[1])
         self.link(nodeBaseColorRGB.outputs[0], nodeMulBaseColorRGB.inputs[self.inputs1])
-        if nodeVertexColorBaseColorRGB is not None:
+        if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
             self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
             self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+        else:
+            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no tex
         if not nodeBaseColorTex.image and not nodeDetailColorTex.image:
-            if nodeVertexColorBaseColorRGB is not None:
+            if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeBaseColorRGB.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs1])
+            else:
+                self.link(nodeBaseColorRGB.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
 
         # has basecolor - no detailColor
@@ -979,7 +983,7 @@ class MSFS_Material:
             #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorTex.outputs[1], nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
-            if nodeVertexColorBaseColorRGB is not None:
+            if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
         # no basecolor - has detailColor - Is this a thing????
@@ -990,7 +994,7 @@ class MSFS_Material:
             # Alpha links
             self.link(nodeDetailColorTex.outputs[1],nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
-            if nodeVertexColorBaseColorRGB is not None:
+            if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
         # has both tex
@@ -999,7 +1003,7 @@ class MSFS_Material:
             nodeMulBaseColorRGB.blend_type = "MULTIPLY"
             #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
-            if nodeVertexColorBaseColorRGB is not None:
+            if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
 
     def updateNormalLinks(self):
@@ -1146,9 +1150,9 @@ class MSFS_Material:
                     node.color = color
                 elif(typeNode == MSFS_ShaderNodesTypes.shaderNodeMixRGB.value or typeNode == MSFS_ShaderNodesTypes.shaderNodeMix.value):
                     node.blend_type = blend_type
-                    node.clamp_factor = clamp_factor
-                    node.clamp_result = clamp_result
                     if(typeNode == MSFS_ShaderNodesTypes.shaderNodeMix.value):
+                        node.clamp_factor = clamp_factor
+                        node.clamp_result = clamp_result
                         node.data_type = data_type
                 elif(typeNode == MSFS_ShaderNodesTypes.shaderNodeMath.value or typeNode == MSFS_ShaderNodesTypes.shaderNodeVectorMath.value):
                     node.operation = operation
