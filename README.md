@@ -14,7 +14,7 @@ This repository contains the current version of a non-official Microsoft Flight 
 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
 
-v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
+v1.6.2.x (Blender 3.3.x and 3.6.x) v2.1.0.x (Blender 4.1.x)
 
 # ASOBO issues and enhancements
 
@@ -52,6 +52,12 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
 
   #8 not export emission day night cycle extension - fixed bug introduced
 
+  #11 Base Color not being used in export - fixed - bug introduced
+
+  #12 Forced use of Vertex Color nodes - fixed - added an option in the add-on install - File Preferences 
+  default is not checked and no Vertex color nodes will be linked in shaedr nodes. If checked then Vertex Color
+  nodes will be used.
+
 # Enhancements
 
   Some default values for Metallic, Roughness, Emissive, Base Color have been reset
@@ -70,7 +76,7 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
 
 :warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
-:warning: The version 2.0.1.x is only compatible with Blender 4.0.x. Other versions are not supported.
+:warning: The version 2.0.2.x is only compatible with Blender 4.0.x. Other versions are not supported.
 
 *******
 

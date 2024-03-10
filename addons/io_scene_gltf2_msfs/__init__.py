@@ -25,7 +25,11 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 1, 0),
+<<<<<<< Updated upstream
     "version": (2, 2, 0, 2),
+=======
+    "version": (2, 2, 0, 7),
+>>>>>>> Stashed changes
     "location": "File > Import-Export",
     "category": "Import-Export",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
@@ -55,6 +59,17 @@ def on_export_copyright_changed(self, context):
     settings.export_copyright = self.export_copyright
     return
 
+<<<<<<< Updated upstream
+=======
+def on_export_vertexcolor_project_changed(self, context):
+    # Update the copyright data
+    # changes
+    settings = bpy.context.scene.msfs_multi_exporter_settings
+    settings.export_vertexcolor_project = self.export_vertexcolor_project
+    return
+
+
+>>>>>>> Stashed changes
 #now that we have the addons name we can get the preferences
 def get_prefs():
     return bpy.context.preferences.addons[get_name()].preferences
@@ -77,6 +92,13 @@ class addSettingsPanel(bpy.types.AddonPreferences):
         update=on_export_copyright_changed
     )
 
+    export_vertexcolor_project: bpy.props.BoolProperty (
+        name = "This Project uses Vertex Color Nodes",
+        description = "Indicates if the project uses Vertex Color on mesh",
+        default = False,
+        update=on_export_vertexcolor_project_changed
+    )
+
     ## draw the panel in the addon preferences
     def draw(self, context):
         layout = self.layout
@@ -92,6 +114,9 @@ class addSettingsPanel(bpy.types.AddonPreferences):
 
         ## default copyright
         col.prop(self, 'export_copyright', expand=False)
+
+        ## default vertex color project
+        col.prop(self, 'export_vertexcolor_project', expand=False)
 
 def get_version_string():
     return str(bl_info['version'][0]) + '.' + str(bl_info['version'][1]) + '.' + str(bl_info['version'][2])

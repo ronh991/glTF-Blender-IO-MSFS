@@ -147,7 +147,7 @@ class MSFS_AnisotropicNodes(Enum):
 # fix with enum tuples https://jwodder.github.io/kbits/posts/multi-value-enum/
 class MSFS_PrincipledBSDFInputs(Enum):
     baseColor = "Base Color"
-    subsurfaceColor = "Subsurface Color"
+    subsurfaceColor = "Subsurface Color" # Blender 4 new name
     metallic = "Metallic"
     roughness = "Roughness"
     anisotropic = "Anisotropic"

@@ -107,7 +107,7 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Windshield(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
             self.msfs_metallic_factor = 0.0
-            self.msfs_roughness_factor = 0.0
+            self.msfs_roughness_factor = 0.1
             self.msfs_base_color_factor = [1.0, 1.0, 1.0, 0.1]
         elif self.msfs_material_type == "msfs_porthole":
             msfs_mat = MSFS_Porthole(self, buildTree=True)
@@ -116,7 +116,7 @@ class MSFS_Material_Property_Update:
             msfs_mat = MSFS_Glass(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
             self.msfs_metallic_factor = 0.0
-            self.msfs_roughness_factor = 0.0
+            self.msfs_roughness_factor = 0.1
             self.msfs_base_color_factor = [1.0, 1.0, 1.0, 0.1]
         elif self.msfs_material_type == "msfs_clearcoat":
             msfs_mat = MSFS_Clearcoat(self, buildTree=True)
@@ -201,7 +201,7 @@ class MSFS_Material_Property_Update:
         self.msfs_glass_deformation_factor = 0.0
         self.msfs_glass_reflection_mask_factor = 0.0
         self.msfs_metallic_blend_factor = 0.0
-        self.msfs_metallic_factor = 0.0
+        self.msfs_metallic_factor = 1.0
         self.msfs_no_cast_shadow = False
         self.msfs_normal_blend_factor = 1.0
         self.msfs_normal_scale = 1.0
@@ -221,7 +221,7 @@ class MSFS_Material_Property_Update:
         self.msfs_responsive_aa = False
         self.msfs_road_collision_material = False
         self.msfs_roughness_blend_factor = 1.0
-        self.msfs_roughness_factor = 0.5
+        self.msfs_roughness_factor = 1.0
         self.msfs_sss_color = [0.8, 0.8, 0.8, 1.0]
         self.msfs_use_pearl = False
         self.msfs_uv_offset_u = 0.0
@@ -238,10 +238,12 @@ class MSFS_Material_Property_Update:
 
     @staticmethod
     def update_base_color_texture(self, context):
+        settings = bpy.context.scene.msfs_multi_exporter_settings
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None and type(msfs) is not MSFS_Invisible:
             msfs.setBaseColorTex(self.msfs_base_color_texture)
-            msfs.set_vertex_color_white(self, self.msfs_base_color_texture)
+            if settings.export_vertexcolor_project:
+                msfs.set_vertex_color_white(self, self.msfs_base_color_texture)
 
     @staticmethod
     def update_comp_texture(self, context):
@@ -263,10 +265,12 @@ class MSFS_Material_Property_Update:
 
     @staticmethod
     def update_detail_color_texture(self, context):
+        settings = bpy.context.scene.msfs_multi_exporter_settings
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None and type(msfs) is not MSFS_Invisible:
             msfs.setDetailColorTex(self.msfs_detail_color_texture)
-            msfs.set_vertex_color_white(self, self.msfs_detail_color_texture)
+            if settings.export_vertexcolor_project:
+                msfs.set_vertex_color_white(self, self.msfs_detail_color_texture)
 
     @staticmethod
     def update_detail_comp_texture(self, context):
@@ -367,7 +371,9 @@ class MSFS_Material_Property_Update:
 
     @staticmethod
     def update_detail_blend_threshold(self, context):
-        self.detail_blend_threshold = self.msfs_detail_blend_threshold
+        msfs = MSFS_Material_Property_Update.getMaterial(self)
+        if msfs is not None:
+            self.detail_blend_threshold = self.msfs_detail_blend_threshold
         
     @staticmethod
     def update_detail_uv(self, context):
