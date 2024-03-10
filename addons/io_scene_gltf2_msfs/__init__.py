@@ -25,11 +25,7 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 1, 0),
-<<<<<<< Updated upstream
-    "version": (2, 2, 0, 2),
-=======
     "version": (2, 2, 0, 7),
->>>>>>> Stashed changes
     "location": "File > Import-Export",
     "category": "Import-Export",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
@@ -59,8 +55,6 @@ def on_export_copyright_changed(self, context):
     settings.export_copyright = self.export_copyright
     return
 
-<<<<<<< Updated upstream
-=======
 def on_export_vertexcolor_project_changed(self, context):
     # Update the copyright data
     # changes
@@ -69,7 +63,6 @@ def on_export_vertexcolor_project_changed(self, context):
     return
 
 
->>>>>>> Stashed changes
 #now that we have the addons name we can get the preferences
 def get_prefs():
     return bpy.context.preferences.addons[get_name()].preferences
