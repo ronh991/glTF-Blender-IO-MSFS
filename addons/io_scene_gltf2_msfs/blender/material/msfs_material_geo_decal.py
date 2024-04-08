@@ -21,4 +21,4 @@ class MSFS_Geo_Decal(MSFS_Material):
 
     def customShaderTree(self):
         super(MSFS_Geo_Decal, self).defaultShadersTree()
-        super(MSFS_Geo_Decal, self).createVertextFrame()
+        super(MSFS_Geo_Decal, self).createVertexFrame()

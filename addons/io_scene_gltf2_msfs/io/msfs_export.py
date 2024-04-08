@@ -35,7 +35,7 @@ def equality_check(arr1, arr2, size1, size2):
 class Export:
     
     def gather_asset_hook(self, gltf2_asset, export_settings):
-        if self.properties.enabled == True:
+        if self.properties.enable_msfs_extension == True:
             if gltf2_asset.extensions is None:
                 gltf2_asset.extensions = {}
             gltf2_asset.extensions["ASOBO_normal_map_convention"] = self.Extension(
@@ -75,13 +75,12 @@ class Export:
         #print("gather_asset_hook - Done")
 
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
-        if self.properties.enabled:
+        if self.properties.enable_msfs_extension:
             for i, image in enumerate(gltf2_plan.images):
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
 
     def gather_node_hook(self, gltf2_object, blender_object, export_settings):
-        if self.properties.enabled:
-
+        if self.properties.enable_msfs_extension:
             if gltf2_object.extensions is None:
                 gltf2_object.extensions = {}
 
@@ -92,7 +91,7 @@ class Export:
                 MSFSLight.export(gltf2_object, blender_object)
     
     def gather_joint_hook(self, gltf2_node, blender_bone, export_settings):
-        if self.properties.enabled:
+        if self.properties.enable_msfs_extension:
 
             if gltf2_node.extensions is None:
                 gltf2_node.extensions = {}
@@ -101,7 +100,7 @@ class Export:
                 MSFS_unique_id.export(gltf2_node, blender_bone)
 
     def gather_scene_hook(self, gltf2_scene, blender_scene, export_settings):
-        if self.properties.enabled and MSFSGizmo:
+        if self.properties.enable_msfs_extension and MSFSGizmo:
             #print("gather_scene_hook - properties enabled", MSFSGizmo)
             MSFSGizmo.export(gltf2_scene.nodes, blender_scene, export_settings)
 
@@ -110,16 +109,16 @@ class Export:
         print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
         base_color = blender_material.msfs_base_color_factor
         gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
-        print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3])
-        if  not (base_color is None or gltf2_base_color is None):
+        print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3], gltf2_base_color)
+        if base_color is not None and gltf2_base_color is None:
+            print("gather_material_hook - changing because none")
+            gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
+        if gltf2_base_color is not None:
             if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
-                print("gather_material_hook - changing")
+                print("gather_material_hook - changing because different")
                 gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
         print("gather_material_hook - blender material - set base color after", blender_material, blender_material.msfs_base_color_texture, blender_material.msfs_base_color_factor, gltf2_material.pbr_metallic_roughness.base_color_factor)
 
 
-        if self.properties.enabled:
-            print("gather_material_hook - export")
+        if self.properties.enable_msfs_extension:
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)
-        print("gather_material_hook - Done")
-

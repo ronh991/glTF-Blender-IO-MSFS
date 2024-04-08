@@ -68,6 +68,7 @@ class MSFS_ShaderNodesTypes(Enum):
     shaderNodeRGB = "ShaderNodeRGB"
     shaderNodeValue = "ShaderNodeValue"
     shaderNodeRGBCurve = "ShaderNodeRGBCurve"
+    shaderNodeMapRange = "ShaderNodeMapRange"
     shaderNodeCombineColor = "ShaderNodeCombineColor"
 
 class MSFS_FrameNodes(Enum):
@@ -81,6 +82,7 @@ class MSFS_FrameNodes(Enum):
     parallaxFrame = "Parallax Frame"
     clearcoatFrame = "Clearcoat Frame"
     vertexFrame = "Vertex Color and Alpha Painting"
+    detailBaseColorFrame = "DetailBaseColor Frame"
 
 class MSFS_ShaderNodes(Enum):
     glTFSettings = "glTF Settings"
@@ -98,6 +100,9 @@ class MSFS_ShaderNodes(Enum):
     occlusionMul = "Occlusion Multiplier"
     roughnessMul = "Roughness Multiplier"
     metallicMul = "Metallic Multiplier"
+    detailOMRMul = "Multiply detail OcclMetalRough"
+    detailOMRSubtract = "Subtract detail OcclMetalRough"
+    detailOMRClamp = "Clamp detail OcclMetalRough"
     emissiveTex = "Emissive Texture"
     emissiveColor = "Emissive RGB"
     emissiveScale = "Emissive Scale"
@@ -123,21 +128,32 @@ class MSFS_ShaderNodes(Enum):
     blendNormalMap = "Blend Normal Map"
     blendColorMap = "Blend Color Map"
     blendAlphaMap = "Blend Alpha Map"
-    blendCompMap = "Blend Occlusion(R) Roughness(G) Metallic(B) Map"
+    blendCompMap = "Add Occlusion(R) Roughness(G) Metallic(B)"
     vertexColor = "Vertex Color"
     albedoDetailMix = "Albedo Detail Mix"
     behindGlassTex = "Behind Glass"
     clearcoatTex = "Clearcoat"
     clearcoatSeparate = "Clearcoat Separate"
     ShaderOutputMaterial = "Shader Output Material"
-    vertexBaseColorMul = "Vertex Base Color Mul"
     principledBSDF = "Principled BSDF"
+    vertexBaseColorMul = "Vertex Base Color Mul"
     principledBSDFVertex = "Principled BSDF Vertex"
     vertexcolorSeparate = "SplitVertexColor"
     vertexalphaSeparate = "SplitVertexAlpha"
     vertexcolorCombine = "CombineVertexColor"
     vertexalphaCombine = "CombineVertexAlpha"
     vertexcolorScale = "Vertex Color Scale"
+    biasRDetailColor = "Bias R Detail Color"
+    biasGDetailColor = "Bias G Detail Color"
+    biasBDetailColor = "Bias B Detail Color"
+    DetailBColorSeparate = "Separate Detail and Base Color"
+    DetailBColorCombine = "Combine Detail and Base Color"
+
+class MSFS_GroupNodes(Enum):
+    combineBColorDBColor = "Combine BaseColor with Detail Color"
+    biasDBColorR = "Bias Detail Color R"
+    biasDBColorG = "Bias Detail Color G"
+    biasDBColorB = "Bias Detail Color B"
 
 class MSFS_AnisotropicNodes(Enum):
     anisotropicTex = "Anisotropic Texture"

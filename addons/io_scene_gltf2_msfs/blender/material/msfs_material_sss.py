@@ -25,4 +25,4 @@ class MSFS_SSS(MSFS_Material):
 
     def setSSSColor(self, color):
         nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)  # does not seem to be implemented in Khronos core code - there is no sss or subsurface or sub-surface
-        nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.subsurfaceColor.value].default_value = color
+        #nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.subsurfaceColor.value].default_value = color  # seems there is no subsurface color in Blender 4.0+ Weight and radius
