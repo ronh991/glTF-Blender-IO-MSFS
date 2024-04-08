@@ -100,6 +100,8 @@ class MSFS_Material_Property_Update:
         elif self.msfs_material_type == "msfs_geo_decal":
             msfs_mat = MSFS_Geo_Decal(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
+            self.msfs_metallic_factor = 0.0
+            self.msfs_roughness_factor = 0.5
         elif self.msfs_material_type == "msfs_geo_decal_frosted":
             msfs_mat = MSFS_Geo_Decal_Frosted(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
@@ -222,7 +224,7 @@ class MSFS_Material_Property_Update:
         self.msfs_road_collision_material = False
         self.msfs_roughness_blend_factor = 1.0
         self.msfs_roughness_factor = 1.0
-        self.msfs_sss_color = [0.8, 0.8, 0.8, 1.0]
+        self.msfs_sss_color = [1.0, 1.0, 1.0, 1.0]
         self.msfs_use_pearl = False
         self.msfs_uv_offset_u = 0.0
         self.msfs_uv_offset_v = 0.0
@@ -233,6 +235,7 @@ class MSFS_Material_Property_Update:
         self.msfs_wiper_2_state = 0.0
         self.msfs_wiper_3_state = 0.0
         self.msfs_wiper_4_state = 0.0
+        self.msfs_alpha_mode = "OPAQUE"
         self.msfs_vertexcolor_scale = 0.5
         return
 
@@ -324,7 +327,6 @@ class MSFS_Material_Property_Update:
     @staticmethod
     def update_emissive_scale(self, context):
         msfs = MSFS_Material_Property_Update.getMaterial(self)
-        #if msfs is not None:
         if msfs is not None:
             if type(msfs) is MSFS_Windshield or type(msfs) is MSFS_Glass:
                 msfs.setEmissiveScale(0.1)
