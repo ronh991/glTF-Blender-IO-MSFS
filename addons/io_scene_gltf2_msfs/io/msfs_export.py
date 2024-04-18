@@ -52,6 +52,8 @@ class Export:
         # does not work in:
         # def gather_mesh_hook(self, gltf2_mesh, blender_mesh, blender_object, vertex_groups, modifiers, skip_filter, materials, export_settings):
 
+        # with 1.3.3 and my 1.6.3.1 changes to FLOAT_COLOR - this  may no be needed
+
         #print("gather_asset_hook - Started with ", gltf2_asset)
         selected_objects = bpy.context.selected_objects
         active_object = bpy.context.active_object

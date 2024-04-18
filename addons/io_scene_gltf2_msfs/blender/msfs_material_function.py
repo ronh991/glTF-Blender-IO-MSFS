@@ -23,6 +23,7 @@ from .material.utils.msfs_material_enum import (MSFS_AnisotropicNodes,
                                                 MSFS_MixNodeOutputs,
                                                 MSFS_BSDFNodeInputs,
                                                 MSFS_GroupNodes)
+from .. import get_prefs
 
 
 class MSFS_Material:
@@ -852,7 +853,6 @@ class MSFS_Material:
         
         ## Links
         self.link(compTexNode.outputs[0], blendCompMapNode.inputs[0])
-        #self.link(clampDetailOMR.outputs[1], blendCompMapNode.inputs[self.inputs1])
         self.link(clampDetailOMR.outputs[1], blendCompMapNode.inputs[1])
 
         ## Split Occlusion Metallic Roughness
@@ -1190,7 +1190,7 @@ class MSFS_Material:
     
     ##############################################
     def updateColorLinks(self):
-        settings = bpy.context.scene.msfs_multi_exporter_settings
+        settings = get_prefs()
         # relink nodes
         nodeBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.baseColorRGB.value)
         nodeBaseColorA = self.getNodeByName(MSFS_ShaderNodes.baseColorA.value)
@@ -1216,8 +1216,6 @@ class MSFS_Material:
         if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
             self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
             self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
-        #else:
-        #    self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no tex
         if not nodeBaseColorTex.image and not nodeDetailColorTex.image:
@@ -1230,31 +1228,34 @@ class MSFS_Material:
         # has basecolor - no detailColor
         elif nodeBaseColorTex.image and not nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorTex.outputs[1], nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no basecolor - has detailColor - Is this a thing????
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
         elif not nodeBaseColorTex.image and nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             # Alpha links
             self.link(nodeDetailColorTex.outputs[1],nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # has both tex
         else:
             nodeBlendColorMap.blend_type = "MULTIPLY"
             nodeMulBaseColorRGB.blend_type = "MULTIPLY"
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
     def updateNormalLinks(self):
         nodeNormalTex = self.getNodeByName(MSFS_ShaderNodes.normalTex.value)
@@ -1316,13 +1317,7 @@ class MSFS_Material:
         nodeGltfSettings = self.getNodeByName(MSFS_ShaderNodes.glTFSettings.value)
         nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
 
-        # blend comp
-        # !!!! input orders matters for the exporter here
-        #self.link(nodeCompTex.outputs[0], nodeBlendCompMap.inputs[self.inputs1])
-        #self.link(nodeDetailCompTex.outputs[0], nodeBlendCompMap.inputs[self.inputs2])
-
         # occlMetalRough
-        #self.link(nodeBlendCompMap.outputs[self.outputs0], nodeSeparateComp.inputs[0])
         self.link(nodeBlendCompMap.outputs[0], nodeSeparateComp.inputs[0])
         self.link(nodeMetallicScale.outputs[0], nodeMulMetallic.inputs[0])
         self.link(nodeRoughnessScale.outputs[0], nodeMulRoughness.inputs[0])
@@ -1357,11 +1352,9 @@ class MSFS_Material:
         # vertexcolor mask
         if useVertex:
             self.link(nodeVertexColor.outputs[1], nodeBlendColorMap.inputs[self.inputs0])
-            #self.link(nodeVertexColor.outputs[1], nodeBlendCompMap.inputs[self.inputs0])
             self.link(nodeVertexColor.outputs[1], nodeBlendNormalMap.inputs[0])
         else:
             self.link(nodeBlendMaskTex.outputs[0], nodeBlendColorMap.inputs[self.inputs0])
-            #self.link(nodeBlendMaskTex.outputs[0], nodeBlendCompMap.inputs[self.inputs0])
             self.link(nodeBlendMaskTex.outputs[0], nodeBlendNormalMap.inputs[0])
 
     def makeOpaque(self):
@@ -1446,7 +1439,8 @@ class MSFS_Material:
                             print("update_base_color_texture - found mesh object with material base color texture - update", obj, mat.name, mat.msfs_base_color_texture, mat.msfs_detail_color_texture)
                             color_attribute = obj.data.color_attributes.new(
                                                   name='Col',
-                                                  type='BYTE_COLOR',
+                                                  #type='BYTE_COLOR',
+                                                  type='FLOAT_COLOR',
                                                   domain='CORNER',
                                               )
 

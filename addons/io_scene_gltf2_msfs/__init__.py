@@ -25,7 +25,7 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 1, 0),
-    "version": (2, 2, 1, 1),
+    "version": (2, 2, 1, 2),
     "location": "File > Import-Export",
     "category": "Import-Export",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
@@ -41,7 +41,7 @@ def get_name():
     return os.path.basename(get_path())
 
 ## somehow these should also update the gltf export settings
-def on_export_texture_changed(self, context):
+def on_export_texture_folder_changed(self, context):
     # Update the texture folder name
     # changes
     settings = bpy.context.scene.msfs_multi_exporter_settings
@@ -55,12 +55,12 @@ def on_export_copyright_changed(self, context):
     settings.export_copyright = self.export_copyright
     return
 
-def on_export_vertexcolor_project_changed(self, context):
-    # Update the copyright data
-    # changes
-    settings = bpy.context.scene.msfs_multi_exporter_settings
-    settings.export_vertexcolor_project = self.export_vertexcolor_project
-    return
+# def on_export_vertexcolor_project_changed(self, context):
+    # # Update the vertex color setting data
+    # # changes
+    # settings = bpy.context.scene.msfs_multi_exporter_settings
+    # settings.export_vertexcolor_project = self.export_vertexcolor_project
+    # return
 
 
 #now that we have the addons name we can get the preferences
@@ -72,24 +72,24 @@ class addSettingsPanel(bpy.types.AddonPreferences):
     bl_idname = __package__
  
     export_texture_dir: bpy.props.StringProperty (
-        name = "Default Texture Location",
+        #name = "Default Texture Location",
         description = "Default Texture Location",
         default = "../texture/",
-        update=on_export_texture_changed
+        update=on_export_texture_folder_changed
     )
 
     export_copyright: bpy.props.StringProperty (
-        name = "Default Copyright Name",
+        #name = "Default Copyright Name",
         description = "Default Copyright Name",
         default = "Your Copyright Here",
         update=on_export_copyright_changed
     )
 
     export_vertexcolor_project: bpy.props.BoolProperty (
-        name = "This Project uses Vertex Color Nodes",
+        #name = "This Project uses Vertex Color Nodes",
         description = "Indicates if the project uses Vertex Color on mesh",
-        default = False,
-        update=on_export_vertexcolor_project_changed
+        default = False
+        #update=on_export_vertexcolor_project_changed
     )
 
     ## draw the panel in the addon preferences
@@ -103,13 +103,13 @@ class addSettingsPanel(bpy.types.AddonPreferences):
         col = box.column(align = False)
 
         ## texture default location
-        col.prop(self, 'export_texture_dir', expand=False)
+        col.prop(self, "export_texture_dir", text="Default Texture Location")
 
         ## default copyright
-        col.prop(self, 'export_copyright', expand=False)
+        col.prop(self, "export_copyright", text="Default Copyright Name")
 
         ## default vertex color project
-        col.prop(self, 'export_vertexcolor_project', expand=False)
+        col.prop(self, "export_vertexcolor_project", text="This Project uses Vertex Color Nodes")
 
 def get_version_string():
     return str(bl_info['version'][0]) + '.' + str(bl_info['version'][1]) + '.' + str(bl_info['version'][2])

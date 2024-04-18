@@ -22,15 +22,16 @@ from .material.utils.msfs_material_enum import (MSFS_MixNodeInputs,
                                                 MSFS_BSDFNodeInputs,
                                                 MSFS_ShaderNodes)
 from bpy.types import Material
+from .. import get_prefs
 
 def equality_check(arr1, arr2, size1, size2):
-   if (size1 != size2):
-      return False
-   for i in range(0, size2):
-      # blender python color channel issues in floats ???
-      if (int(arr1[i] * 10000000)/10000000 != int(arr2[i] * 10000000)/10000000):
-         return False
-   return True
+    if (size1 != size2):
+        return False
+    for i in range(0, size2):
+        # blender python color channel issues in floats ???
+        if (int(arr1[i] * 10000000)/10000000 != int(arr2[i] * 10000000)/10000000):
+            return False
+    return True
 
 def Is_it_FBW_Material(mat):
     # ToDo: FBW msfs_material_type mapping
@@ -54,21 +55,22 @@ def Is_it_FBW_Material(mat):
 def set_vertex_color_white(mat, obj):
     # now adding a base color triggers vertex color links - they make object black in blender - show texture by making mesh color attribute white
     # add color attribute to all meshes in material
-    if mat.msfs_base_color_texture or mat.msfs_detail_color_texture:
-        if obj.type == 'MESH':
-            for mat_slot in obj.material_slots:
-                if mat_slot.material.name == mat.name:
-                    #print("update_base_color_texture - found mesh object with material base color texture", obj, mat.name, mat.msfs_base_color_texture, mat.msfs_detail_color_texture)
-                    for ca in obj.data.color_attributes:
-                        if len(obj.data.color_attributes) > 0:
-                            return
-                    # None found - make new Vertex_Color_white and assing to mesh
-                    # Create a new color attribute - seems to be white already ????
-                    color_attribute = obj.data.color_attributes.new(
-                                          name='Col',
-                                          type='BYTE_COLOR',
-                                          domain='CORNER',
-                                      )
+    #if mat.msfs_base_color_texture or mat.msfs_detail_color_texture:
+    if obj.type == 'MESH':
+        for mat_slot in obj.material_slots:
+            if mat_slot.material.name == mat.name:
+                #print("update_base_color_texture - found mesh object with material base color texture", obj, mat.name, mat.msfs_base_color_texture, mat.msfs_detail_color_texture)
+                for ca in obj.data.color_attributes:
+                    if len(obj.data.color_attributes) > 0:
+                        return
+                # None found - make new Vertex_Color_white and assing to mesh
+                # Create a new color attribute - seems to be white already ????
+                color_attribute = obj.data.color_attributes.new(
+                                      name='Col',
+                                      #type='BYTE_COLOR',
+                                      type='FLOAT_COLOR',
+                                      domain='CORNER',
+                                  )
 
 
 # def reset_base_color_links(mat, obj):
@@ -109,11 +111,21 @@ class MSFS_OT_vertex_color_white_Data(bpy.types.Operator):
                 for n in mat.node_tree.nodes:
                     if n.label == MSFS_ShaderNodes.baseColorTex.value and n.image:
                         if not MSFS_OT_vertex_color_white_Data.vertex_color_attribute_isfound(obj):
-                            #print("vertex_color_white_attribute_is_required - required")
+                            #print("vertex_color_white_attribute_is_required - required Tex")
                             return True
                     if n.label == MSFS_ShaderNodes.detailColorTex.value and n.image:
                         if not MSFS_OT_vertex_color_white_Data.vertex_color_attribute_isfound(obj):
-                            #print("vertex_color_white_attribute_is_required - required")
+                            #print("vertex_color_white_attribute_is_required - required Det Tex")
+                            return True
+                    if n.label == MSFS_ShaderNodes.baseColorRGB.value:
+                        #print("mat, obj", mat, obj)
+                        #color = n.outputs[0].default_value
+                        #print("color", color, color[0], color[1], color[2])
+                        #if (color[0] != 1 or color[1] != 1 or color[2] != 1):
+                        if not MSFS_OT_vertex_color_white_Data.vertex_color_attribute_isfound(obj):
+                            #print("vertex_color_white_attribute_is_required - required base")
+                            # for this need to reset the links Base Color to BSDF to base color to Vertex Base Color Mul
+                            # reset the links
                             return True
             except:
                 print("*** MSFS Warning *** vertex color white attribute error")
@@ -164,15 +176,17 @@ class MSFS_OT_vertex_color_white_Data(bpy.types.Operator):
                 if n.label == MSFS_ShaderNodes.detailColorTex.value and n.image:
                     if not self.vertex_color_attribute_isfound(obj):
                         set_vertex_color_white(mat, obj)
-                # if n.label == MSFS_ShaderNodes.baseColorRGB.value:
-                    # #print("mat, obj", mat, obj)
-                    # color = n.outputs[0].default_value
-                    # #print("color", color, color[0], color[1], color[2])
-                    # if (color[0] != 1 or color[1] != 1 or color[2] != 1):
-                        # if self.vertex_color_attribute_isfound(obj):
-                            # # for this need to reset the links Base Color to BSDF to base color to Vertex Base Color Mul
-                            # # reset the links
-                            # reset_base_color_links(mat, obj)
+                if n.label == MSFS_ShaderNodes.baseColorRGB.value:
+                    #print("mat, obj", mat, obj)
+                    #color = n.outputs[0].default_value
+                    #print("color", color, color[0], color[1], color[2])
+                    #if (color[0] != 1 or color[1] != 1 or color[2] != 1):
+                    if not self.vertex_color_attribute_isfound(obj):
+                        # for this need to reset the links Base Color to BSDF to base color to Vertex Base Color Mul
+                        # reset the links
+                        #print("set vertex color white")
+                        set_vertex_color_white(mat, obj)
+                        #reset_base_color_links(mat, obj)
         except:
             print("*** MSFS Warning *** vertex color white attribute error")
         return {"FINISHED"}
@@ -930,10 +944,12 @@ class MSFS_PT_Material(bpy.types.Panel):
 
         mat = context.active_object.active_material
         obj = context.active_object
-        settings = bpy.context.scene.msfs_multi_exporter_settings
+        # this seems to be the only place I can check if the addon prefs match the 
+        # the multi export settings that in clude all the addon settings
+        addonpreferences = get_prefs()
         if mat:
             # test if project needs vertex colors
-            if settings.export_vertexcolor_project and MSFS_OT_vertex_color_white_Data.vertex_color_white_attribute_is_required(mat, obj):
+            if addonpreferences.export_vertexcolor_project and MSFS_OT_vertex_color_white_Data.vertex_color_white_attribute_is_required(mat, obj):
                 layout.operator(MSFS_OT_vertex_color_white_Data.bl_idname)
 
             if MSFS_OT_glTfSettingsMaterialData.gltf_settings_with_dot_present():

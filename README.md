@@ -12,9 +12,9 @@ If you want to go back to using the ASOBO exporter, this may or may not be possi
 
 This repository contains the current version of a non-official Microsoft Flight Simulator Blender Import/Export plugin. The flight sim community has already developed and forked the original project many times, and Asobo's intention is to fully support Blender with the help and contributions of all the developers that have already implemented features in the different unofficial Blender plugins.
 
-:warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
+:warning: This plugin is a fork of the ASOBO plugin version 1.3.3 - and has the following mods/fixes
 
-v1.6.2.x (Blender 3.3.x and 3.6.x) v2.1.0.x (Blender 4.1.x)
+v1.6.3.x (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
 
 # ASOBO issues and enhancements
 
@@ -55,8 +55,10 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.1.0.x (Blender 4.1.x)
   #11 Base Color not being used in export - fixed - bug introduced
 
   #12 Forced use of Vertex Color nodes - fixed - added an option in the add-on install - File Preferences 
-  default is not checked and no Vertex color nodes will be linked in shaedr nodes. If checked then Vertex Color
+  default is not checked and no Vertex color nodes will be linked in shader nodes. If checked then Vertex Color
   nodes will be used.
+
+  #13 Vertex Color addon Preferences option - fixed issues
 
 # Enhancements
 

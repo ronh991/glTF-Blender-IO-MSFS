@@ -35,23 +35,25 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     addonpreferences = get_prefs()
     texture_dir = ''
     copyright = ''
-    print(addonpreferences)
-    print("addon preferences - ", addonpreferences.export_texture_dir, addonpreferences.export_copyright)
+    #export_vertexcolor_project = False
+    #print(addonpreferences)
+    #print("addon preferences - ", addonpreferences.export_texture_dir, addonpreferences.export_copyright, addonpreferences.export_vertexcolor_project)
     texture_dir = addonpreferences.export_texture_dir
     copyright = addonpreferences.export_copyright
+    #export_vertexcolor_project = addonpreferences.export_vertexcolor_project
 
     ## Texture directory path
     export_texture_dir: bpy.props.StringProperty(
         name="Textures",
         description="Folder to place texture files in. Relative to the .gltf file",
-        default=texture_dir,
+        default=texture_dir
     )
 
     ## Copyright string UI
     export_copyright: bpy.props.StringProperty(
         name="Copyright",
         description="Legal rights and conditions for the model",
-        default=copyright,
+        default=copyright
     )
 
     ## Remember export settings check
@@ -61,12 +63,12 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False
     )
 
-    ## Vertex Color Project
-    export_vertexcolor_project: bpy.props.BoolProperty(
-        name="Vertex color Project Settings",
-        description="Store glTF vertex Color project has vertex color added in the Blender project.",
-        default=False
-    )
+    # ## Vertex Color Project
+    # export_vertexcolor_project: bpy.props.BoolProperty(
+        # name="Vertex color Project Settings",
+        # description="Store glTF vertex Color project has vertex color added in the Blender project.",
+        # default=export_vertexcolor_project
+    # )
 
     #This code assumes your folder name is the name of your addon
     #It also assumes that this function is placed inside a .py file in the base folder
