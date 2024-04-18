@@ -1,20 +1,28 @@
 [![MSFS](misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](misc/Logos/asobo_logo.png)](https://www.asobostudio.com/)[![GS614](misc/Logos/gs614_logo.png)](https://www.gs614.ca/) <img src="misc/Logos/glTF_logo.png" width="180" height="90">
 
-# Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
-  
+# Unofficial Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
+
+## NOTE:
+
+If you use this unofficial version of the ASOBO exporter, be aware that you will need to or it is highly recommended that you migrate your MSFS materials. They will NOT display with the Migrate Data button.  However this exporter has a number of shader node, shader node link changes and default factor value changes.  These changes will only be utilized if you reselect the MSFS material.  That is, reselect the same MSFS material from the drop down - DO NOT SELECT DISABLED in the drop down.  Please make a backup of your original work before migration.
+
+If you want to go back to using the ASOBO exporter, this may or may not be possible.  First if the blend file is a version higher than what ASOBO uses, there may be issues with animations or other blender data where you will be required to rebuild the object and/or animations.  If ASOBO has released a version that uses a Blender version equal to or higher than what you currently are using here, then it would be easier to migrate the material nodes to the new ASOBO version by re-selecting the MSFS Material Param type in the drop down
+
+## Summary
+
 This repository contains the current version of a non-official Microsoft Flight Simulator Blender Import/Export plugin. The flight sim community has already developed and forked the original project many times, and Asobo's intention is to fully support Blender with the help and contributions of all the developers that have already implemented features in the different unofficial Blender plugins.
 
-:warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
+:warning: This plugin is a fork of the ASOBO plugin version 1.3.3 - and has the following mods/fixes
 
-v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
+v1.6.3.x (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
 
 # ASOBO issues and enhancements
 
-  #213 Emissive strength
+  #213 Emissive strength - mod and default values change - max 100
 
-  #214 Parallax (should work)
+  #214 Parallax - mod bug fixes (should work)
 
-  #220 Projected Mesh invisible in Simulator - Not fixed
+  #220 Projected Mesh invisible in Simulator - not fixed
 
   #248 Multiple empty animations on export - you must manually checkboxes
 
@@ -36,13 +44,21 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
 
   #290 Add function - To delete all glTf Settings.xxx and reassign to Proper glTf Settings - mod added
 
-  #291 Jetway wheel animation not working. not fixed
+  #291 Jetway wheel animation not working - not fixed
 
   #294 Enhancement - Change RGB Curves to show Blue channel as all 1's (white) - mod added
 
-# My Issues
+# Unofficial Version (this version) Issues
 
   #8 not export emission day night cycle extension - fixed bug introduced
+
+  #11 Base Color not being used in export - fixed - bug introduced
+
+  #12 Forced use of Vertex Color nodes - fixed - added an option in the add-on install - File Preferences 
+  default is not checked and no Vertex color nodes will be linked in shader nodes. If checked then Vertex Color
+  nodes will be used.
+
+  #13 Vertex Color addon Preferences option - fixed issues
 
 # Enhancements
 
@@ -62,11 +78,11 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.0.1.x (Blender 4.0.x)
 
 :warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
-:warning: The version 2.0.1.x is only compatible with Blender 4.0.x. Other versions are not supported.
+:warning: The version 2.0.2.x is only compatible with Blender 4.0.x. Other versions are not supported.
 
 *******
 
-# Summary
+# Table of Contents
 
 - [How to Install the Add-on](#how-to-install-the-add-on)
   - [How to Install the ASOBO Blender MSFS Importer/Exporter using Blender:](#how-to-install-the-asobo-blender-msfs-importerexporter-using-blender)
