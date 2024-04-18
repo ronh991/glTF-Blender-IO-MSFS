@@ -32,6 +32,7 @@ from .material.msfs_material_sss import MSFS_SSS
 from .material.msfs_material_standard import MSFS_Standard
 from .material.msfs_material_windshield import MSFS_Windshield
 from .msfs_material_function import MSFS_Material
+from .. import get_prefs
 
 
 class MSFS_Material_Property_Update:
@@ -100,6 +101,8 @@ class MSFS_Material_Property_Update:
         elif self.msfs_material_type == "msfs_geo_decal":
             msfs_mat = MSFS_Geo_Decal(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
+            self.msfs_metallic_factor = 0.0
+            self.msfs_roughness_factor = 0.5
         elif self.msfs_material_type == "msfs_geo_decal_frosted":
             msfs_mat = MSFS_Geo_Decal_Frosted(self, buildTree=True)
             self.msfs_alpha_mode = "BLEND"
@@ -239,11 +242,10 @@ class MSFS_Material_Property_Update:
 
     @staticmethod
     def update_base_color_texture(self, context):
-        settings = bpy.context.scene.msfs_multi_exporter_settings
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None and type(msfs) is not MSFS_Invisible:
             msfs.setBaseColorTex(self.msfs_base_color_texture)
-            if settings.export_vertexcolor_project:
+            if get_prefs().export_vertexcolor_project:
                 msfs.set_vertex_color_white(self, self.msfs_base_color_texture)
 
     @staticmethod
@@ -266,11 +268,10 @@ class MSFS_Material_Property_Update:
 
     @staticmethod
     def update_detail_color_texture(self, context):
-        settings = bpy.context.scene.msfs_multi_exporter_settings
         msfs = MSFS_Material_Property_Update.getMaterial(self)
         if msfs is not None and type(msfs) is not MSFS_Invisible:
             msfs.setDetailColorTex(self.msfs_detail_color_texture)
-            if settings.export_vertexcolor_project:
+            if get_prefs().export_vertexcolor_project:
                 msfs.set_vertex_color_white(self, self.msfs_detail_color_texture)
 
     @staticmethod

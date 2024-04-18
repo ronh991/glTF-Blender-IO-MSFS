@@ -22,6 +22,7 @@ from .material.utils.msfs_material_enum import (MSFS_AnisotropicNodes,
                                                 MSFS_MixNodeInputs,
                                                 MSFS_MixNodeOutputs,
                                                 MSFS_GroupNodes)
+from .. import get_prefs
 
 
 class MSFS_Material:
@@ -32,6 +33,8 @@ class MSFS_Material:
     def __init__(self, material, buildTree=False):
         self.getInputOutputIndex()
         self.material = material
+        if not material.use_nodes:
+            material.use_nodes = True
         self.node_tree = self.material.node_tree
         self.nodes = self.material.node_tree.nodes
         self.links = material.node_tree.links
@@ -815,6 +818,8 @@ class MSFS_Material:
             width = 300.0,
             frame = omrFrame
         )
+        # Factor input
+        #blendCompMapNode.inputs[self.inputs0].default_value = 1.0
         
         ## Links
         self.link(compTexNode.outputs[0], blendCompMapNode.inputs[0])
@@ -1155,7 +1160,7 @@ class MSFS_Material:
     
     ##############################################
     def updateColorLinks(self):
-        settings = bpy.context.scene.msfs_multi_exporter_settings
+        settings = get_prefs()
         # relink nodes
         nodeBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.baseColorRGB.value)
         nodeBaseColorA = self.getNodeByName(MSFS_ShaderNodes.baseColorA.value)
@@ -1193,31 +1198,34 @@ class MSFS_Material:
         # has basecolor - no detailColor
         elif nodeBaseColorTex.image and not nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorTex.outputs[1], nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no basecolor - has detailColor - Is this a thing????
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
         elif not nodeBaseColorTex.image and nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             # Alpha links
             self.link(nodeDetailColorTex.outputs[1],nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # has both tex
         else:
             nodeBlendColorMap.blend_type = "MULTIPLY"
             nodeMulBaseColorRGB.blend_type = "MULTIPLY"
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
     def updateNormalLinks(self):
         nodeNormalTex = self.getNodeByName(MSFS_ShaderNodes.normalTex.value)
@@ -1401,7 +1409,8 @@ class MSFS_Material:
                             print("update_base_color_texture - found mesh object with material base color texture - update", obj, mat.name, mat.msfs_base_color_texture, mat.msfs_detail_color_texture)
                             color_attribute = obj.data.color_attributes.new(
                                                   name='Col',
-                                                  type='BYTE_COLOR',
+                                                  #type='BYTE_COLOR',
+                                                  type='FLOAT_COLOR',
                                                   domain='CORNER',
                                               )
 
