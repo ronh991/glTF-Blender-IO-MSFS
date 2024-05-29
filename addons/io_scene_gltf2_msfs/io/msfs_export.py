@@ -21,6 +21,7 @@ from .msfs_gizmo import MSFSGizmo
 from .msfs_light import MSFSLight
 from .msfs_material import MSFSMaterial
 from .msfs_unique_id import MSFS_unique_id
+from datetime import datetime
 
 
 def equality_check(arr1, arr2, size1, size2):
@@ -80,7 +81,13 @@ class Export:
         #print("gather_asset_hook - Done")
 
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
+        print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
+        for ex in export_settings["gltf_user_extensions"]:
+            print("ex", ex, ex.Extension, ex.properties)
+            #for e in ex:
+            #    print(e)
         if self.properties.enable_msfs_extension:
+            print("gather_gltf_extensions_hook - enabled")
             for i, image in enumerate(gltf2_plan.images):
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
 
@@ -112,44 +119,127 @@ class Export:
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
         # blender 4.0 issue with detail textures added twice once correct and once as a regular basecolor texture
         # if it has a detail color texture then set basecolor texture to none
-        #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
-        #print("gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        print("*** MSFS WARNING *** - gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
+        print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
         if blender_material.msfs_detail_color_texture is not None and blender_material.msfs_base_color_texture is None:
-            #blender_material.msfs_material_type == "msfs_windshield":
             gltf2_material.pbr_metallic_roughness.base_color_texture = None
             print("*** MSFS WARNING *** - blender material - delete the base color", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
-        #print("gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
 
-        # blender 3.3 removes base color values with base color texture - have to add back in
-        #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
-        base_color = blender_material.msfs_base_color_factor
-        gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
-        #print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3], gltf2_base_color)
-        if base_color is not None and gltf2_base_color is None:
-            print("*** MSFS WARNING *** - changing base_color_factor because none", blender_material, base_color[0], base_color[1], base_color[2], base_color[3])
-            gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        if gltf2_base_color is not None:
-            if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
-                print("*** MSFS WARNING *** - changing base_color_factor because different in node", blender_material, base_color, gltf2_base_color)
-                if base_color[0] == 1.0 and base_color[1] == 1.0 and base_color[2] == 1.0 and base_color[3] == 1.0:
-                    gltf2_material.pbr_metallic_roughness.base_color_factor = gltf2_base_color
-                else:
-                    gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        #print("gather_material_hook - blender material - set base color after", blender_material, gltf2_material.pbr_metallic_roughness.base_color_factor)
+        # # blender 3.3 removes base color values with base color texture - have to add back in
+        # #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
+        # base_color = blender_material.msfs_base_color_factor
+        # gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
+        # #print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3], gltf2_base_color)
+        # if base_color is not None and gltf2_base_color is None:
+            # print("*** MSFS WARNING *** - changing base_color_factor because none", blender_material, base_color[0], base_color[1], base_color[2], base_color[3])
+            # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
+        # if gltf2_base_color is not None:
+            # if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
+                # print("*** MSFS WARNING *** - changing base_color_factor because different in node", blender_material, base_color, gltf2_base_color)
+                # if base_color[0] == 1.0 and base_color[1] == 1.0 and base_color[2] == 1.0 and base_color[3] == 1.0:
+                    # gltf2_material.pbr_metallic_roughness.base_color_factor = gltf2_base_color
+                # else:
+                    # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
+        # #print("gather_material_hook - blender material - set base color after", blender_material, gltf2_material.pbr_metallic_roughness.base_color_factor)
+
+
+        # and this for normal and occlusion too ???????????
 
 
         if self.properties.enable_msfs_extension:
-            #print("gather_material_hook - export")
+            print("*** MSFS WARNING *** - gather_material_hook - extenson export")
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)
-        #print("gather_material_hook - Done")
+        print("*** MSFS WARNING *** - gather_material_hook - Done")
 
-    # def gather_texture_info_hook(self, gltf2_io, blender_shader_sockets, export_settings):
+    def gather_image_hook(self, image, blender_shader_sockets, export_settings):
+        print("*** MSFS WARNING *** - gather_image_hook - Started with ", image, blender_shader_sockets)
+        #print("exportsettings", export_settings)
+        print("*** MSFS WARNING *** gather_image_hook - image", image.name, image.mime_type, image.uri)
+        #if self.properties.enabled:
+            #MSFSMaterial.export(gltf2_material, blender_material, export_settings)
+        print("*** MSFS WARNING *** - gather_image_hook - Done")
+
+    # def pre_gather_tracks_hook(self, blender_object, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("pre_gather_tracks_hook - Started with ", current_time, blender_object)
+        # print("pre_gather_tracks_hook - Done")
+
+    # def animation_track_switch_loop_hook(self, blender_object, Done, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # if not Done:
+            # print("animation_track_switch_loop_hook - Started with ", current_time, blender_object)
+        # if Done:
+            # print("animation_track_switch_loop_hook - Done", current_time, blender_object)
+
+    def animation_switch_loop_hook(self, blender_object, Done, export_settings):
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        ##if blender_object != current_blender_object:
+        if not Done:
+            print("animation_switch_loop_hook - Started with ", current_time, blender_object)
+        #c = now - hook_current_time
+        #minutes = c.total_seconds() / 60
+
+        #if minutes > 0.05:
+        if Done:
+            #hook_current_time = now
+            #current_blender_object = blender_object
+            print("animation_switch_loop_hook - Done", current_time, blender_object)
+
+    # def pre_animation_track_switch_hook(self, blender_object, blender_action, track_name, on_type, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("pre_animation_track_switch_hook - Started with ", current_time, blender_object, blender_action, track_name, on_type)
+        # print("pre_animation_track_switch_hook - Done")
+
+    # def pre_animation_switch_hook(self, blender_object, blender_action, track_name, on_type, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("pre_animation_switch_hook - Started with ", current_time, blender_object, blender_action, track_name, on_type)
+        # print("pre_animation_switch_hook - Done")
+
+    # def post_animation_track_switch_hook(self, blender_object, blender_action, track_name, on_type, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("post_animation_track_switch_hook - Started with ", current_time, blender_object, blender_action, track_name, on_type)
+        # print("post_animation_track_switch_hook - Done")
+
+    # def post_animation_switch_hook(self, blender_object, blender_action, track_name, on_type, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("post_animation_switch_hook - Started with ", current_time, blender_object, blender_action, track_name, on_type)
+        # print("post_animation_switch_hook - Done")
+
+    # def gather_tracks_hook(self, blender_object, gathertrackhookparams, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("gather_tracks_hook - Started with ", current_time, blender_object, gathertrackhookparams)
+        # print("gather_tracks_hook - Done")
+
+    # def gather_actions_hook(self, blender_object, gatheractionhookparams, export_settings):
+        # from datetime import datetime
+        # now = datetime.now()
+        # current_time = now.strftime("%H:%M:%S")
+        # print("gather_actions_hook - Started with ", current_time, blender_object, gatheractionhookparams)
+        # print("gather_actions_hook - Done")
+
+    # def gather_texture_info_hook(self, texture_info, blender_shader_sockets, export_settings):
         # print("gather_texture_info_hook - Started with ", blender_shader_sockets)
-        # print("exportsettings", export_settings)
-        # print("gather_texture_info_hook - io", gltf2_io.extensions, gltf2_io.extras, gltf2_io.index, gltf2_io.tex_coord)
-        # if self.properties.enabled:
-            # pass
-            # #MSFSMaterial.export(gltf2_material, blender_material, export_settings)
+        # #print("exportsettings", export_settings)
+        # print("gather_texture_info_hook - texture_info", texture_info.extensions, texture_info.extras, texture_info.index)
+        # # if self.properties.enabled:
+            # #pass
+            # # MSFSMaterial.export(gltf2_material, blender_material, export_settings)
         # print("gather_texture_info_hook - Done")
 
     # def gather_material_pbr_metallic_roughness_hook(self, gltf2_material, blender_material, orm_texture, export_settings):

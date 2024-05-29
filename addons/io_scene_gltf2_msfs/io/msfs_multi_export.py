@@ -18,7 +18,6 @@ import xml.dom.minidom
 import xml.etree.ElementTree as etree
 
 import bpy
-from .. import get_prefs
 
 
 def export_blender_under_3_3(file_path, settings):
@@ -180,6 +179,68 @@ def export_blender_3_6(file_path, settings):
                 will_save_settings = settings.will_save_settings
             )
 
+def export_blender_4_2(file_path, settings):
+    return bpy.ops.export_scene.gltf(
+                filepath = file_path,
+                check_existing = True,
+                export_format = 'GLTF_SEPARATE',
+                export_copyright = settings.export_copyright,
+                export_image_format = settings.export_image_format,
+                export_texture_dir = settings.export_texture_dir,
+                export_jpeg_quality = settings.export_jpeg_quality,
+                export_keep_originals = settings.export_keep_originals,
+                export_texcoords = settings.export_texcoords,
+                export_normals = settings.export_normals,
+                export_draco_mesh_compression_enable = settings.export_draco_mesh_compression_enable,
+                export_draco_mesh_compression_level = settings.export_draco_mesh_compression_level,
+                export_draco_position_quantization = settings.export_draco_position_quantization,
+                export_draco_normal_quantization = settings.export_draco_normal_quantization,
+                export_draco_texcoord_quantization = settings.export_draco_texcoord_quantization,
+                export_draco_color_quantization = settings.export_draco_color_quantization,
+                export_draco_generic_quantization = settings.export_draco_generic_quantization,
+                export_tangents = settings.export_tangents,
+                export_materials = settings.export_materials,
+                export_original_specular = False, ## No need to add option for MSFS uses PBR materials with comp texture for Roughness/Metallic/Occlusion
+                #export_colors = settings.export_colors,
+                export_attributes = settings.export_attributes,
+                use_mesh_edges = settings.use_mesh_edges,
+                use_mesh_vertices = settings.use_mesh_vertices,
+                export_cameras = settings.export_cameras,
+                use_selection = settings.use_selection,
+                use_visible = settings.use_visible,
+                use_renderable = settings.use_renderable,
+                use_active_collection = settings.use_active_collection,
+                use_active_scene = settings.use_active_scene,
+                export_yup = settings.export_yup,
+                export_apply = settings.export_apply,
+                export_animations = settings.export_animations,
+                export_frame_range = settings.export_frame_range,
+                export_frame_step = settings.export_frame_step,
+                export_force_sampling = settings.export_force_sampling,
+                export_animation_mode = settings.export_animation_mode,
+                export_nla_strips_merged_animation_name = settings.export_nla_strips_merged_animation_name,
+                export_def_bones = settings.export_def_bones,
+                export_optimize_animation_size = settings.export_optimize_animation_size,
+                export_optimize_animation_keep_anim_armature = settings.export_optimize_animation_keep_anim_armature,
+                export_optimize_animation_keep_anim_object = settings.export_optimize_animation_keep_anim_object,
+                export_negative_frame = settings.export_negative_frame,
+                export_anim_slide_to_zero = settings.export_anim_slide_to_zero,
+                export_reset_pose_bones = settings.export_reset_pose_bones,
+                export_bake_animation = settings.export_bake_animation,
+                export_anim_single_armature = settings.export_anim_single_armature,
+                export_current_frame = settings.export_current_frame,
+                export_rest_position_armature = settings.export_rest_position_armature,
+                export_anim_scene_split_object = settings.export_anim_scene_split_object,
+                export_skins = settings.export_skins,
+                export_all_influences = settings.export_all_influences,
+                export_morph = settings.export_morph,
+                export_morph_normal = settings.export_morph_normal,
+                export_morph_tangent = settings.export_morph_tangent,
+                export_morph_animation = settings.export_morph_animation,
+                export_lights = settings.export_lights,
+                will_save_settings = settings.will_save_settings
+            )
+
 
 # Scene Properties
 class MSFSMultiExporterProperties:
@@ -198,15 +259,17 @@ class MSFS_OT_MultiExportGLTF2(bpy.types.Operator):
     
     @staticmethod
     def export(file_path):
-        settings = get_prefs()
+        settings = bpy.context.scene.msfs_multi_exporter_settings
         bpy.context.scene.msfs_exporter_settings.use_unique_id = settings.use_unique_id
         gltf = None
         if (bpy.app.version < (3, 3, 0)):
             gltf = export_blender_under_3_3(file_path, settings)
         elif (bpy.app.version < (3, 6, 0)):
             gltf = export_blender_3_3(file_path, settings)
+        elif (bpy.app.version < (4, 2, 0)):
+            gltf = export_blender_3_6(file_path, settings)
         else:
-            gltf = export_blender_3_3(file_path, settings)
+            gltf = export_blender_4_2(file_path, settings)
             
         if gltf is None:
                 print("[ASOBO] Export failed.")
@@ -219,11 +282,11 @@ class MSFS_OT_MultiExportGLTF2(bpy.types.Operator):
             sort_by_collection = context.scene.multi_exporter_grouped_by_collections
 
             for lod_group in lod_groups:
-                # Generate XML if needed
                 export_folder_path = lod_group.folder_path
                 if export_folder_path == '//\\':
                         export_folder_path = export_folder_path.rsplit('\\')[0]
                 export_folder_path = bpy.path.abspath(export_folder_path)
+                # Generate XML if needed
                 if lod_group.generate_xml:
                     xml_path = os.path.join(export_folder_path, lod_group.group_name + ".xml")
                     found_guid = None
@@ -368,6 +431,7 @@ def register_panel():
     try:
         bpy.utils.register_class(MSFS_PT_MultiExporter)
     except Exception:
+        print("ERROR - multi exporter panel register")
         pass
 
     # If the glTF exporter is disabled, we need to unregister the extension panel

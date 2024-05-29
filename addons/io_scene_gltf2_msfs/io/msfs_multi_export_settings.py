@@ -100,17 +100,21 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     )
     
     #### Include Options
-    ## Export Selected Only Check - TODO : See if this works
+    #def getUseSelection(self):
+    #    return True
+
+    ## Export Selected Only Check
     use_selection: bpy.props.BoolProperty(
         name="Selected Objects", 
         description= (
             "Export selected objects only. "
             "Disabled for the use of the MultiExporter (Needs to be always checked)"
         ), 
-        default=True
+        default=True,
+    #    get=getUseSelection
     )
 
-    ## Export Visible Only Check - TODO : See if this works
+    ## Export Visible Only Check
     use_visible: bpy.props.BoolProperty(
         name="Visible Objects", 
         description="Export visible objects only", 
@@ -364,7 +368,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     export_current_frame: bpy.props.BoolProperty(
         name="Use Current Frame",
         description="Export the scene in the current animation frame",
-        default=False
+        default=False,
     )
     
     ##* Export Animation Options Check

@@ -141,20 +141,15 @@ class MSFSGizmo:
                 # is there a list of things in node
                 for child in list(node.children):
                     #print("gizmo child", child)
-                    blender_object = blender_scene.objects.get(
-                        child.name
-                    )  # The glTF exporter will ALWAYS set the node name as the blender name
-
+                    blender_object = blender_scene.objects.get(child.name)  # The glTF exporter will ALWAYS set the node name as the blender name
                     if blender_object is None: # However, there are cases where the exporter creates fake nodes that don't exist in the scene
                         continue
                     # We only need the collision gizmos that are parented to a mesh
-                    if (
-                        blender_object.parent is None or blender_object.parent.type != "MESH"
-                    ):
+                    if (blender_object.parent is None or blender_object.parent.type != "MESH"):  
                         continue
 
                     if blender_object.msfs_gizmo_type != "NONE":
-                        print("gizmo child", child, blender_object.msfs_gizmo_type)
+                        #print("gizmo child type", child, blender_object.msfs_gizmo_type)
                         result = {}
                         result["type"] = blender_object.msfs_gizmo_type
                         result["translation"] = child.translation

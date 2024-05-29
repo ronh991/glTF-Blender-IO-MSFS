@@ -1295,8 +1295,9 @@ class MSFS_Material:
         # emissive
         if nodeEmissiveTex.image:
             self.link(nodeEmissiveScale.outputs[0], nodeMulEmissive.inputs[0])
-            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[self.inputs2])
-            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[self.inputs1])
+            # was inputs2 then 1 chenged to agree with ASOBO
+            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[self.inputs1])
+            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[self.inputs2])
             self.link(nodeMulEmissive.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])
         else:
             self.link(nodeEmissiveColor.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])

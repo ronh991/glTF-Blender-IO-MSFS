@@ -25,7 +25,7 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 1, 0),
-    "version": (2, 2, 1, 2),
+    "version": (2, 2, 3, 6),
     "location": "File > Import-Export",
     "category": "Import-Export",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
@@ -238,6 +238,7 @@ def register():
         try:
             bpy.utils.register_class(cls)
         except ValueError:
+            print("ERROR in register classes", cls)
             pass
 
     for module in modules():
@@ -248,6 +249,7 @@ def register():
         try:
             bpy.utils.register_class(cls)
         except Exception:
+            print("ERROR in register extension classes", cls)
             pass
 
     bpy.types.Scene.msfs_importer_properties = bpy.props.PointerProperty(type=MSFS_ImporterProperties)
@@ -262,6 +264,7 @@ def register_panel():
         try:
             bpy.utils.register_class(panel)
         except Exception:
+            print("ERROR - extension panel not registered", panel)
             pass
 
     for module in modules():
@@ -293,6 +296,7 @@ def unregister_panel():
         try:
             bpy.utils.unregister_class(panel)
         except Exception:
+            print("ERROR unregister panel")
             pass
 
     for module in modules():
