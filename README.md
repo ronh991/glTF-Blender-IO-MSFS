@@ -4,6 +4,8 @@
 
 ## NOTE:
 
+THIS WILL NOT Work with 4.1.x or earlier - Blender 4.2.x LTS is a large breaking change update.
+
 If you use this unofficial version of the ASOBO exporter, be aware that you will need to or it is highly recommended that you migrate your MSFS materials. They will NOT display with the Migrate Data button.  However this exporter has a number of shader node, shader node link changes and default factor value changes.  These changes will only be utilized if you reselect the MSFS material.  That is, reselect the same MSFS material from the drop down - DO NOT SELECT DISABLED in the drop down.  Please make a backup of your original work before migration.
 
 If you want to go back to using the ASOBO exporter, this may or may not be possible.  First if the blend file is a version higher than what ASOBO uses, there may be issues with animations or other blender data where you will be required to rebuild the object and/or animations.  If ASOBO has released a version that uses a Blender version equal to or higher than what you currently are using here, then it would be easier to migrate the material nodes to the new ASOBO version by re-selecting the MSFS Material Param type in the drop down
@@ -14,7 +16,8 @@ This repository contains the current version of a non-official Microsoft Flight 
 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.3 - and has the following mods/fixes
 
-v1.6.3.x (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
+v1.6.3.x (Blender 3.3.x and 3.6.x) 
+v2.2.7 (Blender 4.2.x LTS Beta and later)
 
 # ASOBO issues and enhancements
 
@@ -60,7 +63,11 @@ v1.6.3.x (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
 
   #13 Vertex Color addon Preferences option - fixed issues
 
+  #14 Unique id errors
+
 # Enhancements
+
+  Blender 4.2 has had numerous changes and updates for the Beta - new extensions install for addons is required
 
   Some default values for Metallic, Roughness, Emissive, Base Color have been reset
   Max emissive strength now 100 (not the same a Emissive Factor)
