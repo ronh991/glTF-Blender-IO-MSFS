@@ -34,7 +34,8 @@ class MSFS_PT_BoneProperties(bpy.types.Panel):
 
 
         box.label(text = "Behavior list", icon = 'ANIM')
-        box.template_list('MSFS_UL_object_behaviorListItem', "", context.object, 'msfs_behavior', context.object, 'msfs_active_behavior')
+        # this ine below errors out - why?   where is MSFS_UL_object_behaviorListItem
+        #box.template_list('MSFS_UL_object_behaviorListItem', "", context.object, 'msfs_behavior', context.object, 'msfs_active_behavior')
 
         if len(context.object.msfs_behavior) > context.object.msfs_active_behavior:
             behavior = context.object.msfs_behavior[context.object.msfs_active_behavior]

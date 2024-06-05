@@ -34,7 +34,7 @@ def equality_check(arr1, arr2, size1, size2):
    return True
 
 class Export:
-    
+
     def gather_asset_hook(self, gltf2_asset, export_settings):
         if self.properties.enable_msfs_extension == True:
             if gltf2_asset.extensions is None:
@@ -80,14 +80,23 @@ class Export:
                             pass
         #print("gather_asset_hook - Done")
 
+    # def gather_gltf_encoded_hook(self, export_settings, gltf_format, sort_order):
+        # print("gather_gltf_encoded_hook - started")
+
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
-        print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
-        for ex in export_settings["gltf_user_extensions"]:
-            print("ex", ex, ex.Extension, ex.properties)
-            #for e in ex:
-            #    print(e)
+        # print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
+        # for ex in export_settings["gltf_user_extensions"]:
+            # print("ex", ex, ex.Extension, ex.properties, ex.properties.enabled, ex.properties.enable_msfs_extension, ex.properties.use_unique_id)
+
+        # need to append a new export_setting to keep the user extensions in the list of user_extentions
+        #export_settings.append ("gltf_user_extensions")
+        # print("gltf extensions_used",gltf2_plan.extensions_used)
+        # for extused in gltf2_plan.extensions_used:
+            # print("EX used", extused)
+            # # if ASOBO in name then add to gltf_need_to_keep_extension_declaration
+            # # add into the gltf_need_to_keep_extension_declaration export_setting
         if self.properties.enable_msfs_extension:
-            print("gather_gltf_extensions_hook - enabled")
+            #print("gather_gltf_extensions_hook - enabled")
             for i, image in enumerate(gltf2_plan.images):
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
 
@@ -101,7 +110,7 @@ class Export:
 
             if blender_object.type == 'LIGHT':
                 MSFSLight.export(gltf2_object, blender_object)
-    
+
     def gather_joint_hook(self, gltf2_node, blender_bone, export_settings):
         if self.properties.enable_msfs_extension:
 
@@ -146,19 +155,30 @@ class Export:
 
         # and this for normal and occlusion too ???????????
 
+        # now we need to set the alphamode for windshield if not set to alphamode = BLEND
+        # late 4.2 change alphamode always set to BLEND
+        # blender 4.2 June 6 beta - there is no longer a Blender Blend_mode variable - this was used to set the gltf alphaMode json
+        # variable - since ASOBO now controls the msfs_alpha_mode - we must push this setting to the gltf and bypass the Khronos code
+        print("*** MSFS WARNING *** - alpha mode mat",blender_material.msfs_material_type, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
+        if blender_material.msfs_alpha_mode != gltf2_material.alpha_mode and gltf2_material.alpha_mode is not None:
+            if blender_material.msfs_alpha_mode == "OPAQUE":
+                gltf2_material.alpha_mode = None
+            else:
+                gltf2_material.alpha_mode = blender_material.msfs_alpha_mode
+            print("*** MSFS WARNING *** - alpha mode changed",blender_material.msfs_material_type, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
 
         if self.properties.enable_msfs_extension:
             print("*** MSFS WARNING *** - gather_material_hook - extenson export")
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)
         print("*** MSFS WARNING *** - gather_material_hook - Done")
 
-    def gather_image_hook(self, image, blender_shader_sockets, export_settings):
-        print("*** MSFS WARNING *** - gather_image_hook - Started with ", image, blender_shader_sockets)
-        #print("exportsettings", export_settings)
-        print("*** MSFS WARNING *** gather_image_hook - image", image.name, image.mime_type, image.uri)
-        #if self.properties.enabled:
-            #MSFSMaterial.export(gltf2_material, blender_material, export_settings)
-        print("*** MSFS WARNING *** - gather_image_hook - Done")
+    # def gather_image_hook(self, image, blender_shader_sockets, export_settings):
+        # print("*** MSFS WARNING *** - gather_image_hook - Started with ", image, blender_shader_sockets)
+        # #print("exportsettings", export_settings)
+        # print("*** MSFS WARNING *** gather_image_hook - image", image.name, image.mime_type, image.uri)
+        # #if self.properties.enabled:
+            # #MSFSMaterial.export(gltf2_material, blender_material, export_settings)
+        # print("*** MSFS WARNING *** - gather_image_hook - Done")
 
     # def pre_gather_tracks_hook(self, blender_object, export_settings):
         # from datetime import datetime

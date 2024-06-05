@@ -224,8 +224,8 @@ class MSFSMaterial:
             # had to add in a default socket argument for compatability with 4.0  added (),
             # had to remove the default socket argument for compatability with 4.1+  removed (),
             #print("MSFSMaterial - export_image DEFAULT if - sockets", inputs[0], inputs)
-            for inp in inputs:
-                print("MSFSMaterial - DEFAULT inputs list", inp.socket, inp.group_path)
+            # for inp in inputs:
+                # print("MSFSMaterial - DEFAULT inputs list", inp.socket, inp.group_path)
             try:
                 texture_info = gather_texture_info(
                     inputs[0],
@@ -240,7 +240,7 @@ class MSFSMaterial:
                 texture_info = None, {}, {}, None
             finally:
                 pass
-            print("MSFSMaterial - export_image DEFAULT if - return", texture_info)
+            #print("MSFSMaterial - export_image DEFAULT if - return", texture_info)
         elif type == "NORMAL":
             #print("MSFSMaterial - export_image NORMAL if")
 
@@ -262,8 +262,8 @@ class MSFSMaterial:
             )
             #print("MSFSMaterial - inputs Normal", inputs)
 
-            for inp in inputs:
-                print("MSFSMaterial - NORMAL inputs list", inp.socket, inp.group_path)
+            # for inp in inputs:
+                # print("MSFSMaterial - NORMAL inputs list", inp.socket, inp.group_path)
             try:
                 texture_info = gather_material_normal_texture_info_class(
                     inputs[0],

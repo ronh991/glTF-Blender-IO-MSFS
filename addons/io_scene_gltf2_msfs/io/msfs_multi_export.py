@@ -188,6 +188,7 @@ def export_blender_4_2(file_path, settings):
                 export_image_format = settings.export_image_format,
                 export_texture_dir = settings.export_texture_dir,
                 export_jpeg_quality = settings.export_jpeg_quality,
+                export_image_quality = settings.export_image_quality,
                 export_keep_originals = settings.export_keep_originals,
                 export_texcoords = settings.export_texcoords,
                 export_normals = settings.export_normals,
@@ -238,7 +239,21 @@ def export_blender_4_2(file_path, settings):
                 export_morph_tangent = settings.export_morph_tangent,
                 export_morph_animation = settings.export_morph_animation,
                 export_lights = settings.export_lights,
-                will_save_settings = settings.will_save_settings
+                will_save_settings = settings.will_save_settings,
+                export_gn_mesh = settings.export_gn_mesh,
+                export_gpu_instances = settings.export_gpu_instances,
+                export_hierarchy_flatten_objs = settings.export_hierarchy_flatten_objs,
+                export_hierarchy_full_collections = settings.export_hierarchy_full_collections,
+                export_vertex_color = settings.export_vertex_color,
+                export_all_vertex_colors = settings.export_all_vertex_colors,
+                export_active_vertex_color_when_no_material = settings.export_active_vertex_color_when_no_material,
+                export_unused_images = settings.export_unused_images,
+                export_unused_textures = settings.export_unused_textures,
+                export_image_add_webp = settings.export_image_add_webp,
+                export_image_webp_fallback = settings.export_image_webp_fallback,
+                export_armature_object_remove = settings.export_armature_object_remove,
+                export_influence_nb = settings.export_influence_nb,
+                export_optimize_disable_viewport = settings.export_optimize_disable_viewport,
             )
 
 
@@ -260,7 +275,7 @@ class MSFS_OT_MultiExportGLTF2(bpy.types.Operator):
     @staticmethod
     def export(file_path):
         settings = bpy.context.scene.msfs_multi_exporter_settings
-        bpy.context.scene.msfs_exporter_settings.use_unique_id = settings.use_unique_id
+        bpy.context.scene.msfs_multi_exporter_settings.use_unique_id = settings.use_unique_id
         gltf = None
         if (bpy.app.version < (3, 3, 0)):
             gltf = export_blender_under_3_3(file_path, settings)
@@ -409,7 +424,8 @@ class MSFS_PT_MultiExporter(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.msfs_exporter_settings
+        #return context.scene.msfs_exporter_settings
+        return context.scene.MSFS_ExporterProperties
 
     def draw(self, context):
         layout = self.layout
@@ -424,22 +440,23 @@ class MSFS_PT_MultiExporter(bpy.types.Panel):
         row.operator(MSFS_OT_ChangeTab.bl_idname, text="Settings", depress=(current_tab == "SETTINGS")).current_tab = "SETTINGS"
 
 
-def register_panel():
-    # Register the panel on demand, we need to be sure to only register it once
-    # This is necessary because the panel is a child of the extensions panel,
-    # which may not be registered when we try to register this extension
-    try:
-        bpy.utils.register_class(MSFS_PT_MultiExporter)
-    except Exception:
-        print("ERROR - multi exporter panel register")
-        pass
+# def register_panel():
+    # # Register the panel on demand, we need to be sure to only register it once
+    # # This is necessary because the panel is a child of the extensions panel,
+    # # which may not be registered when we try to register this extension
+    # try:
+        # print("Panel", MSFS_PT_MultiExporter)
+        # bpy.utils.register_class(MSFS_PT_MultiExporter)
+    # except Exception:
+        # print("ERROR - multi exporter panel register")
+        # pass
 
-    # If the glTF exporter is disabled, we need to unregister the extension panel
-    # Just return a function to the exporter so it can unregister the panel
-    return unregister_panel
+    # # If the glTF exporter is disabled, we need to unregister the extension panel
+    # # Just return a function to the exporter so it can unregister the panel
+    # return unregister_panel
 
-def unregister_panel():
-    try:
-        bpy.utils.unregister_class(MSFS_PT_MultiExporter)
-    except Exception:
-        pass
+# def unregister_panel():
+    # try:
+        # bpy.utils.unregister_class(MSFS_PT_MultiExporter)
+    # except Exception:
+        # pass

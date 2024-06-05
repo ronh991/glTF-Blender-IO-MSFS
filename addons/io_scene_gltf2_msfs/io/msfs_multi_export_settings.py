@@ -75,7 +75,8 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
 
     ## MSFS extensions Check
     def msfs_enable_msfs_extension_update(self, context):
-        props = bpy.context.scene.msfs_exporter_settings
+        #props = bpy.context.scene.msfs_exporter_settings
+        props = bpy.context.scene.MSFS_ExporterProperties
         settings = context.scene.msfs_multi_exporter_settings
         props.enable_msfs_extension = settings.enable_msfs_extension
 
@@ -88,7 +89,8 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
 
     ## Asobo Unique ID Check
     def msfs_use_unique_id_extension_update(self, context):
-        props = bpy.context.scene.msfs_exporter_settings
+        #props = bpy.context.scene.msfs_exporter_settings
+        props = bpy.context.scene.MSFS_ExporterProperties
         settings = context.scene.msfs_multi_exporter_settings
         props.use_unique_id = settings.use_unique_id
     
@@ -181,6 +183,13 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         ),
         default=False,
     )
+
+    export_shared_accessors: bpy.props.BoolProperty(
+        name='Shared Accessors',
+        description='Export Primitives using shared accessors for attributes',
+        default=False
+    )
+
     
     ## Export UVs Check
     export_texcoords: bpy.props.BoolProperty(
@@ -204,11 +213,11 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     )
 
     ## Export Vertex Colors Check
-    export_colors: bpy.props.BoolProperty(
-        name="Vertex Colors",
-        description="Export vertex colors with meshes",
-        default=True,
-    )
+    # export_colors: bpy.props.BoolProperty(
+        # name="Vertex Colors",
+        # description="Export vertex colors with meshes",
+        # default=True,
+    # )
     
     ## Export Attributes Colors Check
     export_attributes: bpy.props.BoolProperty(
@@ -257,27 +266,34 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
 
     ## Export Image format UI (Auto/Jpeg/None)
     export_image_format: bpy.props.EnumProperty(
-        name="Images",
-        items=(
-            (
-                "AUTO",
-                "Automatic",
-                "Save PNGs as PNGs and JPEGs as JPEGs. " "If neither one, use PNG",
-            ),
-            (
-                "JPEG",
-                "JPEG Format (.jpg)",
-                "Save images as JPEGs. (Images that need alpha are saved as PNGs though.) "
-                "Be aware of a possible loss in quality",
-            ),
-            ("NONE", "None", "Don't export images"),
-        ),
+        name='Images',
+        items=(('AUTO', 'Automatic',
+                'Save PNGs as PNGs, JPEGs as JPEGs, WebPs as WebPs. '
+                'For other formats, use PNG'),
+               ('JPEG', 'JPEG Format (.jpg)',
+                'Save images as JPEGs. (Images that need alpha are saved as PNGs though.) '
+                'Be aware of a possible loss in quality'),
+               ('WEBP', 'WebP Format',
+                'Save images as WebPs as main image (no fallback)'),
+               ('NONE', 'None',
+                'Don\'t export images'),
+               ),
         description=(
-            "Output format for images. PNG is lossless and generally preferred, but JPEG might be preferable for web "
-            "applications due to the smaller file size. Alternatively they can be omitted if they are not needed"
+            'Output format for images. PNG is lossless and generally preferred, but JPEG might be preferable for web '
+            'applications due to the smaller file size. Alternatively they can be omitted if they are not needed'
         ),
-        default="AUTO",
+        default='AUTO'
     )
+
+    # Keep for back compatibility
+    export_image_quality: bpy.props.IntProperty(
+        name='Image quality',
+        description='Quality of image export',
+        default=75,
+        min=0,
+        max=100
+    )
+
     ## JPEG Quality
     export_jpeg_quality: bpy.props.IntProperty(
         name='JPEG quality',
@@ -285,6 +301,23 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=75,
         min=0,
         max=100
+    )
+
+    export_image_add_webp: bpy.props.BoolProperty(
+        name='Create WebP',
+        description=(
+            "Creates WebP textures for every texture. "
+            "For already WebP textures, nothing happens"
+        ),
+        default=False
+    )
+
+    export_image_webp_fallback: bpy.props.BoolProperty(
+        name='WebP fallback',
+        description=(
+            "For all WebP textures, create a PNG fallback texture"
+        ),
+        default=False
     )
 
     ## Draco compression check 
@@ -366,7 +399,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     #### Animation Options
     ## Use Current Frame Check
     export_current_frame: bpy.props.BoolProperty(
-        name="Use Current Frame",
+        name="Use Current Frame as Object Rest Transformations",
         description="Export the scene in the current animation frame",
         default=False,
     )
@@ -408,6 +441,10 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         'Export actions (actives and on NLA tracks) as separate animations'),
         ('ACTIVE_ACTIONS', 'Active actions merged',
         'All the currently assigned actions become one glTF animation'),
+        ('BROADCAST', 'Broadcast actions',
+        'Broadcast all compatible actions to all objects. '
+        'Animated objects will get all actions compatible with them, '
+        'others will get no animation at all'),
         ('NLA_TRACKS', 'NLA Tracks',
         'Export individual NLA Tracks as separate animation'),
         ('SCENE', 'Scene',
@@ -466,6 +503,15 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         description=(
             "If all keyframes are identical for object transformations, "
             "force keeping the minimal animation"
+        ),
+        default=False
+    )
+
+    export_optimize_disable_viewport: bpy.props.BoolProperty(
+        name='Disable viewport for other objects',
+        description=(
+            "When exporting animations, disable viewport for other objects, "
+            "for performance"
         ),
         default=False
     )
@@ -602,6 +648,13 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False,
     )
 
+    export_influence_nb: bpy.props.IntProperty(
+        name='Bone Influences',
+        description='Choose how many Bone influences to export',
+        default=4,
+        min=1
+    )
+
     ## Deformation Bones Only Check
     export_def_bones: bpy.props.BoolProperty(
         name="Export Deformation Bones Only",
@@ -613,6 +666,15 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     export_hierarchy_flatten_bones: bpy.props.BoolProperty(
         name='Flatten Bone Hierarchy',
         description='Flatten Bone Hierarchy. Useful in case of non decomposable transformation matrix',
+        default=False
+    )
+
+    export_armature_object_remove: bpy.props.BoolProperty(
+        name='Remove Armature Object',
+        description=(
+            'Remove Armature object if possible. '
+            'If Armature has multiple root bones, object will not be removed'
+        ),
         default=False
     )
 
@@ -628,6 +690,82 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     )
     
 
+    export_gn_mesh: bpy.props.BoolProperty(
+        name='Geometry Nodes Instances (Experimental)',
+        description='Export Geometry nodes instance meshes',
+        default=False
+    )
+
+    export_gpu_instances: bpy.props.BoolProperty(
+        name='GPU Instances',
+        description='Export using EXT_mesh_gpu_instancing. '
+                    'Limited to children of a given Empty. '
+                    'Multiple materials might be omitted',
+        default=False
+    )
+
+    export_hierarchy_flatten_objs: bpy.props.BoolProperty(
+        name='Flatten Object Hierarchy',
+        description='Flatten Object Hierarchy. Useful in case of non decomposable transformation matrix',
+        default=False
+    )
+
+    export_hierarchy_full_collections: bpy.props.BoolProperty(
+        name='Full Collection Hierarchy',
+        description='Export full hierarchy, including intermediate collections',
+        default=False
+    )
+
+    export_vertex_color: bpy.props.EnumProperty(
+        name='Use Vertex Color',
+        items=(
+            ('MATERIAL', 'Material',
+             'Export vertex color when used by material'),
+            ('ACTIVE', 'Active',
+             'Export active vertex color'),
+            ('NONE', 'None',
+             'Do not export vertex color')),
+        description='How to export vertex color',
+        default='MATERIAL'
+    )
+
+    export_all_vertex_colors: bpy.props.BoolProperty(
+        name='Export all vertex colors',
+        description=(
+            'Export all vertex colors, even if not used by any material. '
+            'If no Vertex Color is used in the mesh materials, a fake COLOR_0 will be created, '
+            'in order to keep material unchanged'
+        ),
+        default=True
+    )
+
+    export_active_vertex_color_when_no_material: bpy.props.BoolProperty(
+        name='Export active vertex color when no material',
+        description='When there is no material on object, export active vertex color',
+        default=True
+    )
+
+    export_unused_images: bpy.props.BoolProperty(
+        name='Unused images',
+        description='Export images not assigned to any material',
+        default=False)
+
+    export_unused_textures: bpy.props.BoolProperty(
+        name='Prepare Unused textures',
+        description=(
+            'Export image texture nodes not assigned to any material. '
+            'This feature is not standard and needs an external extension to be included in the glTF file'
+        ),
+        default=False)
+
+    export_optimize_disable_viewport: bpy.props.BoolProperty(
+        name='Disable viewport for other objects',
+        description=(
+            "When exporting animations, disable viewport for other objects, "
+            "for performance"
+        ),
+        default=False
+    )
 
 class MSFS_PT_export_main(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
@@ -743,6 +881,28 @@ class MSFS_PT_export_transform(bpy.types.Panel):
 
         layout.prop(settings, "export_yup")
 
+class MSFS_PT_export_scene_graph(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Scene Graph"
+    bl_parent_id = "MSFS_PT_MultiExporter"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.msfs_multi_exporter_current_tab == "SETTINGS"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        settings = context.scene.msfs_multi_exporter_settings
+        col = layout.column()
+        col.prop(settings, 'export_gn_mesh')
+        col.prop(settings, 'export_gpu_instances')
+        col.prop(settings, 'export_hierarchy_flatten_objs')
+        col.prop(settings, 'export_hierarchy_full_collections')
 
 class MSFS_PT_export_geometry(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
@@ -768,13 +928,32 @@ class MSFS_PT_export_geometry(bpy.types.Panel):
         col = layout.column()
         col.active = settings.export_normals
         col.prop(settings, "export_tangents")
-        layout.prop(settings, "export_colors")
+        #layout.prop(settings, "export_colors")
         if (bpy.app.version >= (3, 6, 0)):
             layout.prop(settings, "export_attributes")
 
         col = layout.column()
         col.prop(settings, "use_mesh_edges")
         col.prop(settings, "use_mesh_vertices")
+
+        header, sub_body = layout.panel("GLTF_export_data_material_vertex_color", default_closed=True)
+        header.label(text="Vertex Colors")
+        if sub_body:
+            row = sub_body.row()
+            row.prop(settings, 'export_vertex_color')
+            if settings.export_vertex_color == "ACTIVE":
+                row = sub_body.row()
+                row.label(
+                    text="Note that fully compliant glTF 2.0 engine/viewer will use it as multiplicative factor for base color.",
+                    icon='ERROR')
+                row = sub_body.row()
+                row.label(text="If you want to use VC for any other purpose than vertex color, you should use custom attributes.")
+            row = sub_body.row()
+            row.active = settings.export_vertex_color != "NONE"
+            row.prop(settings, 'export_all_vertex_colors')
+            row = sub_body.row()
+            row.active = settings.export_vertex_color != "NONE"
+            row.prop(settings, 'export_active_vertex_color_when_no_material')
 
 class MSFS_PT_export_material(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
@@ -794,12 +973,26 @@ class MSFS_PT_export_material(bpy.types.Panel):
 
         settings = context.scene.msfs_multi_exporter_settings
 
-        layout.prop(settings, "export_materials")
+        layout.prop(settings, 'export_materials')
         col = layout.column()
         col.active = settings.export_materials == "EXPORT"
-        col.prop(settings, "export_image_format")
-        if (bpy.app.version >= (3, 6, 0)):
-            col.prop(settings, "export_jpeg_quality")
+        col.prop(settings, 'export_image_format')
+        if settings.export_image_format in ["AUTO", "JPEG", "WEBP"]:
+            col.prop(settings, 'export_image_quality')
+        col = layout.column()
+        col.active = settings.export_image_format != "WEBP"
+        col.prop(settings, "export_image_add_webp")
+        col = layout.column()
+        col.active = settings.export_image_format != "WEBP"
+        col.prop(settings, "export_image_webp_fallback")
+
+        header, sub_body = layout.panel("GLTF_export_data_material_unused", default_closed=True)
+        header.label(text="Unused Textures & Images")
+        if sub_body:
+            row = sub_body.row()
+            row.prop(settings, 'export_unused_images')
+            row = sub_body.row()
+            row.prop(settings, 'export_unused_textures')
 
 class MSFS_PT_export_shapekeys(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
@@ -860,6 +1053,7 @@ class MSFS_PT_export_armature(bpy.types.Panel):
                 layout.label(text="Export only deformation bones is not possible when not sampling animation")
             
             if (bpy.app.version >= (3, 6, 0)):
+                layout.prop(settings, 'export_armature_object_remove')
                 layout.prop(settings, 'export_hierarchy_flatten_bones')
 
 class MSFS_PT_export_skinning(bpy.types.Panel):
@@ -883,6 +1077,7 @@ class MSFS_PT_export_skinning(bpy.types.Panel):
         layout.use_property_decorate = False  # No animation.
 
         settings = context.scene.msfs_multi_exporter_settings
+        layout.prop(settings, 'export_influence_nb')
 
         layout.active = settings.export_skins
         layout.prop(settings, "export_all_influences")
@@ -969,7 +1164,7 @@ class MSFS_PT_export_animation(bpy.types.Panel):
 
         if (bpy.app.version >= (3, 6, 0)):
             layout.prop(settings, 'export_animation_mode')
-            if settings.export_animation_mode == "ACTIVE_ACTIONS":
+            if settings.export_animation_mode == 'ACTIVE_ACTIONS':
                 layout.prop(settings, 'export_nla_strips_merged_animation_name')
             row = layout.row()
             row.active = settings.export_force_sampling and settings.export_animation_mode in ['ACTIONS', 'ACTIVE_ACTIONS']
@@ -1155,5 +1350,7 @@ class MSFS_PT_export_animation_optimize(bpy.types.Panel):
             row = layout.row()
             row.prop(settings, 'export_optimize_animation_keep_anim_object')
         
+            row = layout.row()
+            row.prop(settings, 'export_optimize_disable_viewport')
 def register():
     bpy.types.Scene.msfs_multi_exporter_settings = bpy.props.PointerProperty(type=MSFS_MultiExporterSettings)

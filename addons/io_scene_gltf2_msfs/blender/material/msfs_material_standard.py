@@ -21,6 +21,6 @@ class MSFS_Standard(MSFS_Material):
 
     def customShaderTree(self):
         super(MSFS_Standard, self).defaultShadersTree()
-        super(MSFS_Standard, self).createVertexFrame()
+        #super(MSFS_Standard, self).createVertexFrame()
         # not working in 4.0 yet - msfs_material_function.py
-        super(MSFS_Standard, self).createDetailBaseColorTree()
+        #super(MSFS_Standard, self).createDetailBaseColorTree()

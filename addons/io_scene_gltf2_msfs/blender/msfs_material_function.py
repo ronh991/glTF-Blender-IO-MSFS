@@ -316,7 +316,7 @@ class MSFS_Material:
         return nodebiasDBColor
 
 
-    def createDetailBaseColorTree(self):
+    def createDetailBaseColorFrame(self):
         ## DetailBaseColorFrame                
         detailbasecolorFrame = self.addNode(
             name = MSFS_FrameNodes.detailBaseColorFrame.value,

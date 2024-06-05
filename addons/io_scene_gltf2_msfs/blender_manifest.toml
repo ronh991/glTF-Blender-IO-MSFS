@@ -1,0 +1,56 @@
+schema_version = "1.0.0"
+
+# Example of manifest file for a Blender extension
+# Change the values according to your extension
+id = "gltf_exporter_extension"
+version = "2.2.7"
+name = "MSFS glTF 2.0 Exporter"
+tagline = "Microsoft Flight Simulator gLTf Exporter"
+maintainer = "Ron Haertel <gs614rcac@gmail.com> from work done by Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others"
+# Supported types: "add-on", "theme"
+type = "add-on"
+
+# Optional link to documentation, support, source files, etc
+website = "https://github.com/ronh991/glTF-Blender-IO-MSFS"
+
+# Optional list defined by Blender and server, see:
+# https://docs.blender.org/manual/en/dev/extensions/tags.html
+tags = ["Material", "Import-Export"]
+
+blender_version_min = "4.2.0"
+# Optional: maximum supported Blender version
+# blender_version_max = "5.1.0"
+
+# License conforming to https://spdx.org/licenses/ (use "SPDX: prefix)
+# https://docs.blender.org/manual/en/dev/extensions/licenses.html
+
+license = [
+  "SPDX:Apache License, Version 2.0",
+]
+# Optional: required by some licenses.
+copyright = [
+   "2020-2024 ASOBO",
+   "2022-2024 GS614",
+ ]
+
+# Optional list of supported platforms. If ommitted, the extension will be available in all operating systems.
+# platforms = ["windows-amd64", "macos-arm64", "linux-x86_64"]
+# Other supported platforms: "windows-arm64", "macos-x86_64"
+
+# Optional: bundle 3rd party Python modules.
+# https://docs.blender.org/manual/en/dev/extensions/python_wheels.html
+# wheels = [
+#   "./wheels/hexdump-3.3-py3-none-any.whl",
+#   "./wheels/jsmin-3.0.1-py3-none-any.whl"
+# ]
+
+# Optional: add-ons can list which resources they will require:
+# * "files" (for access of any filesystem operations)
+# * "network" (for internet access)
+# * "clipboard" (to read and/or write the system clipboard)
+# * "camera" (to capture photos and videos)
+# * "microphone" (to capture audio)
+
+[permissions]
+files = "Import Export MSFS gltf files"
+clipboard = "Copy and paste objetcs etc"

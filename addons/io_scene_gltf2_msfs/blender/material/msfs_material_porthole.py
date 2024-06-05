@@ -21,4 +21,4 @@ class MSFS_Porthole(MSFS_Material):
 
     def customShaderTree(self):
         super(MSFS_Porthole, self).defaultShadersTree()
-        super(MSFS_Porthole, self).createVertexFrame()
+        #super(MSFS_Porthole, self).createVertexFrame()

@@ -19,17 +19,27 @@ from pathlib import Path
 
 import bpy
 import os
+import toml
 
 bl_info = {
     "name": "Microsoft Flight Simulator glTF Extension",
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
-    "blender": (4, 1, 0),
-    "version": (2, 2, 3, 6),
-    "location": "File > Import-Export",
+    "blender": (4, 2, 0),
+    "version": (2, 2, 7),
+    "location": "File > Export > glTF 2.0",
     "category": "Import-Export",
+    "developer":"Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
 }
+
+#from os import path as p
+
+def get_version_string():
+    SCRIPT_DIR = os.path.dirname(__file__)
+    manifest_file = os.path.join(SCRIPT_DIR, "blender_manifest.toml")
+    bl_info=toml.load(manifest_file)
+    return bl_info["version"]
 
 #get the folder path for the .py file containing this function
 def get_path():
@@ -65,7 +75,8 @@ def on_export_copyright_changed(self, context):
 
 #now that we have the addons name we can get the preferences
 def get_prefs():
-    return bpy.context.preferences.addons[get_name()].preferences
+    #return bpy.context.preferences.addons[get_name()].preferences
+    return bpy.context.preferences.addons[__package__].preferences
 
 ## class to add the preference settings
 class addSettingsPanel(bpy.types.AddonPreferences):
@@ -111,9 +122,6 @@ class addSettingsPanel(bpy.types.AddonPreferences):
         ## default vertex color project
         col.prop(self, "export_vertexcolor_project", text="This Project uses Vertex Color Nodes")
 
-def get_version_string():
-    return str(bl_info['version'][0]) + '.' + str(bl_info['version'][1]) + '.' + str(bl_info['version'][2])
-
 class MSFS_ImporterProperties(bpy.types.PropertyGroup):
     enable_msfs_extension: bpy.props.BoolProperty(
         name='Microsoft Flight Simulator Extensions',
@@ -123,9 +131,16 @@ class MSFS_ImporterProperties(bpy.types.PropertyGroup):
 
 class MSFS_ExporterProperties(bpy.types.PropertyGroup):
     def msfs_enable_msfs_extension_update(self, context):
-        props = bpy.context.scene.msfs_exporter_settings
+        #props = bpy.context.scene.msfs_exporter_settings
+        props = bpy.context.scene.MSFS_ExporterProperties
         settings = bpy.context.scene.msfs_multi_exporter_settings
         settings.enable_msfs_extension = props.enable_msfs_extension
+
+    enabled: bpy.props.BoolProperty(
+        name=bl_info["name"],
+        description='Include this extension in the exported glTF file.',
+        default=True
+        )
 
     enable_msfs_extension: bpy.props.BoolProperty(
         name='Microsoft Flight Simulator Extensions',
@@ -141,59 +156,59 @@ class MSFS_ExporterProperties(bpy.types.PropertyGroup):
     )
     
 
-class GLTF_PT_MSFSImporterExtensionPanel(bpy.types.Panel):
-    bl_space_type = 'FILE_BROWSER'
-    bl_region_type = 'TOOL_PROPS'
-    bl_label = ""
-    bl_parent_id = "GLTF_PT_import_user_extensions"
-    bl_location = "File > Import > glTF 2.0"
+# class GLTF_PT_MSFSImporterExtensionPanel(bpy.types.Panel):
+    # bl_space_type = 'FILE_BROWSER'
+    # bl_region_type = 'TOOL_PROPS'
+    # bl_label = ""
+    # bl_parent_id = "GLTF_PT_import_user_extensions"
+    # bl_location = "File > Import > glTF 2.0"
 
-    @classmethod
-    def poll(cls, context):
-        sfile = context.space_data
-        operator = sfile.active_operator
-        return operator.bl_idname == "IMPORT_SCENE_OT_gltf"
+    # @classmethod
+    # def poll(cls, context):
+        # sfile = context.space_data
+        # operator = sfile.active_operator
+        # return operator.bl_idname == "IMPORT_SCENE_OT_gltf"
 
-    def draw_header(self, context):
-        layout = self.layout
-        layout.label(text="MSFS Extensions", icon='TOOL_SETTINGS')
+    # def draw_header(self, context):
+        # layout = self.layout
+        # layout.label(text="MSFS Extensions", icon='TOOL_SETTINGS')
 
-    def draw(self, context):
-        props = bpy.context.scene.msfs_importer_properties
+    # def draw(self, context):
+        # props = bpy.context.scene.msfs_importer_properties
 
-        layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
+        # layout = self.layout
+        # layout.use_property_split = True
+        # layout.use_property_decorate = False  # No animation.
 
-        layout.prop(props, 'enable_msfs_extension', text="Enabled")
+        # layout.prop(props, 'enable_msfs_extension', text="Enabled")
 
-class GLTF_PT_MSFSExporterExtensionPanel(bpy.types.Panel):
-    bl_space_type = 'FILE_BROWSER'
-    bl_region_type = 'TOOL_PROPS'
-    bl_label = ""
-    bl_parent_id = "GLTF_PT_export_user_extensions"
-    bl_location = "File > Export > glTF 2.0"
+# class GLTF_PT_MSFSExporterExtensionPanel(bpy.types.Panel):
+    # bl_space_type = 'FILE_BROWSER'
+    # bl_region_type = 'TOOL_PROPS'
+    # bl_label = ""
+    # bl_parent_id = "GLTF_PT_export_user_extensions"
+    # bl_location = "File > Export > glTF 2.0"
 
-    @classmethod
-    def poll(cls, context):
-        sfile = context.space_data
-        operator = sfile.active_operator
-        return operator.bl_idname == "EXPORT_SCENE_OT_gltf"
+    # @classmethod
+    # def poll(cls, context):
+        # sfile = context.space_data
+        # operator = sfile.active_operator
+        # return operator.bl_idname == "EXPORT_SCENE_OT_gltf"
 
-    def draw_header(self, context):
-        layout = self.layout
-        layout.label(text="Microsoft Flight Simulator Extensions", icon='TOOL_SETTINGS')
+    # def draw_header(self, context):
+        # layout = self.layout
+        # layout.label(text="Microsoft Flight Simulator Extensions", icon='TOOL_SETTINGS')
 
-    def draw(self, context):
-        props = bpy.context.scene.msfs_exporter_settings
+    # def draw(self, context):
+        # props = bpy.context.scene.msfs_exporter_settings
 
-        layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
+        # layout = self.layout
+        # layout.use_property_split = True
+        # layout.use_property_decorate = False  # No animation.
 
-        layout.prop(props, 'enable_msfs_extension', text="Enabled")
-        if props.enable_msfs_extension:
-            layout.prop(props, 'use_unique_id', text="Enable ASOBO Unique ID extension")
+        # layout.prop(props, 'enable_msfs_extension', text="Enabled")
+        # if props.enable_msfs_extension:
+            # layout.prop(props, 'use_unique_id', text="Enable ASOBO Unique ID extension")
 
 def recursive_module_search(path, root=""):
     for _, name, ispkg in pkgutil.iter_modules([str(path)]):
@@ -213,7 +228,6 @@ def modules():
 
 classes = []
 extension_classes = [MSFS_ImporterProperties, MSFS_ExporterProperties]
-extension_panels = [GLTF_PT_MSFSImporterExtensionPanel, GLTF_PT_MSFSExporterExtensionPanel]
 
 # Refresh the list of classes
 def update_class_list():
@@ -252,28 +266,8 @@ def register():
             print("ERROR in register extension classes", cls)
             pass
 
-    bpy.types.Scene.msfs_importer_properties = bpy.props.PointerProperty(type=MSFS_ImporterProperties)
-    bpy.types.Scene.msfs_exporter_settings = bpy.props.PointerProperty(type=MSFS_ExporterProperties)
-
-
-def register_panel():
-    # Register the panel on demand, we need to be sure to only register it once
-    # This is necessary because the panel is a child of the extensions panel,
-    # which may not be registered when we try to register this extension
-    for panel in extension_panels:
-        try:
-            bpy.utils.register_class(panel)
-        except Exception:
-            print("ERROR - extension panel not registered", panel)
-            pass
-
-    for module in modules():
-        if hasattr(module, "register_panel"):
-            module.register_panel()
-
-    # If the glTF exporter is disabled, we need to unregister the extension panel
-    # Just return a function to the exporter so it can unregister the panel
-    return unregister_panel
+    bpy.types.Scene.MSFS_ImporterProperties = bpy.props.PointerProperty(type=MSFS_ImporterProperties)
+    bpy.types.Scene.MSFS_ExporterProperties = bpy.props.PointerProperty(type=MSFS_ExporterProperties)
 
 
 def unregister():
@@ -289,20 +283,21 @@ def unregister():
 
     for cls in extension_classes:
         bpy.utils.unregister_class(cls)
+    del bpy.types.Scene.MSFS_ExporterProperties
     bpy.utils.unregister_class(addSettingsPanel)
 
-def unregister_panel():
-    for panel in extension_panels:
-        try:
-            bpy.utils.unregister_class(panel)
-        except Exception:
-            print("ERROR unregister panel")
-            pass
+def draw(self, layout):
+    header, body = layout.panel("GLTF_addon_msfs_exporter", default_closed=False)
+    #print("header body", header, body, header.active, header.enabled)
+    props = bpy.context.scene.MSFS_ExporterProperties
+    if body is not None:
+        body.use_property_decorate = False  # No animation.
 
-    for module in modules():
-        if hasattr(module, "unregister_panel"):
-            module.unregister_panel()
+        body.prop(props, 'enable_msfs_extension', text="Enabled")
+        if props.enable_msfs_extension:
+            body.prop(props, 'use_unique_id', text="Enable ASOBO Unique ID extension")
 
+    header.label(text="Microsoft Flight Simulator Extensions")
 
 ##################################################################################
 from .io.msfs_import import Import
@@ -325,5 +320,5 @@ class glTF2ExportUserExtension(Export):
         #print("glTF2ExportUserExtension - __init__ start")
         self.Extension = Extension
         #print("glTF2ExportUserExtension - __init__ extension", Extension)
-        self.properties = bpy.context.scene.msfs_exporter_settings
+        self.properties = bpy.context.scene.MSFS_ExporterProperties
         #print("glTF2ExportUserExtension - __init__ properties", bpy.context.scene.msfs_exporter_properties)
