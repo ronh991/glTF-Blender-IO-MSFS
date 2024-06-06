@@ -1237,7 +1237,7 @@ class AsoboMaterialDetail:
             and blender_material.msfs_material_type != "msfs_invisible" 
             and blender_material.msfs_material_type != "msfs_environment_occluder"):
 
-            print("AsoboMaterialDetail - to extension mat type", blender_material.msfs_material_type)
+            #print("AsoboMaterialDetail - to extension mat type", blender_material.msfs_material_type)
             if blender_material.msfs_detail_color_texture is not None:
                 print("AsoboMaterialDetail - to extension Detail Color", blender_material.msfs_detail_color_texture)
                 result["detailColorTexture"] = MSFSMaterial.export_image(
@@ -1280,7 +1280,7 @@ class AsoboMaterialDetail:
                 hasTexture = True
             
             if hasTexture:
-                print("AsoboMaterialDetail - to extension has texture")
+                #print("AsoboMaterialDetail - to extension has texture")
                 if (blender_material.msfs_detail_uv_scale != AsoboMaterialDetail.Defaults.UVScale):
                     result["UVScale"] = blender_material.msfs_detail_uv_scale
                 if (blender_material.msfs_detail_blend_threshold != AsoboMaterialDetail.Defaults.blendThreshold):
@@ -1290,7 +1290,7 @@ class AsoboMaterialDetail:
                     result["UVOffset"] = (blender_material.msfs_detail_uv_offset_u, blender_material.msfs_detail_uv_offset_v)
             
             if result:
-                print("AsoboMaterialDetail - to extension  result", result)
+                #print("AsoboMaterialDetail - to extension  result", result)
                 gltf2_material.extensions[AsoboMaterialDetail.SerializedName] = Extension(
                     name=AsoboMaterialDetail.SerializedName,
                     extension=result,

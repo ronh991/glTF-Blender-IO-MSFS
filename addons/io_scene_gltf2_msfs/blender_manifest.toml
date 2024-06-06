@@ -3,10 +3,10 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "gltf_exporter_extension"
-version = "2.2.7"
+version = "2.2.8"
 name = "MSFS glTF 2.0 Exporter"
 tagline = "Microsoft Flight Simulator gLTf Exporter"
-maintainer = "Ron Haertel <gs614rcac@gmail.com> from work done by Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others"
+maintainer = "Ron Haertel gs614rcac@gmail.com from work done by Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others"
 # Supported types: "add-on", "theme"
 type = "add-on"
 

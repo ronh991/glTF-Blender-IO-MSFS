@@ -23,6 +23,7 @@ from .msfs_material import MSFSMaterial
 from .msfs_unique_id import MSFS_unique_id
 from datetime import datetime
 
+current_time = {"time": datetime.now(), "timestr": "Zero", "blender_ob": None}
 
 def equality_check(arr1, arr2, size1, size2):
    if (size1 != size2):
@@ -32,6 +33,13 @@ def equality_check(arr1, arr2, size1, size2):
       if (int(arr1[i] * 10000000)/10000000 != int(arr2[i] * 10000000)/10000000):
          return False
    return True
+
+def global_time(blender_object):
+    global current_time
+    current_time["time"] = datetime.now()
+    current_time["timestr"] = datetime.now().strftime("%H:%M:%S")
+    current_time["blender_ob"] = blender_object
+
 
 class Export:
 
@@ -128,12 +136,13 @@ class Export:
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
         # blender 4.0 issue with detail textures added twice once correct and once as a regular basecolor texture
         # if it has a detail color texture then set basecolor texture to none
-        print("*** MSFS WARNING *** - gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
-        print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        #print("*** MSFS WARNING *** - gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
+        #print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
         if blender_material.msfs_detail_color_texture is not None and blender_material.msfs_base_color_texture is None:
             gltf2_material.pbr_metallic_roughness.base_color_texture = None
+            print("*** MSFS WARNING *** - gather_material_hook - blender material ", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
             print("*** MSFS WARNING *** - blender material - delete the base color", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
-        print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        #print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
 
         # # blender 3.3 removes base color values with base color texture - have to add back in
         # #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
@@ -159,18 +168,18 @@ class Export:
         # late 4.2 change alphamode always set to BLEND
         # blender 4.2 June 6 beta - there is no longer a Blender Blend_mode variable - this was used to set the gltf alphaMode json
         # variable - since ASOBO now controls the msfs_alpha_mode - we must push this setting to the gltf and bypass the Khronos code
-        print("*** MSFS WARNING *** - alpha mode mat",blender_material.msfs_material_type, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
+        #print("*** MSFS WARNING *** - alpha mode mat",blender_material.msfs_material_type, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
         if blender_material.msfs_alpha_mode != gltf2_material.alpha_mode and gltf2_material.alpha_mode is not None:
             if blender_material.msfs_alpha_mode == "OPAQUE":
                 gltf2_material.alpha_mode = None
             else:
                 gltf2_material.alpha_mode = blender_material.msfs_alpha_mode
-            print("*** MSFS WARNING *** - alpha mode changed",blender_material.msfs_material_type, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
+            print("*** MSFS WARNING *** - alpha mode changed",blender_material.msfs_material_type, blender_material.name, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
 
         if self.properties.enable_msfs_extension:
-            print("*** MSFS WARNING *** - gather_material_hook - extenson export")
+            #print("*** MSFS WARNING *** - gather_material_hook - extenson export")
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)
-        print("*** MSFS WARNING *** - gather_material_hook - Done")
+        #print("*** MSFS WARNING *** - gather_material_hook - Done")
 
     # def gather_image_hook(self, image, blender_shader_sockets, export_settings):
         # print("*** MSFS WARNING *** - gather_image_hook - Started with ", image, blender_shader_sockets)
@@ -197,19 +206,17 @@ class Export:
             # print("animation_track_switch_loop_hook - Done", current_time, blender_object)
 
     def animation_switch_loop_hook(self, blender_object, Done, export_settings):
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        ##if blender_object != current_blender_object:
         if not Done:
-            print("animation_switch_loop_hook - Started with ", current_time, blender_object)
-        #c = now - hook_current_time
+            global_time(blender_object)
+            #print("animation_switch_loop_hook - Started with ", current_time, blender_object)
+            return
+        c = datetime.now() - current_time["time"]
         #minutes = c.total_seconds() / 60
-
-        #if minutes > 0.05:
-        if Done:
-            #hook_current_time = now
-            #current_blender_object = blender_object
-            print("animation_switch_loop_hook - Done", current_time, blender_object)
+        #print("minutes", minutes, c, current_time["time"], c.total_seconds(), blender_object, current_time["blender_ob"], Done)
+        if c.total_seconds() > 2 and blender_object == current_time["blender_ob"]:
+            if Done:
+                print("animation_switch_loop_hook - Long animation - CHECK", c.total_seconds(), " seconds (>2) ", blender_object, c)
+                global_time(None)
 
     # def pre_animation_track_switch_hook(self, blender_object, blender_action, track_name, on_type, export_settings):
         # from datetime import datetime
