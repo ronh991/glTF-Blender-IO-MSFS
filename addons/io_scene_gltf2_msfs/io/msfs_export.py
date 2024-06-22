@@ -164,17 +164,20 @@ class Export:
 
         # and this for normal and occlusion too ???????????
 
-        # now we need to set the alphamode for windshield if not set to alphamode = BLEND
         # late 4.2 change alphamode always set to BLEND
         # blender 4.2 June 6 beta - there is no longer a Blender Blend_mode variable - this was used to set the gltf alphaMode json
-        # variable - since ASOBO now controls the msfs_alpha_mode - we must push this setting to the gltf and bypass the Khronos code
+        # variable - since ASOBO now controls the msfs_alpha_mode - we must push this setting to the gltf and bypass the Khronos code - settings to BLEND
+        # this BLEND setting causes the sim flickering of all textures. - what a mess
         #print("*** MSFS WARNING *** - alpha mode mat",blender_material.msfs_material_type, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
         if blender_material.msfs_alpha_mode != gltf2_material.alpha_mode and gltf2_material.alpha_mode is not None:
             if blender_material.msfs_alpha_mode == "OPAQUE":
-                gltf2_material.alpha_mode = None
+                before_gltf_alpha_mode = gltf2_material.alpha_mode
+                if gltf2_material.alpha_mode != None:
+                    gltf2_material.alpha_mode = None
+                    print("*** MSFS WARNING *** - Force Khronos alpha mode changed to Opaque/None",blender_material.msfs_material_type, blender_material.name, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode, "gltf alpha mode was", before_gltf_alpha_mode)
             else:
                 gltf2_material.alpha_mode = blender_material.msfs_alpha_mode
-            print("*** MSFS WARNING *** - alpha mode changed",blender_material.msfs_material_type, blender_material.name, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
+                print("*** MSFS WARNING *** - Force Khrons alpha mode changed",blender_material.msfs_material_type, blender_material.name, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
 
         if self.properties.enable_msfs_extension:
             #print("*** MSFS WARNING *** - gather_material_hook - extenson export")
