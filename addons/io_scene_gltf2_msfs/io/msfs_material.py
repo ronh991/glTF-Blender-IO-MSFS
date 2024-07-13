@@ -97,7 +97,6 @@ class MSFSMaterial:
         # Gather texture info
         if type == "DEFAULT":
             link = links.new(shader_node.inputs["Base Color"], texture_node.outputs[0])
-            # from Khronos gltf core example pbr sockets geather_texture_info
 
             texture_info = gather_texture_info(
                 shader_node.inputs["Base Color"],
@@ -123,9 +122,7 @@ class MSFSMaterial:
         elif type == "OCCLUSION":
             # TODO: handle this - may not be needed
             texture_info = gather_material_occlusion_texture_info_class(
-                shader_node.inputs[0],
-                (shader_node.inputs[0],),
-                export_settings
+                shader_node.inputs[0], (shader_node.inputs[0],), export_settings
             )
 
         # Delete temp Fake nodes

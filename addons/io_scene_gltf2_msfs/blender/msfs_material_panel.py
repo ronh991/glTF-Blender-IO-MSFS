@@ -899,16 +899,6 @@ class MSFS_PT_Material(bpy.types.Panel):
             column.template_ID(mat, prop, new="image.new", open="image.open")
             column.enabled = enabled
 
-    # def check_addon_prefs(self, context):
-        # addonpreferences = get_prefs()
-        # settings = bpy.context.scene.msfs_multi_exporter_settings
-        # print("settings", settings.export_vertexcolor_project, addonpreferences.export_vertexcolor_project)
-        # if addonpreferences.export_vertexcolor_project != settings.export_vertexcolor_project:
-            # settings.export_vertexcolor_project = addonpreferences.export_vertexcolor_project
-        # if addonpreferences.export_copyright != settings.export_copyright and addonpreferences.export_copyright != "Your Copyright Here":
-            # settings.export_copyright = addonpreferences.export_copyright
-        # return addonpreferences
-
     def draw(self, context):
         layout = self.layout
         # Disabled animation UI until material animations are properly implemented
@@ -1267,7 +1257,7 @@ class MSFS_PT_Material(bpy.types.Panel):
                         box,
                         mat,
                         "msfs_occlusion_metallic_roughness_texture",
-                        text=occlusion_metallic_roughness_texture_name
+                        text=occlusion_metallic_roughness_texture_name,
                     )
                     self.draw_texture_prop(
                         box, mat, "msfs_normal_texture", text=normal_texture_name

@@ -60,6 +60,8 @@ v1.6.3.x (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
 
   #13 Vertex Color addon Preferences option - fixed issues
 
+  #15 Detail ORM node structure update - see ASOBO #330
+
 # Enhancements
 
   Some default values for Metallic, Roughness, Emissive, Base Color have been reset

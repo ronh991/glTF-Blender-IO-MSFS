@@ -737,21 +737,24 @@ class MSFS_Material:
             color = (0.1, 0.4, 0.6)
         )
 
+        # Node removed - only subtract 0.5
+
         ## Multiply Detail OMR
         # In[0] : Detail OMR texture
         # Out[0] : Substract Detail OMR
-        multiplyDetailOMR = self.addNode(
-            name = MSFS_ShaderNodes.detailOMRMul.value,
-            typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
-            operation = "MULTIPLY",
-            location = (-500.0, 200.0),
-            width = 200.0,
-            frame = omrFrame
-        )
-        multiplyDetailOMR.inputs[1].default_value = (2.0, 2.0, 2.0)
+        # multiplyDetailOMR = self.addNode(
+            # name = MSFS_ShaderNodes.detailOMRMul.value,
+            # typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
+            # operation = "MULTIPLY",
+            # location = (-500.0, 200.0),
+            # width = 200.0,
+            # frame = omrFrame
+        # )
+        # multiplyDetailOMR.inputs[1].default_value = (2.0, 2.0, 2.0)
 
         ## Links
-        self.link(detailCompTexNode.outputs[0], multiplyDetailOMR.inputs[0])
+        # multiplyDetailOMR node removed
+        #self.link(detailCompTexNode.outputs[0], multiplyDetailOMR.inputs[0])
 
         ## Substract Detail OMR
         # In[0] : Multiply Detail OMR
@@ -760,14 +763,19 @@ class MSFS_Material:
             name = MSFS_ShaderNodes.detailOMRSubtract.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
             operation = "SUBTRACT",
-            location = (-500.0, 150.0),
+            location = (-500.0, 200.0),
             width = 200.0,
             frame = omrFrame
         )
-        subtractDetailOMR.inputs[1].default_value = (1.0, 1.0, 1.0)
+        #subtractDetailOMR.inputs[1].default_value = (1.0, 1.0, 1.0)
+        # bias by 0.5
+        subtractDetailOMR.inputs[1].default_value = (0.5, 0.5, 0.5)
 
         ## Links
-        self.link(multiplyDetailOMR.outputs[0], subtractDetailOMR.inputs[0])
+        # multiplyDetailOMR node removed
+        #self.link(multiplyDetailOMR.outputs[0], subtractDetailOMR.inputs[0])
+        # detail comp tex to subtract subtractDetailOMR bias
+        self.link(detailCompTexNode.outputs[0], subtractDetailOMR.inputs[0])
 
         ## Map to clamp detail OMR
         # In[0] : Substract Detail OMR
@@ -775,7 +783,7 @@ class MSFS_Material:
         clampDetailOMR = self.addNode(
             name = MSFS_ShaderNodes.detailOMRClamp.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeMapRange.value,
-            location = (-500.0, 100.0),
+            location = (-150.0, 200.0),
             width = 200.0,
             frame = omrFrame
         )
@@ -783,7 +791,9 @@ class MSFS_Material:
         clampDetailOMR.interpolation_type = "LINEAR"
 
         ## Links
-        self.link(subtractDetailOMR.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
+        # now clampDetailOMR
+        # link moved to after add
+        #self.link(subtractDetailOMR.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
 
         ## Metallic scale
         # Out[0] : Metallic Multiplier -> In[0] 
@@ -814,7 +824,7 @@ class MSFS_Material:
             name = MSFS_ShaderNodes.blendCompMap.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
             operation = "ADD",
-            location = (-150.0, 200.0),
+            location = (-500.0, 100.0),
             width = 300.0,
             frame = omrFrame
         )
@@ -822,8 +832,14 @@ class MSFS_Material:
         #blendCompMapNode.inputs[self.inputs0].default_value = 1.0
         
         ## Links
-        self.link(compTexNode.outputs[0], blendCompMapNode.inputs[0])
-        self.link(clampDetailOMR.outputs[1], blendCompMapNode.inputs[1])
+        # now clampDetailOMR out to splitOccMetalRoughNode in
+        #self.link(clampDetailOMR.outputs[1], blendCompMapNode.inputs[1])
+        # subtract bias to add
+        self.link(subtractDetailOMR.outputs[0], blendCompMapNode.inputs[1])
+        self.link(blendCompMapNode.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
+        # From To min max
+        clampDetailOMR.inputs[7].default_value = (-0.5, -0.5, -0.5)
+        clampDetailOMR.inputs[8].default_value = (1.5, 1.5, 1.5)
 
         ## Split Occlusion Metallic Roughness
         # In[0] : Blend Comp Map -> Out[0]
@@ -848,7 +864,7 @@ class MSFS_Material:
             )
         
         ## Links
-        self.link(splitOccMetalRoughNode.inputs[0], blendCompMapNode.outputs[0])
+        #self.link(splitOccMetalRoughNode.inputs[0], blendCompMapNode.outputs[0])
         
         ## Roughness Multiplier
         # In[1] : Split Occ Metal Rough -> Out[1]
@@ -1265,8 +1281,9 @@ class MSFS_Material:
         # emissive
         if nodeEmissiveTex.image:
             self.link(nodeEmissiveScale.outputs[0], nodeMulEmissive.inputs[0])
-            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[self.inputs2])
-            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[self.inputs1])
+            # was inputs2 then 1 chenged to agree with ASOBO
+            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[self.inputs1])
+            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[self.inputs2])
             self.link(nodeMulEmissive.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])
         else:
             self.link(nodeEmissiveColor.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])
@@ -1281,6 +1298,7 @@ class MSFS_Material:
         nodeRoughnessScale = self.getNodeByName(MSFS_ShaderNodes.roughnessScale.value)
         nodeMetallicScale = self.getNodeByName(MSFS_ShaderNodes.metallicScale.value)
         nodeBlendCompMap = self.getNodeByName(MSFS_ShaderNodes.blendCompMap.value)
+        nodeClampDetailOMR = self.getNodeByName(MSFS_ShaderNodes.detailOMRClamp.value)
         nodeSeparateComp = self.getNodeByName(MSFS_ShaderNodes.compSeparate.value)
         nodeMulMetallic = self.getNodeByName(MSFS_ShaderNodes.metallicMul.value)
         nodeMulRoughness = self.getNodeByName(MSFS_ShaderNodes.roughnessMul.value)
@@ -1288,7 +1306,8 @@ class MSFS_Material:
         nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
 
         # occlMetalRough
-        self.link(nodeBlendCompMap.outputs[0], nodeSeparateComp.inputs[0])
+        # change link order
+        #self.link(nodeBlendCompMap.outputs[0], nodeSeparateComp.inputs[0])
         self.link(nodeMetallicScale.outputs[0], nodeMulMetallic.inputs[0])
         self.link(nodeRoughnessScale.outputs[0], nodeMulRoughness.inputs[0])
         self.link(nodeSeparateComp.outputs[1], nodeMulRoughness.inputs[1])
@@ -1299,7 +1318,14 @@ class MSFS_Material:
             self.link(nodeMetallicScale.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
 
             self.unLinkNodeInput(nodeGltfSettings, 0)
+        elif nodeCompTex.image and not nodeDetailCompTex.image:
+            self.link(nodeSeparateComp.inputs[0], nodeCompTex.outputs[0])
+            self.link(nodeSeparateComp.outputs[0], nodeGltfSettings.inputs[0])
+            self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
+            self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
         else: # nodeCompTex.image or nodeDetailCompTex.image (if we have both images or only one of them)
+            self.link(nodeBlendCompMap.inputs[0], nodeCompTex.outputs[0])
+            self.link(nodeClampDetailOMR.outputs[1], nodeSeparateComp.inputs[0])
             self.link(nodeSeparateComp.outputs[0], nodeGltfSettings.inputs[0])
             self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
             self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])

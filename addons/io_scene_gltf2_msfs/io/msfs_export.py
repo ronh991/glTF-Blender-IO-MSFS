@@ -23,17 +23,8 @@ from .msfs_material import MSFSMaterial
 from .msfs_unique_id import MSFS_unique_id
 
 
-def equality_check(arr1, arr2, size1, size2):
-   if (size1 != size2):
-      return False
-   for i in range(0, size2):
-      # blender python color channel issues in floats ???
-      if (int(arr1[i] * 10000000)/10000000 != int(arr2[i] * 10000000)/10000000):
-         return False
-   return True
-
 class Export:
-    
+
     def gather_asset_hook(self, gltf2_asset, export_settings):
         if self.properties.enable_msfs_extension == True:
             if gltf2_asset.extensions is None:
@@ -79,8 +70,23 @@ class Export:
                             pass
         #print("gather_asset_hook - Done")
 
+    # def gather_gltf_encoded_hook(self, export_settings, gltf_format, sort_order):
+        # print("gather_gltf_encoded_hook - started")
+
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
+        # print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
+        # for ex in export_settings["gltf_user_extensions"]:
+            # print("ex", ex, ex.Extension, ex.properties, ex.properties.enabled, ex.properties.enable_msfs_extension, ex.properties.use_unique_id)
+
+        # need to append a new export_setting to keep the user extensions in the list of user_extentions
+        #export_settings.append ("gltf_user_extensions")
+        # print("gltf extensions_used",gltf2_plan.extensions_used)
+        # for extused in gltf2_plan.extensions_used:
+            # print("EX used", extused)
+            # # if ASOBO in name then add to gltf_need_to_keep_extension_declaration
+            # # add into the gltf_need_to_keep_extension_declaration export_setting
         if self.properties.enable_msfs_extension:
+            #print("gather_gltf_extensions_hook - enabled")
             for i, image in enumerate(gltf2_plan.images):
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
 
@@ -94,7 +100,7 @@ class Export:
 
             if blender_object.type == 'LIGHT':
                 MSFSLight.export(gltf2_object, blender_object)
-    
+
     def gather_joint_hook(self, gltf2_node, blender_bone, export_settings):
         if self.properties.enable_msfs_extension:
 
@@ -110,22 +116,25 @@ class Export:
             MSFSGizmo.export(gltf2_scene.nodes, blender_scene, export_settings)
 
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
-        # blender 3.3 removes base color values with base color texture - have to add back in
-        #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
-        base_color = blender_material.msfs_base_color_factor
-        gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
-        #print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3], gltf2_base_color)
-        if base_color is not None and gltf2_base_color is None:
-            print("*** MSFS WARNING *** - changing base_color_factor because none", blender_material, base_color[0], base_color[1], base_color[2], base_color[3])
-            gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        if gltf2_base_color is not None:
-            if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
-                print("*** MSFS WARNING *** - changing base_color_factor because different in node", blender_material, base_color, gltf2_base_color)
-                if base_color[0] == 1.0 and base_color[1] == 1.0 and base_color[2] == 1.0 and base_color[3] == 1.0:
-                    gltf2_material.pbr_metallic_roughness.base_color_factor = gltf2_base_color
-                else:
-                    gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        #print("gather_material_hook - blender material - set base color after", blender_material, gltf2_material.pbr_metallic_roughness.base_color_factor)
+
+        # Apr 25,2024 update to exporter may have fixed this issue and this code is not needed
+
+        # # blender 3.3 removes base color values with base color texture - have to add back in
+        # #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
+        # base_color = blender_material.msfs_base_color_factor
+        # gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
+        # #print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3], gltf2_base_color)
+        # if base_color is not None and gltf2_base_color is None:
+            # print("*** MSFS WARNING *** - changing base_color_factor because none", blender_material, base_color[0], base_color[1], base_color[2], base_color[3])
+            # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
+        # if gltf2_base_color is not None:
+            # if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
+                # print("*** MSFS WARNING *** - changing base_color_factor because different in node", blender_material, base_color, gltf2_base_color)
+                # if base_color[0] == 1.0 and base_color[1] == 1.0 and base_color[2] == 1.0 and base_color[3] == 1.0:
+                    # gltf2_material.pbr_metallic_roughness.base_color_factor = gltf2_base_color
+                # else:
+                    # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
+        # #print("gather_material_hook - blender material - set base color after", blender_material, gltf2_material.pbr_metallic_roughness.base_color_factor)
 
 
         if self.properties.enable_msfs_extension:
