@@ -129,7 +129,6 @@ class MSFS_ShaderNodes(Enum):
     blendColorMap = "Blend Color Map"
     blendAlphaMap = "Blend Alpha Map"
     blendCompMap = "Add Occlusion(R) Roughness(G) Metallic(B)"
-    #blendCompMap = "Blend Occlusion(R) Roughness(G) Metallic(B) Map"
     vertexColor = "Vertex Color"
     albedoDetailMix = "Albedo Detail Mix"
     behindGlassTex = "Behind Glass"

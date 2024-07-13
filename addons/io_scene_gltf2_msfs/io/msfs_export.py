@@ -216,9 +216,9 @@ class Export:
         c = datetime.now() - current_time["time"]
         #minutes = c.total_seconds() / 60
         #print("minutes", minutes, c, current_time["time"], c.total_seconds(), blender_object, current_time["blender_ob"], Done)
-        if c.total_seconds() > 2 and blender_object == current_time["blender_ob"]:
+        if c.total_seconds() > 2 and blender_object == current_time["blender_ob"] and blender_object is not None:
             if Done:
-                print("animation_switch_loop_hook - Long animation - CHECK", c.total_seconds(), " seconds (>2) ", blender_object, c)
+                print("animation_switch_loop_hook - Long animation KF build - CHECK", c.total_seconds(), " seconds (>2) ", blender_object, c)
                 global_time(None)
 
     # def pre_animation_track_switch_hook(self, blender_object, blender_action, track_name, on_type, export_settings):

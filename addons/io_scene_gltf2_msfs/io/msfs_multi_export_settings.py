@@ -102,8 +102,8 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     )
     
     #### Include Options
-    #def getUseSelection(self):
-    #    return True
+    def getUseSelection(self):
+        return True
 
     ## Export Selected Only Check
     use_selection: bpy.props.BoolProperty(
@@ -113,7 +113,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
             "Disabled for the use of the MultiExporter (Needs to be always checked)"
         ), 
         default=True,
-    #    get=getUseSelection
+        get=getUseSelection
     )
 
     ## Export Visible Only Check
@@ -1164,7 +1164,7 @@ class MSFS_PT_export_animation(bpy.types.Panel):
 
         if (bpy.app.version >= (3, 6, 0)):
             layout.prop(settings, 'export_animation_mode')
-            if settings.export_animation_mode == 'ACTIVE_ACTIONS':
+            if settings.export_animation_mode == "ACTIVE_ACTIONS":
                 layout.prop(settings, 'export_nla_strips_merged_animation_name')
             row = layout.row()
             row.active = settings.export_force_sampling and settings.export_animation_mode in ['ACTIONS', 'ACTIVE_ACTIONS']
