@@ -17,6 +17,7 @@ This repository contains the current version of a non-official Microsoft Flight 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.3 - and has the following mods/fixes
 
 v1.6.8.x (Blender 3.3.x and 3.6.x) 
+
 v2.2.13 (Blender 4.2.0 LTS Release ONLY - 4.2 Beta does not work with this version as there are too many late breaking changes)
 
 Blender 4.2.1 RC has not been tested.
@@ -71,7 +72,7 @@ Blender 4.2.1 RC has not been tested.
 
 # Enhancements
 
-  Blender 4.2 has had numerous changes and updates for the Beta - new extensions install for addons is required
+  Blender 4.2.0 LTS has had numerous changes and updates for the Beta - new extensions install for addons is required
 
   Some default values for Metallic, Roughness, Emissive, Base Color have been reset
   Max emissive strength now 100 (not the same a Emissive Factor)
@@ -80,16 +81,16 @@ Blender 4.2.1 RC has not been tested.
 
   Added more functionality to the migration of materials. If you import a glTF file using the fbw (Fly-By-Wire) importer, you will get material nodes that are not one for one in synch with the ASOBO exporter and a Pre-Migration will be required. The fbw materials will now carry over it's data to the new ASOBO shaders with better accuracy.  You will still need to monitor the migration of those materials.
 
->Asobo would especially like to thank the following people:
+>ASOBO and me would especially like to thank the following people:
 >Vitus of [Wing42](https://wing42.com/), [tml1024](https://github.com/tml1024), [ronh991](https://github.com/ronh991), [pepperoni505](https://github.com/pepperoni505) of [FlyByWire](https://flybywiresim.com/)
 
 :warning: This plugin cannot import glTF files that have been built into a Microsoft Flight Simulator package through the Sim's Package Builder.
 
 :warning: This plugin is NOT compatible with the legacy exporter developed for FSX and P3D and MSFS.  Remove these plugin (Prefered) or disabled these plugins.
 
-:warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
+:warning: The version 1.6.8 is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
-:warning: The version 2.0.2.x is only compatible with Blender 4.0.x. Other versions are not supported.
+:warning: The version 2.2.13 is only compatible with Blender 4.2.0 LTS Release - Other versions are not supported.
 
 *******
 
@@ -107,6 +108,10 @@ Blender 4.2.1 RC has not been tested.
 # How to Install the Add-on
 
 There are two ways to install the MSFS Blender exporter. Either using the Edit Preferences Menu and Install tab, or copy/paste the addon files to your %APPDATA% folder. Installation steps are explained down bellow :
+
+4.2.0 LTS install - uses new extensions and is drag and drop - see video
+
+https://youtu.be/Csdrq3izEQA
 
 ## How to Install the ASOBO Blender MSFS Importer/Exporter using Blender:
 
