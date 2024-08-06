@@ -184,4 +184,4 @@ class MSFS_MixNodeOutputs:
 
 # metallic factor, roughness factor, emissive strength, Alpha - Blender v 4.0+
 class MSFS_BSDFNodeInputs:
-    inputs = [[6, 9, 20, 21], [1, 2, 27, 4]]
+    inputs = [[6, 9, 20, 21, 19], [1, 2, 27, 4, 26]]

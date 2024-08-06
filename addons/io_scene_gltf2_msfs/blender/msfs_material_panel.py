@@ -249,6 +249,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
         bsdfinputs9 = MSFS_BSDFNodeInputs.inputs[index_B4][1]
         bsdfinputs20 = MSFS_BSDFNodeInputs.inputs[index_B4][2]
         bsdfinputs21 = MSFS_BSDFNodeInputs.inputs[index_B4][3]
+        bsdfinputs19 = MSFS_BSDFNodeInputs.inputs[index_B4][4]
 
         # To Do: check if new material type and Base Color and Base Color A nodes present then just assume good
         try:
@@ -374,14 +375,12 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                         finally:
                             pass
 
-
                         # put Emissive color stuff here
-
 
                         try:
                             if mat.node_tree.nodes["emissive_tint"] is not None:
                                 # get color
-                                BSDF_Emission = principled.inputs["Emissive Color"].default_value[0:3]
+                                BSDF_Emission = principled.inputs[bsdfinputs19].default_value[0:3]
                                 emissive_tint_checkval = mat.node_tree.nodes["emissive_tint"].outputs[0].default_value
                                 print("old_emissive_tint_color_diff - BSDF emission", BSDF_Emission[0], emissive_tint_checkval[0], BSDF_Emission[1], emissive_tint_checkval[1], BSDF_Emission[2], emissive_tint_checkval[2], BSDF_Emission[3], emissive_tint_checkval[3])
                                 if not equality_check(BSDF_Emission, emissive_tint_checkval, len(BSDF_Emission), len(emissive_tint_checkval)):
@@ -393,9 +392,9 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                             else:
                                 if mat.msfs_material_type != "NONE":
                                     print("old_emissive_tint_color_diff - Emission")
-                                    BSDF_Emission = principled.inputs["Emissive Color"].default_value[0:3]
+                                    BSDF_Emission = principled.inputs[bsdfinputs19].default_value[0:3]
                                     print("old_emissive_tint_color_diff - BSDF to MSFS base color", BSDF_Emission[0], mat.msfs_emissive_factor[0], BSDF_Emission[1], mat.msfs_emissive_factor[1], BSDF_Emission[2], mat.msfs_emissive_factor[2], BSDF_Emission[3], mat.msfs_emissive_factor[3])
-                                    if not equality_check(BSDF_Emission, mat.msfs_emissive_factor, len(BSDF_Base_Color), len(mat.msfs_emissive_factor)):
+                                    if not equality_check(BSDF_Emission, mat.msfs_emissive_factor, len(BSDF_Emission), len(mat.msfs_emissive_factor)):
                                         found_diff = True
                                     print("old_emissive_tint_color_diff - Base Color Alpha Done")
                                     if found_diff:
@@ -404,7 +403,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                             try:
                                 if mat.msfs_material_type != "NONE":
                                     print("old_emissive_tint_color_diff - BSDF to MSFS emissive", BSDF_Emission[0], mat.msfs_emissive_factor[0], BSDF_Emission[1], mat.msfs_emissive_factor[1], BSDF_Emission[2], mat.msfs_emissive_factor[2], BSDF_Emission[3], mat.msfs_emissive_factor[3])
-                                    BSDF_Emission = principled.inputs["Emissive Color"].default_value[0:3]
+                                    BSDF_Emission = principled.inputs[bsdfinputs19].default_value[0:3]
                                     if not equality_check(BSDF_Emission, mat.msfs_emissive_factor, len(BSDF_Emission), len(mat.msfs_emissive_factor)):
                                         found_diff = True
                                     if found_diff:
@@ -418,19 +417,19 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
 
                     print("old_albedo_tint_color_diff - after node - diff", found_diff, bad_material_setup)
                     if mat.msfs_material_type == "NONE" or bad_material_setup or (mat.msfs_material_mode != "NONE" and not bad_material_setup):
-                        print("old_albedo_tint_color_diff - values", principled.inputs[6].default_value, principled.inputs[9].default_value, principled.inputs[20].default_value, principled.inputs[21].default_value)
+                        print("old_albedo_tint_color_diff - values", principled.inputs[bsdfinputs6].default_value, principled.inputs[bsdfinputs9].default_value, principled.inputs[bsdfinputs20].default_value, principled.inputs[bsdfinputs21].default_value)
                         # input 6 Metallic
                         if not principled.inputs[bsdfinputs6].links and principled.inputs[bsdfinputs6].default_value != mat.msfs_metallic_factor:
                             found_diff = True
-                        print("after met", found_diff, mat.msfs_metallic_factor, principled.inputs[6].default_value)
+                        print("after met", found_diff, mat.msfs_metallic_factor, principled.inputs[bsdfinputs6].default_value)
                         # input 9 Roughness
                         if not principled.inputs[bsdfinputs9].links and principled.inputs[bsdfinputs9].default_value != mat.msfs_roughness_factor:
                             found_diff = True
                         print("after rough", found_diff)
-                        # input 20 Emissive Scale
+                        # input 20 Emissive Strength/Scale
                         if not principled.inputs[bsdfinputs20].links and principled.inputs[bsdfinputs20].default_value != mat.msfs_emissive_scale and principled.inputs[bsdfinputs20].default_value > 0.0:
                             found_diff = True
-                        print("after emissive - diff", found_diff, principled.inputs[6].default_value, principled.inputs[9].default_value, principled.inputs[20].default_value, principled.inputs[21].default_value)
+                        print("after emissive - diff", found_diff, principled.inputs[bsdfinputs6].default_value, principled.inputs[bsdfinputs9].default_value, principled.inputs[bsdfinputs20].default_value, principled.inputs[bsdfinputs21].default_value)
             except:
                 print("*** MSFS Warning *** old material values error")
 
@@ -454,6 +453,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
         bsdfinputs9 = MSFS_BSDFNodeInputs.inputs[index_B4][1]
         bsdfinputs20 = MSFS_BSDFNodeInputs.inputs[index_B4][2]
         bsdfinputs21 = MSFS_BSDFNodeInputs.inputs[index_B4][3]
+        bsdfinputs19 = MSFS_BSDFNodeInputs.inputs[index_B4][4]
 
         mat = context.active_object.active_material
         if Is_it_FBW_Material(mat):
@@ -568,9 +568,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
             finally:
                 pass
 
-
             # put Emissive color stuff here
-
 
             print("old_emissive_tint_color_diff - execute - mat", mat)
             try:
@@ -578,7 +576,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                     # get color
                     emissive_tint_checkval = mat.node_tree.nodes["emissive_tint"].outputs[0].default_value
                     # get BSDF base Color value
-                    BSDF_Emission = principled.inputs["Emission Color"].default_value[0:3]
+                    BSDF_Emission = principled.inputs[bsdfinputs19].default_value[0:3]
                     #print("old_emissive_tint_color_diff execute - BSDF Emission", BSDF_Emission)
                     if not equality_check(BSDF_Emission, emissive_tint_checkval, len(BSDF_Emission), len(emissive_tint_checkval)):
                         mat.node_tree.nodes["emissive_tint"].outputs[0].default_value = BSDF_Emission
@@ -589,7 +587,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                 try:
                     if mat.msfs_material_type != "NONE":
                         print("old_emissive_tint_color_diff - execute - Emissive")
-                        BSDF_Emission = principled.inputs["Emission Color"].default_value[0:3]
+                        BSDF_Emission = principled.inputs[bsdfinputs19].default_value[0:3]
                         ###print("old_emissive_tint_color_diff - execute - BSDF to MSFS emissive", BSDF_Emission[0], mat.msfs_emissive_factor[0], BSDF_Emission[1], mat.msfs_emissive_factor[1], BSDF_Emission[2], mat.msfs_emissive_factor[2], BSDF_Emission[3], mat.msfs_emissive_factor[3])
                         # set default in case not there.
                         #try:
@@ -598,16 +596,16 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                             mat.msfs_emissive_factor = mat.msfs_emissive_factor.default
                         if not equality_check(BSDF_Emission, mat.msfs_emissive_factor, len(BSDF_Emission), len(mat.msfs_emissive_factor)):
                             print("1")
-                            mat.msfs_emissive_factor = emissive_tint_checkval
+                            mat.msfs_emissive_factor = BSDF_Emission
                             print("2")
-                        else:
-                            mat.msfs_emissive_factor = BSDF_Emissive
+                        #else:
+                        #    mat.msfs_emissive_factor = BSDF_Emissive
                         print("old_emissive_tint_color_diff - execute - Emissive Done")
                     elif mat.msfs_material_type == "NONE" and mat.msfs_material_mode == "NONE":
                         # SPECIAL now if you have had msfs properties values - assume msfs_standard - make a wild guess because there was data here from before.
                         try:
                             print("old_emissive_tint_color_diff - execute - simple values BSDF to msfs_*")
-                            mat.msfs_emissive_factor = principled.inputs["Emission Color"].default_value
+                            mat.msfs_emissive_factor = principled.inputs[bsdfinputs19].default_value
                         except:
                             print("old_emissive_tint_color_diff - execute - old_properties - Error - BSDF to msfs_ skipping")
                 except:
@@ -706,7 +704,7 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
             old_property,
             new_property,
         ) in MSFS_OT_MigrateMaterialData.old_property_to_new_mapping.items():
-            print("execute - list properties", old_property, new_property)
+            print("execute - list properties", old_property, new_property, mat.get(new_property))
             if mat.get(old_property) is not None:
                 print("execute - found old properties", old_property, new_property)
                 # msfs_behind_glass_texture and msfs_detail_albedo_texture are special cases as they are they write to the same property
@@ -717,21 +715,17 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                     del mat[old_property]
                     continue
                 if mat.get(new_property) is not None:
-                    print("prop", mat.get(new_property))
+                    print("prop", mat.get(new_property), mat.get(old_property))
                     try:
-                        print("names", mat.get(new_property).name)
-                        if mat.get(new_property).type == "IMAGE":
-                            if mat.get(new_property) is not None:
-                                print("texture property", mat.get(new_property))
-                                del mat[old_property]
-                                continue
+                        print("names", mat.get(new_property).name, mat.get(old_property).name, mat.get(old_property).id_data)
+                        mat.get(new_property).name = mat.get(old_property).name
                     except:
                         print("execute - new property test fail")
                         pass
                 try:
                     print("execute - make change to property - old new", old_property, mat.get(old_property), new_property, mat.get(new_property))
                     mat[new_property] = mat[old_property]
-                    print("execute - make change old new", mat[old_property], mat[new_property])
+                    print("execute - after make change old new", mat[old_property], mat[new_property])
                 except:
                     print("execute - ERROR did not carry over", mat, old_property, mat.get(old_property), new_property, mat.get(new_property))
                 del mat[old_property]
@@ -775,7 +769,7 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
         # Base Color factor is also a special case
         if mat.get("msfs_color_albedo_mix"):
             base_color = list(mat.get("msfs_color_albedo_mix"))
-            print("execute - msfs_color_albedo_mix list",base_color)
+            print("execute - msfs_color_albedo_mix list", base_color)
         else:
             print("execute - no msfs_color_albedo_mix Base Color Factor", mat)
             try:
@@ -796,10 +790,10 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                     for principled in bsdfnodes:
                         BSDF_Base_Color = principled.inputs["Base Color"].default_value
                         print("execute - BSDF to MSFS base color", BSDF_Base_Color[0], mat.msfs_base_color_factor[0], BSDF_Base_Color[1], mat.msfs_base_color_factor[1], BSDF_Base_Color[2], mat.msfs_base_color_factor[2], BSDF_Base_Color[3], mat.msfs_base_color_factor[3])
-                        if BSDF_Base_Color[0] != 0 and BSDF_Base_Color[1] != 0 and BSDF_Base_Color[2] != 0: 
-                            base_color = BSDF_Base_Color
-                        else:
-                            base_color = mat.msfs_base_color_factor
+                        # if BSDF_Base_Color[0] != 0 and BSDF_Base_Color[1] != 0 and BSDF_Base_Color[2] != 0: 
+                            # base_color = BSDF_Base_Color
+                        # else:
+                        base_color = mat.msfs_base_color_factor
                     print("current bsdf base_color", base_color)
                 except:
                     print("execute - Base Color - Exception - BSDF Base Color not found skipping")
@@ -835,7 +829,7 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                     bsdfnodes = [n for n in nodes if isinstance(n, bpy.types.ShaderNodeBsdfPrincipled)]
                     print("bsdf emissive")
                     for principled in bsdfnodes:
-                        BSDF_Emissive = principled.inputs["Emission"].default_value[0:3]
+                        BSDF_Emissive = principled.inputs["Emission Color"].default_value[0:3]
                         print("execute - BSDF to MSFS emissive", BSDF_Emissive[0], mat.msfs_emissive_factor[0], BSDF_Emissive[1], mat.msfs_emissive_factor[1], BSDF_Emissive[2], mat.msfs_emissive_factor[2])
                         if not equality_check(BSDF_Emissive, mat.msfs_emissive_factor, len(BSDF_Emissive), len(mat.msfs_emissive_factor)):
                             print("1M")
@@ -844,6 +838,7 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                         else:
                             emissive_color = BSDF_Emissive
                 except:
+                    print("execute - emissive BSDF Exception", bsdfnodes)
                     pass
             finally:
                 pass
@@ -896,12 +891,25 @@ class MSFS_OT_MigrateMaterialData(bpy.types.Operator): # TODO: Remove eventually
                 pass
 
         #do at end when new material is made
-        print("execute - base color before final", base_color[0], mat.msfs_base_color_factor[0], base_color[1], mat.msfs_base_color_factor[1], base_color[2], mat.msfs_base_color_factor[2], base_color[3], mat.msfs_base_color_factor[3])
-        mat.msfs_base_color_factor = base_color
-        mat.msfs_emissive_factor = emissive_color[0:3]
+
+
+
+
+        if base_color is not None and mat.msfs_base_color_factor is not None:
+            #print("execute - base color before final", base_color[0], mat.msfs_base_color_factor[0], base_color[1], mat.msfs_base_color_factor[1], base_color[2], mat.msfs_base_color_factor[2], base_color[3], mat.msfs_base_color_factor[3])
+            print("execute - base color before final", mat.msfs_base_color_factor[0], mat.msfs_base_color_factor[1], mat.msfs_base_color_factor[2], mat.msfs_base_color_factor[3])
+            print(base_color)
+            mat.msfs_base_color_factor = base_color
+            # mat.msfs_base_color_factor[1].default_value = base_color[1]
+            # mat.msfs_base_color_factor[2].default_value = base_color[2]
+            # mat.msfs_base_color_factor[3].default_value = base_color[3]
+        if emissive_color is not None and mat.msfs_emissive_factor is not None:
+            #print("execute - emissive before final", emissive_color[0], mat.msfs_emissive_factor[0], emissive_color[1], mat.msfs_emissive_factor[1], emissive_color[2], mat.msfs_emissive_factor[2])
+            print(emissive_color)
+            mat.msfs_emissive_factor = emissive_color[0:3]
+            # mat.msfs_emissive_factor[1] = emissive_color[1]
+            # mat.msfs_emissive_factor[2] = emissive_color[2]
         MSFS_Material_Property_Update.update_msfs_material_type(mat, context)
-        #print("execute - base color mid final", base_color[0], mat.msfs_base_color_factor[0], base_color[1], mat.msfs_base_color_factor[1], base_color[2], mat.msfs_base_color_factor[2], base_color[3], mat.msfs_base_color_factor[3])
-        #print("execute - base color final", base_color[0], mat.msfs_base_color_factor[0], base_color[1], mat.msfs_base_color_factor[1], base_color[2], mat.msfs_base_color_factor[2], base_color[3], mat.msfs_base_color_factor[3])
 
         print("Migrate material - Done")
         return {"FINISHED"}

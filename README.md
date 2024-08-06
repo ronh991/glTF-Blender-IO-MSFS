@@ -65,6 +65,8 @@ v2.2.7 (Blender 4.2.x LTS Beta and later)
 
   #14 Unique id errors
 
+  #16 FBW import issues - bad COMP and Emissive texture importing fixed
+
 # Enhancements
 
   Blender 4.2 has had numerous changes and updates for the Beta - new extensions install for addons is required

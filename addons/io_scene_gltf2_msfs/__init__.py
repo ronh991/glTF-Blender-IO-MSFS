@@ -26,7 +26,7 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 2, 0),
-    "version": (2, 2, 10),
+    "version": (2, 2, 13),
     "location": "File > Export > glTF 2.0",
     "category": "Import-Export",
     "developer":"Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",

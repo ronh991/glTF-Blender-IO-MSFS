@@ -107,7 +107,7 @@ class AsoboMaterialCommon:
         RoughnessFactor = 1.0
         NormalScale = 1.0
         EmissiveScale = 1.0
-        VertexColorScale = 0.5
+        VertexColorScale = 1.0  # was 0.5
         AlphaMode = "OPAQUE"
         AlphaCutoff = 0.5
         DoubleSided = False
@@ -348,7 +348,12 @@ class AsoboMaterialCommon:
             update=MSFS_Material_Property_Update.update_comp_texture,
         )
     )
-
+    bpy.types.Material.msfs_comp_texture = (
+        bpy.props.PointerProperty(
+            name="Occlusion Metallic Roughness Texture FBW",
+            type=bpy.types.Image
+        )
+    )
     bpy.types.Material.msfs_normal_texture = bpy.props.PointerProperty(
         name="Normal Texture",
         type=bpy.types.Image,
@@ -393,11 +398,17 @@ class AsoboMaterialCommon:
             update=MSFS_Material_Property_Update.update_detail_comp_texture,
     )
 
+    bpy.types.Material.msfs_detail_comp_texture = bpy.props.PointerProperty(
+            name="Detail Occlusion Metallic Roughness Texture FBW",
+            type=bpy.types.Image,
+    )
+
     bpy.types.Material.msfs_detail_normal_texture = bpy.props.PointerProperty(
         name="Detail Normal Texture",
         type=bpy.types.Image,
         update=MSFS_Material_Property_Update.update_detail_normal_texture,
     )
+
 
     @staticmethod
     def from_dict(
