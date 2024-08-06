@@ -99,6 +99,7 @@ def get_material_types(self, context):
                   ("msfs_ghost", "Ghost", ""))
 
 class AsoboMaterialCommon:
+    SerializedName = ""
     class Defaults:
         BaseColorFactor = [1.0, 1.0, 1.0, 1.0]
         EmissiveFactor = [0.0, 0.0, 0.0]
@@ -106,7 +107,7 @@ class AsoboMaterialCommon:
         RoughnessFactor = 1.0
         NormalScale = 1.0
         EmissiveScale = 1.0
-        VertexColorScale = 0.5
+        VertexColorScale = 1.0  # was 0.5
         AlphaMode = "OPAQUE"
         AlphaCutoff = 0.5
         DoubleSided = False
@@ -347,7 +348,12 @@ class AsoboMaterialCommon:
             update=MSFS_Material_Property_Update.update_comp_texture,
         )
     )
-
+    bpy.types.Material.msfs_comp_texture = (
+        bpy.props.PointerProperty(
+            name="Occlusion Metallic Roughness Texture FBW",
+            type=bpy.types.Image
+        )
+    )
     bpy.types.Material.msfs_normal_texture = bpy.props.PointerProperty(
         name="Normal Texture",
         type=bpy.types.Image,
@@ -392,11 +398,17 @@ class AsoboMaterialCommon:
             update=MSFS_Material_Property_Update.update_detail_comp_texture,
     )
 
+    bpy.types.Material.msfs_detail_comp_texture = bpy.props.PointerProperty(
+            name="Detail Occlusion Metallic Roughness Texture FBW",
+            type=bpy.types.Image,
+    )
+
     bpy.types.Material.msfs_detail_normal_texture = bpy.props.PointerProperty(
         name="Detail Normal Texture",
         type=bpy.types.Image,
         update=MSFS_Material_Property_Update.update_detail_normal_texture,
     )
+
 
     @staticmethod
     def from_dict(
@@ -404,11 +416,6 @@ class AsoboMaterialCommon:
     ):  # This must be called first, as it sets a few parameters that the rest of the extensions might rely on
         from ..io.msfs_material import MSFSMaterial
 
-        extensions = gltf2_material.extensions
-        if extensions is None:
-            return
-
-        assert isinstance(extensions, dict)
         # Every flight sim asset has ASOBO_normal_map_convention, so we check if it's being used to set material. We set blender_material to standard. If the blender_material is another type, it will get changed later.
         if "ASOBO_normal_map_convention" in import_settings.data.extensions_used:
             blender_material.msfs_material_type = "msfs_standard"
@@ -453,7 +460,19 @@ class AsoboMaterialCommon:
 
     @staticmethod
     def to_extension(blender_material, gltf2_material, export_settings):
-        # All the properties here (besides some textures, which we handle elsewhere) are exported from the Khronos exporter
+
+        if gltf2_material.pbr_metallic_roughness:
+            gltf2_material.pbr_metallic_roughness.base_color_factor = [f for f in blender_material.msfs_base_color_factor] 
+            gltf2_material.emissive_factor = [f * blender_material.msfs_emissive_scale for f in blender_material.msfs_emissive_factor]
+            gltf2_material.pbr_metallic_roughness.metallic_factor = blender_material.msfs_metallic_factor
+            gltf2_material.pbr_metallic_roughness.roughness_factor = blender_material.msfs_roughness_factor
+        
+        if gltf2_material.normal_texture:
+            gltf2_material.normal_texture.scale = blender_material.msfs_normal_scale
+
+        if "KHR_materials_emissive_strength" in gltf2_material.extensions:
+            gltf2_material.extensions.pop("KHR_materials_emissive_strength")
+
         gltf2_material.emissive_factor = [f * blender_material.msfs_emissive_scale for f in blender_material.msfs_emissive_factor]
 
         if "KHR_materials_emissive_strength" in gltf2_material.extensions:
@@ -631,7 +650,7 @@ class AsoboMaterialGhostEffect:
             gltf2_material.extensions[AsoboMaterialGhostEffect.SerializedName] = Extension(
                 name=AsoboMaterialGhostEffect.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -678,7 +697,7 @@ class AsoboMaterialDrawOrder:
             gltf2_material.extensions[AsoboMaterialDrawOrder.SerializedName] = Extension(
                 name=AsoboMaterialDrawOrder.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -754,7 +773,7 @@ class AsoboDisableMotionBlur:
             gltf2_material.extensions[AsoboDisableMotionBlur.SerializedName] = Extension(
                 name=AsoboDisableMotionBlur.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -861,7 +880,7 @@ class AsoboAlphaModeDither:
             gltf2_material.extensions[AsoboAlphaModeDither.SerializedName] = Extension(
                 name=AsoboAlphaModeDither.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -891,7 +910,7 @@ class AsoboMaterialInvisible:
             gltf2_material.extensions[AsoboMaterialInvisible.SerializedName] = Extension(
                 name=AsoboMaterialInvisible.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -921,7 +940,7 @@ class AsoboMaterialEnvironmentOccluder:
             gltf2_material.extensions[AsoboMaterialEnvironmentOccluder.SerializedName] = Extension(
                 name=AsoboMaterialEnvironmentOccluder.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -1048,7 +1067,7 @@ class AsoboMaterialUVOptions:
             gltf2_material.extensions[AsoboMaterialUVOptions.SerializedName] = Extension(
                 name=AsoboMaterialUVOptions.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -1088,7 +1107,7 @@ class AsoboMaterialShadowOptions:
             gltf2_material.extensions[AsoboMaterialShadowOptions.SerializedName] = Extension(
                 name=AsoboMaterialShadowOptions.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -1128,7 +1147,7 @@ class AsoboMaterialResponsiveAAOptions:
             gltf2_material.extensions[AsoboMaterialResponsiveAAOptions.SerializedName] = Extension(
                 name=AsoboMaterialResponsiveAAOptions.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -1231,17 +1250,17 @@ class AsoboMaterialDetail:
 
             #print("AsoboMaterialDetail - to extension mat type", blender_material.msfs_material_type)
             if blender_material.msfs_detail_color_texture is not None:
-                #print("AsoboMaterialDetail - to extension detail", blender_material.msfs_detail_color_texture)
+                print("AsoboMaterialDetail - to extension Detail Color", blender_material.msfs_detail_color_texture)
                 result["detailColorTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_detail_color_texture,
                     "DEFAULT",
-                    export_settings
+                    export_settings,
                 )
                 hasTexture = True
 
             if blender_material.msfs_detail_normal_texture is not None:
-                #print("AsoboMaterialDetail - to extension normal", blender_material.msfs_detail_normal_texture)
+                print("AsoboMaterialDetail - to extension Normal", blender_material.msfs_detail_normal_texture)
                 result["detailNormalTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_detail_normal_texture,
@@ -1252,22 +1271,22 @@ class AsoboMaterialDetail:
                 hasTexture = True
 
             if blender_material.msfs_detail_occlusion_metallic_roughness_texture is not None:
-                #print("AsoboMaterialDetail - to extension Occlusion", blender_material.msfs_detail_occlusion_metallic_roughness_texture)
+                print("AsoboMaterialDetail - to extension Occlusion", blender_material.msfs_detail_occlusion_metallic_roughness_texture)
                 result["detailMetalRoughAOTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_detail_occlusion_metallic_roughness_texture,
                     "DEFAULT",
-                    export_settings
+                    export_settings,
                 )
                 hasTexture = True
 
             if blender_material.msfs_blend_mask_texture is not None:
-                #print("AsoboMaterialDetail - to extension blend mask", blender_material.msfs_blend_mask_texture)
+                print("AsoboMaterialDetail - to extension blend mask", blender_material.msfs_blend_mask_texture)
                 result["blendMaskTexture"] = MSFSMaterial.export_image(
                     blender_material,
                     blender_material.msfs_blend_mask_texture,
                     "DEFAULT",
-                    export_settings
+                    export_settings,
                 )
                 hasTexture = True
             
@@ -1282,11 +1301,11 @@ class AsoboMaterialDetail:
                     result["UVOffset"] = (blender_material.msfs_detail_uv_offset_u, blender_material.msfs_detail_uv_offset_v)
             
             if result:
-                #print("AsoboMaterialDetail - to extension  result")
+                #print("AsoboMaterialDetail - to extension  result", result)
                 gltf2_material.extensions[AsoboMaterialDetail.SerializedName] = Extension(
                     name=AsoboMaterialDetail.SerializedName,
                     extension=result,
-                    required=False
+                    required=False,
                 )
 
 
@@ -1316,7 +1335,7 @@ class AsoboMaterialFakeTerrain:
             gltf2_material.extensions[AsoboMaterialFakeTerrain.SerializedName] = Extension(
                 name=AsoboMaterialFakeTerrain.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -1373,7 +1392,7 @@ class AsoboMaterialFresnelFade:
             gltf2_material.extensions[AsoboMaterialFresnelFade.SerializedName] = Extension(
                 name=AsoboMaterialFresnelFade.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 
@@ -1382,7 +1401,7 @@ class AsoboSSS:
     SerializedName = "ASOBO_material_SSS"  # This entire extension is disabled for the time being. Keeping just in case
 
     class Defaults:
-        SSSColor = [0.8, 0.8, 0.8, 1.0]
+        SSSColor = [1.0, 1.0, 1.0, 1.0]
     
     bpy.types.Material.msfs_sss_color = bpy.props.FloatVectorProperty(
         name="SSS Color",
@@ -1435,7 +1454,7 @@ class AsoboSSS:
                     blender_material,
                     blender_material.msfs_opacity_texture,
                     "DEFAULT",
-                    export_settings
+                    export_settings,
                 )
 
             if result:
@@ -1484,7 +1503,7 @@ class AsoboAnisotropic:
                     blender_material,
                     blender_material.msfs_extra_slot1_texture,
                     "DEFAULT",
-                    export_settings
+                    export_settings,
                 )
 
                 gltf2_material.extensions[AsoboAnisotropic.SerializedName] = Extension(
@@ -1589,7 +1608,7 @@ class AsoboWindshield:
                     blender_material,
                     blender_material.msfs_extra_slot1_texture,
                     "DEFAULT",
-                    export_settings
+                    export_settings,
                 )
 
             gltf2_material.extensions[AsoboWindshield.SerializedName] = Extension(
@@ -1634,7 +1653,7 @@ class AsoboClearCoat:
                 blender_material,
                 blender_material.msfs_dirt_texture,
                 "DEFAULT",
-                export_settings
+                export_settings,
             )
 
             gltf2_material.extensions[AsoboClearCoat.SerializedName] = Extension(
@@ -1737,13 +1756,13 @@ class AsoboParallaxWindow:
                     blender_material,
                     blender_material.msfs_detail_color_texture,
                     "DEFAULT",
-                    export_settings
+                    export_settings,
                 )
 
             gltf2_material.extensions[AsoboParallaxWindow.SerializedName] = Extension(
                 name=AsoboParallaxWindow.SerializedName,
                 extension=result,
-                required=False
+                required=False,
             )
 
 

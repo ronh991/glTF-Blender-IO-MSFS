@@ -4,6 +4,8 @@
 
 ## NOTE:
 
+THIS WILL NOT Work with 4.1.x or earlier - Blender 4.2.x LTS is a large breaking change update.
+
 If you use this unofficial version of the ASOBO exporter, be aware that you will need to or it is highly recommended that you migrate your MSFS materials. They will NOT display with the Migrate Data button.  However this exporter has a number of shader node, shader node link changes and default factor value changes.  These changes will only be utilized if you reselect the MSFS material.  That is, reselect the same MSFS material from the drop down - DO NOT SELECT DISABLED in the drop down.  Please make a backup of your original work before migration.
 
 If you want to go back to using the ASOBO exporter, this may or may not be possible.  First if the blend file is a version higher than what ASOBO uses, there may be issues with animations or other blender data where you will be required to rebuild the object and/or animations.  If ASOBO has released a version that uses a Blender version equal to or higher than what you currently are using here, then it would be easier to migrate the material nodes to the new ASOBO version by re-selecting the MSFS Material Param type in the drop down
@@ -12,9 +14,12 @@ If you want to go back to using the ASOBO exporter, this may or may not be possi
 
 This repository contains the current version of a non-official Microsoft Flight Simulator Blender Import/Export plugin. The flight sim community has already developed and forked the original project many times, and Asobo's intention is to fully support Blender with the help and contributions of all the developers that have already implemented features in the different unofficial Blender plugins.
 
-:warning: This plugin is a fork of the ASOBO plugin version 1.3.2 - and has the following mods/fixes
+:warning: This plugin is a fork of the ASOBO plugin version 1.3.3 - and has the following mods/fixes
 
-v1.6.2.x (Blender 3.3.x and 3.6.x) v2.1.0.x (Blender 4.1.x)
+v1.6.8.x (Blender 3.3.x and 3.6.x) 
+v2.2.13 (Blender 4.2.0 LTS Release ONLY - 4.2 Beta does not work with this version as there are too many late breaking changes)
+
+Blender 4.2.1 RC has not been tested.
 
 # ASOBO issues and enhancements
 
@@ -55,10 +60,18 @@ v1.6.2.x (Blender 3.3.x and 3.6.x) v2.1.0.x (Blender 4.1.x)
   #11 Base Color not being used in export - fixed - bug introduced
 
   #12 Forced use of Vertex Color nodes - fixed - added an option in the add-on install - File Preferences 
-  default is not checked and no Vertex color nodes will be linked in shaedr nodes. If checked then Vertex Color
+  default is not checked and no Vertex color nodes will be linked in shader nodes. If checked then Vertex Color
   nodes will be used.
 
+  #13 Vertex Color addon Preferences option - fixed issues
+
+  #14 Unique id errors
+
+  #16 FBW import issues - bad COMP and Emissive texture importing fixed
+
 # Enhancements
+
+  Blender 4.2 has had numerous changes and updates for the Beta - new extensions install for addons is required
 
   Some default values for Metallic, Roughness, Emissive, Base Color have been reset
   Max emissive strength now 100 (not the same a Emissive Factor)

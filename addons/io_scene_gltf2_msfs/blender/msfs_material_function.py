@@ -21,7 +21,9 @@ from .material.utils.msfs_material_enum import (MSFS_AnisotropicNodes,
                                                 MSFS_ShaderNodesTypes,
                                                 MSFS_MixNodeInputs,
                                                 MSFS_MixNodeOutputs,
-                                                MSFS_BSDFNodeInputs)
+                                                MSFS_BSDFNodeInputs,
+                                                MSFS_GroupNodes)
+from .. import get_prefs
 
 
 class MSFS_Material:
@@ -32,6 +34,8 @@ class MSFS_Material:
     def __init__(self, material, buildTree=False):
         self.getInputOutputIndex()
         self.material = material
+        if not material.use_nodes:
+            material.use_nodes = True
         self.node_tree = self.material.node_tree
         self.nodes = self.material.node_tree.nodes
         self.links = material.node_tree.links
@@ -133,7 +137,7 @@ class MSFS_Material:
         else:
             gltfSettingsNodeTree = bpy.data.node_groups.new(MSFS_ShaderNodes.glTFSettings.value, MSFS_ShaderNodesTypes.shaderNodeTree.value)
             gltfSettingsNodeTree.nodes.new("NodeGroupInput")
-            # now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
+            # 4.0+ now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
             gltfSettingsNodeTree_socket = gltfSettingsNodeTree.interface.new_socket(name="Occlusion", description="", in_out='INPUT', socket_type="NodeSocketFloat")
             gltfSettingsNodeTree_socket.default_value = 1.000
 
@@ -149,10 +153,210 @@ class MSFS_Material:
         self.makeOpaque()
         self.customShaderTree()
 
-    def customShaderTree(self):
-        raise NotImplementedError()
+    def createMathNode(self, theNodeTree, op, location, label = "Math", value = 0.5):
+        node_math = theNodeTree.nodes.new('ShaderNodeMath')
+        node_math.operation = op
+        node_math.label = label
+        node_math.location = location
+        node_math.inputs[1].default_value = value
+        return node_math
 
-    def createVertextFrame(self, All = False):
+    def createcombineNodeTree(self, name, groupname, location, frame):
+
+        # Combine 
+        combineNodeTree = bpy.data.node_groups.new(name, MSFS_ShaderNodesTypes.shaderNodeTree.value)
+
+        combineNodeTree_inputs = combineNodeTree.nodes.new("NodeGroupInput")
+        combineNodeTree_inputs.location = (-900, 0)
+
+        # 4.0+ now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
+        # does not work in 4.0+
+        # combineNodeTree.inputs.new('NodeSocketFloat','in_to_Color')
+        # combineNodeTree.inputs.new('NodeSocketFloat','in_to_R')
+        # combineNodeTree.inputs.new('NodeSocketFloat','in_to_G')
+        # combineNodeTree.inputs.new('NodeSocketFloat','in_to_B')
+        combineNodeTree_socket = combineNodeTree.interface.new_socket(name="in_to_Color", description="", in_out='INPUT', socket_type="NodeSocketFloat")
+        combineNodeTree_socket = combineNodeTree.interface.new_socket(name="in_to_R", description="", in_out='INPUT', socket_type="NodeSocketFloat")
+        combineNodeTree_socket = combineNodeTree.interface.new_socket(name="in_to_G", description="", in_out='INPUT', socket_type="NodeSocketFloat")
+        combineNodeTree_socket = combineNodeTree.interface.new_socket(name="in_to_B", description="", in_out='INPUT', socket_type="NodeSocketFloat")
+        #combineNodeTree_socket.default_value = 1.000
+
+        # create group output node
+        # 4.0+ now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
+        # does not work in 4.0+
+        combineNodeTreegroup_outputs = combineNodeTree.nodes.new('NodeGroupOutput')
+        combineNodeTreegroup_outputs.location = (600, 0)
+
+        # 4.0+ now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
+        # does not work in 4.0+
+        #combineNodeTree.outputs.new('NodeSocketFloat','out_result')
+        #combineNodeTree.outputs[0].default_value = 1.000
+        combineNodeTree_socket = combineNodeTree.interface.new_socket(name="out_result", description="", in_out='OUTPUT', socket_type="NodeSocketFloat")
+        combineNodeTree_socket.default_value = 1.000
+
+        nodecombineBColorDBColor = self.addNode(
+            name = groupname,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeGroup.value,
+            location = location,
+            frame = frame
+        )
+
+        # set the dropdown in the group node
+        nodecombineBColorDBColor.node_tree = combineNodeTree
+
+        splitcombineDetailBColorNode = combineNodeTree.nodes.new(MSFS_ShaderNodesTypes.shaderNodeSeparateColor.value)
+        splitcombineDetailBColorNode.location = (-700, -200)
+
+        node_mul_r = self.createMathNode(combineNodeTree, op = 'MULTIPLY', location = (100,200), label = 'mul r', value = 0.001)
+        node_mul_g = self.createMathNode(combineNodeTree, op = 'MULTIPLY', location = (100,0), label = 'mul g', value = 0.001)
+        node_mul_b = self.createMathNode(combineNodeTree, op = 'MULTIPLY', location = (100,-200), label = 'mul b', value = 0.001)
+
+        combcombineDetailBColorNode = combineNodeTree.nodes.new(MSFS_ShaderNodesTypes.shaderNodeCombineColor.value)
+        combcombineDetailBColorNode.location = (300, 0)
+
+        # link nodes together
+        combineNodeTree.links.new(splitcombineDetailBColorNode.outputs[0], node_mul_r.inputs[0])
+        combineNodeTree.links.new(splitcombineDetailBColorNode.outputs[1], node_mul_g.inputs[0])
+        combineNodeTree.links.new(splitcombineDetailBColorNode.outputs[2], node_mul_b.inputs[0])
+        combineNodeTree.links.new(splitcombineDetailBColorNode.outputs[0], node_mul_r.inputs[1])
+        combineNodeTree.links.new(splitcombineDetailBColorNode.outputs[1], node_mul_g.inputs[1])
+        combineNodeTree.links.new(splitcombineDetailBColorNode.outputs[2], node_mul_b.inputs[1])
+        combineNodeTree.links.new(node_mul_r.outputs[0], combcombineDetailBColorNode.inputs[0])
+        combineNodeTree.links.new(node_mul_g.outputs[0], combcombineDetailBColorNode.inputs[1])
+        combineNodeTree.links.new(node_mul_b.outputs[0], combcombineDetailBColorNode.inputs[2])
+
+        # link inputs
+        combineNodeTree.links.new(combineNodeTree_inputs.outputs['in_to_Color'], splitcombineDetailBColorNode.inputs[0])
+        combineNodeTree.links.new(combineNodeTree_inputs.outputs['in_to_R'], node_mul_r.inputs[0])
+        combineNodeTree.links.new(combineNodeTree_inputs.outputs['in_to_G'], node_mul_g.inputs[0])
+        combineNodeTree.links.new(combineNodeTree_inputs.outputs['in_to_B'], node_mul_b.inputs[0])
+
+        #link output
+        combineNodeTree.links.new(combcombineDetailBColorNode.outputs[0], combineNodeTreegroup_outputs.inputs['out_result'])
+
+        return nodecombineBColorDBColor
+
+    def createbiasNodeTree(self, name, groupname, location, frame):
+        # group node drop down name
+
+        # Bias 
+        biasNodeTree = bpy.data.node_groups.new(name, MSFS_ShaderNodesTypes.shaderNodeTree.value)
+
+        # can I use add node for this group_inputs?
+        # these are the nodes inside the group node
+        # create group input node
+        group_inputs = biasNodeTree.nodes.new("NodeGroupInput")
+        group_inputs.location = (-900, 0)
+
+        # 4.0+ now has NodeTreeInterface type no more inputs outputs https://docs.blender.org/api/4.0/bpy.types.NodeTreeInterface.html
+        # does not work in 4.0+
+        #biasNodeTree.nodetree.inputs.new('NodeSocketFloat','in_to_Value')
+        group_inputs_socket = biasNodeTree.interface.new_socket(name="in_to_Value", description="", in_out='INPUT', socket_type="NodeSocketFloat")
+        group_inputs_socket.default_value = 1.000   # may not be needed
+
+        # create group output node
+        group_outputs = biasNodeTree.nodes.new('NodeGroupOutput')
+        group_outputs.location = (600, 0)
+        # does not work in 4.0+
+        #biasNodeTree.outputs.new('NodeSocketFloat','out_result')
+        #biasNodeTree.outputs[0].default_value = 1.000
+        group_outputs_socket = biasNodeTree.interface.new_socket(name="out_result", description="", in_out='OUTPUT', socket_type="NodeSocketFloat")
+        group_outputs_socket.default_value = 1.000   # may not be needed
+
+        # # create bias R group node
+        nodebiasDBColor = self.addNode(
+            name = groupname,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeGroup.value,
+            location = location,
+            frame = frame
+        )
+
+        # set the dropdown in the group node
+        nodebiasDBColor.node_tree = biasNodeTree
+
+        # make all the math nodes
+
+        node_add_001 = self.createMathNode(biasNodeTree, op = 'ADD', location = (-700,200), label = 'add bias', value = 0.001)
+        node_sub_001 = self.createMathNode(biasNodeTree, op = 'SUBTRACT', location = (-700,-200), label = 'sub bias', value = 0.001)
+        node_greater = self.createMathNode(biasNodeTree, op = 'GREATER_THAN', location = (-500,400), label = 'greater', value = 0.5)
+        node_less = self.createMathNode(biasNodeTree, op = 'LESS_THAN', location = (-500,-400), label = 'less', value = 0.5)
+        node_sub_bias_g = self.createMathNode(biasNodeTree, op = 'SUBTRACT', location = (-500,200), label = 'sub bias_g', value = 0.5)
+        node_sub_bias_l = self.createMathNode(biasNodeTree, op = 'SUBTRACT', location = (-500,-200), label = 'sub bias_l', value = 0.5)
+        node_mul_bias_g = self.createMathNode(biasNodeTree, op = 'MULTIPLY', location = (-100,200), label = 'mul bias_g', value = 0.5)
+        node_mul_bias_l = self.createMathNode(biasNodeTree, op = 'MULTIPLY', location = (-100,-200), label = 'mul bias_l', value = 0.5)
+        node_add_bias_g = self.createMathNode(biasNodeTree, op = 'ADD', location = (100,200), label = 'add bias_g', value = 0.5)
+        node_add_bias_l = self.createMathNode(biasNodeTree, op = 'ADD', location = (100,-200), label = 'add bias_l', value = 0.5)
+        node_combadd_bias_l = self.createMathNode(biasNodeTree, op = 'ADD', location = (300,0), label = 'comb add bias', value = 0.5)
+
+        # make all the links
+
+        # link nodes together
+        biasNodeTree.links.new(node_add_001.outputs[0], node_greater.inputs[0])
+        biasNodeTree.links.new(node_sub_001.outputs[0], node_less.inputs[0])
+        biasNodeTree.links.new(node_greater.outputs[0], node_mul_bias_g.inputs[0])
+        biasNodeTree.links.new(node_less.outputs[0], node_mul_bias_l.inputs[0])
+        biasNodeTree.links.new(node_sub_bias_g.outputs[0], node_mul_bias_g.inputs[1])
+        biasNodeTree.links.new(node_sub_bias_l.outputs[0], node_mul_bias_l.inputs[1])
+        biasNodeTree.links.new(node_mul_bias_g.outputs[0], node_add_bias_g.inputs[0])
+        biasNodeTree.links.new(node_mul_bias_l.outputs[0], node_add_bias_l.inputs[0])
+        biasNodeTree.links.new(node_greater.outputs[0], node_add_bias_g.inputs[1])
+        biasNodeTree.links.new(node_less.outputs[0], node_add_bias_l.inputs[1])
+        biasNodeTree.links.new(node_add_bias_g.outputs[0], node_combadd_bias_l.inputs[0])
+        biasNodeTree.links.new(node_add_bias_l.outputs[0], node_combadd_bias_l.inputs[1])
+
+        # link inputs
+        biasNodeTree.links.new(group_inputs.outputs['in_to_Value'], node_add_001.inputs[0])
+        biasNodeTree.links.new(group_inputs.outputs['in_to_Value'], node_sub_bias_g.inputs[0])
+        biasNodeTree.links.new(group_inputs.outputs['in_to_Value'], node_sub_001.inputs[0])
+        biasNodeTree.links.new(group_inputs.outputs['in_to_Value'], node_sub_bias_l.inputs[0])
+
+        #link output
+        biasNodeTree.links.new(node_combadd_bias_l.outputs[0], group_outputs.inputs['out_result'])
+
+        return nodebiasDBColor
+
+
+    def createDetailBaseColorFrame(self):
+        ## DetailBaseColorFrame                
+        detailbasecolorFrame = self.addNode(
+            name = MSFS_FrameNodes.detailBaseColorFrame.value,
+            typeNode = MSFS_ShaderNodesTypes.nodeFrame.value,
+            color = (0.95, 0.25, 0.83)  # 9900B7 needs changing
+        )
+
+        # one outside Separate Color node
+        splitDetailBColorNode = self.addNode(
+            name = MSFS_ShaderNodes.DetailBColorSeparate.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeSeparateColor.value,
+            location = (-500, 1100),
+            width = 200.0,
+            hidden = False,
+            frame = detailbasecolorFrame
+        )
+
+        # Bias R
+        nodeDBColorR = self.createbiasNodeTree(name = MSFS_ShaderNodes.biasRDetailColor.value, groupname = MSFS_GroupNodes.biasDBColorR.value, location = (-200, 1200), frame = detailbasecolorFrame)
+        # Bias G
+        nodeDBColorG = self.createbiasNodeTree(name = MSFS_ShaderNodes.biasGDetailColor.value, groupname = MSFS_GroupNodes.biasDBColorG.value, location = (-200, 1100), frame = detailbasecolorFrame)
+        # Bias B
+        nodeDBColorB = self.createbiasNodeTree(name = MSFS_ShaderNodes.biasBDetailColor.value, groupname = MSFS_GroupNodes.biasDBColorB.value, location = (-200, 1000), frame = detailbasecolorFrame)
+        # Combiner nodes
+        nodecombineBColorDBColor = self.createcombineNodeTree(name = MSFS_ShaderNodes.DetailBColorCombine.value, groupname = MSFS_GroupNodes.combineBColorDBColor.value, location = (200, 1000), frame = detailbasecolorFrame)
+
+        # links for frame
+        self.link(splitDetailBColorNode.outputs[0], nodeDBColorR.inputs[0])
+        self.link(splitDetailBColorNode.outputs[1], nodeDBColorG.inputs[0])
+        self.link(splitDetailBColorNode.outputs[2], nodeDBColorB.inputs[0])
+        self.link(nodeDBColorR.outputs[0], nodecombineBColorDBColor.inputs[1])
+        self.link(nodeDBColorG.outputs[0], nodecombineBColorDBColor.inputs[2])
+        self.link(nodeDBColorB.outputs[0], nodecombineBColorDBColor.inputs[3])
+        # get the detailbasecolor texture node - output to nodecombineBColorDBColor input 0
+        nodeBaseColorTex = self.getNodeByName(MSFS_ShaderNodes.baseColorTex.value)
+        self.link(nodeBaseColorTex.outputs[0], nodecombineBColorDBColor.inputs[0])
+        nodeDetailColor = self.getNodeByName(MSFS_ShaderNodes.detailColorTex.value)
+        self.link(nodeDetailColor.outputs[0], splitDetailBColorNode.inputs[0])
+
+    def createVertexFrame(self, All = False):
         ## Vertex Frame                
         vertexFrame = self.addNode(
             name = MSFS_FrameNodes.vertexFrame.value,
@@ -211,6 +415,9 @@ class MSFS_Material:
             # self.link(combineVertexColorNode.outputs[0], principledBSDFVertex.inputs[0])
         # else:
             # self.link(combineVertexAlphaNode.outputs[0], principledBSDFVertex.inputs[0])
+
+    def customShaderTree(self):
+        raise NotImplementedError()
 
     def defaultShadersTree(self):
         principledBSDFNode = self.getNodesByClassName(MSFS_ShaderNodesTypes.shadeNodeBsdfPrincipled.value)[0]
@@ -382,7 +589,6 @@ class MSFS_Material:
         
         ## Links
         self.link(mulBaseColorRGBNode.inputs[self.inputs0], vertexColorNode.outputs[1])
-        #mulBaseColorRGBNode.inputs[self.inputs0].default_value = 1.0 # added by ron
         self.link(mulBaseColorRGBNode.inputs[self.inputs1], baseColorRGBNode.outputs[0])
         self.link(mulBaseColorRGBNode.inputs[self.inputs2], blendColorMapNode.outputs[0])
         
@@ -561,6 +767,64 @@ class MSFS_Material:
             color = (0.1, 0.4, 0.6)
         )
 
+        # Node removed - only subtract 0.5
+
+        ## Multiply Detail OMR
+        # In[0] : Detail OMR texture
+        # Out[0] : Substract Detail OMR
+        # multiplyDetailOMR = self.addNode(
+            # name = MSFS_ShaderNodes.detailOMRMul.value,
+            # typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
+            # operation = "MULTIPLY",
+            # location = (-500.0, 200.0),
+            # width = 200.0,
+            # frame = omrFrame
+        # )
+        # multiplyDetailOMR.inputs[1].default_value = (2.0, 2.0, 2.0)
+
+        ## Links
+        # multiplyDetailOMR node removed
+        #self.link(detailCompTexNode.outputs[0], multiplyDetailOMR.inputs[0])
+
+        ## Substract Detail OMR
+        # In[0] : Multiply Detail OMR
+        # Out[0] : Clamp Detail OMR
+        subtractDetailOMR = self.addNode(
+            name = MSFS_ShaderNodes.detailOMRSubtract.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
+            operation = "SUBTRACT",
+            location = (-500.0, 200.0),
+            width = 200.0,
+            frame = omrFrame
+        )
+        #subtractDetailOMR.inputs[1].default_value = (1.0, 1.0, 1.0)
+        # bias by 0.5
+        subtractDetailOMR.inputs[1].default_value = (0.5, 0.5, 0.5)
+
+        ## Links
+        # multiplyDetailOMR node removed
+        #self.link(multiplyDetailOMR.outputs[0], subtractDetailOMR.inputs[0])
+        # detail comp tex to subtract subtractDetailOMR bias
+        self.link(detailCompTexNode.outputs[0], subtractDetailOMR.inputs[0])
+
+        ## Map to clamp detail OMR
+        # In[0] : Substract Detail OMR
+        # Out[0] : Add Detail comp
+        clampDetailOMR = self.addNode(
+            name = MSFS_ShaderNodes.detailOMRClamp.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeMapRange.value,
+            location = (-150.0, 200.0),
+            width = 200.0,
+            frame = omrFrame
+        )
+        clampDetailOMR.data_type = "FLOAT_VECTOR"
+        clampDetailOMR.interpolation_type = "LINEAR"
+
+        ## Links
+        # now clampDetailOMR
+        # link moved to after add
+        #self.link(subtractDetailOMR.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
+
         ## Metallic scale
         # Out[0] : Metallic Multiplier -> In[0] 
         # Out[0] : PrincipledBSDF -> In["Metallic"] 
@@ -582,28 +846,30 @@ class MSFS_Material:
         )
         
         ## Blend Detail Operations (OccMetalRough)
-        # Detail comp operators
+        # Add Detail comp 
         # In[0] : Vertex Color -> Out[1]
         # In[1] : Comp Texture -> Out[0]
         # In[2] : Detail Comp Texture -> Out[0]
         blendCompMapNode = self.addNode(
             name = MSFS_ShaderNodes.blendCompMap.value,
-            typeNode = MSFS_ShaderNodesTypes.shaderNodeMixRGB.value if bpy.app.version < (3, 4, 0) else MSFS_ShaderNodesTypes.shaderNodeMix.value,
-            data_type = "RGBA",
-            blend_type = "ADD",
-            clamp_factor = False,
-            clamp_result = True,
-            location = (-150.0, 200.0),
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
+            operation = "ADD",
+            location = (-500.0, 100.0),
             width = 300.0,
             frame = omrFrame
         )
         # Factor input
-        blendCompMapNode.inputs[self.inputs0].default_value = 1.0
+        #blendCompMapNode.inputs[self.inputs0].default_value = 1.0
         
         ## Links
-        self.link(blendCompMapNode.inputs[self.inputs0], vertexColorNode.outputs[1])
-        self.link(blendCompMapNode.inputs[self.inputs1], compTexNode.outputs[0])
-        self.link(blendCompMapNode.inputs[self.inputs2], detailCompTexNode.outputs[0])
+        # now clampDetailOMR out to splitOccMetalRoughNode in
+        #self.link(clampDetailOMR.outputs[1], blendCompMapNode.inputs[1])
+        # subtract bias to add
+        self.link(subtractDetailOMR.outputs[0], blendCompMapNode.inputs[1])
+        self.link(blendCompMapNode.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
+        # From To min max
+        clampDetailOMR.inputs[7].default_value = (-0.5, -0.5, -0.5)
+        clampDetailOMR.inputs[8].default_value = (1.5, 1.5, 1.5)
 
         ## Split Occlusion Metallic Roughness
         # In[0] : Blend Comp Map -> Out[0]
@@ -628,7 +894,7 @@ class MSFS_Material:
             )
         
         ## Links
-        self.link(splitOccMetalRoughNode.inputs[0], blendCompMapNode.outputs[0])
+        #self.link(splitOccMetalRoughNode.inputs[0], blendCompMapNode.outputs[0])
         
         ## Roughness Multiplier
         # In[1] : Split Occ Metal Rough -> Out[1]
@@ -677,7 +943,7 @@ class MSFS_Material:
             typeNode = MSFS_ShaderNodesTypes.shaderNodeMixRGB.value if bpy.app.version < (3, 4, 0) else MSFS_ShaderNodesTypes.shaderNodeMix.value,
             data_type = "RGBA",
             blend_type = "MULTIPLY",
-            location = (200.0, 0.0),
+            location = (250.0, -50.0),
             frame = emissiveFrame
         )
         # Factor input
@@ -940,7 +1206,7 @@ class MSFS_Material:
     
     ##############################################
     def updateColorLinks(self):
-        settings = bpy.context.scene.msfs_multi_exporter_settings
+        settings = get_prefs()
         # relink nodes
         nodeBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.baseColorRGB.value)
         nodeBaseColorA = self.getNodeByName(MSFS_ShaderNodes.baseColorA.value)
@@ -950,9 +1216,9 @@ class MSFS_Material:
         nodeMulBaseColorA = self.getNodeByName(MSFS_ShaderNodes.baseColorMulA.value)
         nodeBlendColorMap = self.getNodeByName(MSFS_ShaderNodes.blendColorMap.value)
         nodeBlendAlphaMap = self.getNodeByName(MSFS_ShaderNodes.blendAlphaMap.value)
+        nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
         nodeVertexColorBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.vertexBaseColorMul.value)
         nodeVertexColor = self.getNodeByName(MSFS_ShaderNodes.vertexColor.value)
-        nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
 
         # !!!! input index orders matters for the exporter here
         # textures according to blender docs - https://docs.blender.org/manual/en/3.3/render/shader_nodes/color/mix.html
@@ -966,8 +1232,6 @@ class MSFS_Material:
         if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
             self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
             self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
-        else:
-            self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no tex
         if not nodeBaseColorTex.image and not nodeDetailColorTex.image:
@@ -980,31 +1244,43 @@ class MSFS_Material:
         # has basecolor - no detailColor
         elif nodeBaseColorTex.image and not nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
-            #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorTex.outputs[1], nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+            # for some reason PBR Painter texture that are baked will set the node image to Linear.Rec709 and channelpacked alpha_mode B4.2+
+            nodeBaseColorTex.image.alpha_mode = "STRAIGHT"
+            nodeBaseColorTex.image.colorspace_settings.name = "sRGB"
 
         # no basecolor - has detailColor - Is this a thing????
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
         elif not nodeBaseColorTex.image and nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
-            #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             # Alpha links
             self.link(nodeDetailColorTex.outputs[1],nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+            nodeDetailColorTex.image.alpha_mode = "STRAIGHT"
+            nodeDetailColorTex.image.colorspace_settings.name = "sRGB"
 
         # has both tex
         else:
             nodeBlendColorMap.blend_type = "MULTIPLY"
             nodeMulBaseColorRGB.blend_type = "MULTIPLY"
-            #self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
+            else:
+                self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+            nodeBaseColorTex.image.alpha_mode = "STRAIGHT"
+            nodeDetailColorTex.image.alpha_mode = "STRAIGHT"
+            nodeBaseColorTex.image.colorspace_settings.name = "sRGB"
+            nodeDetailColorTex.image.colorspace_settings.name = "sRGB"
 
     def updateNormalLinks(self):
         nodeNormalTex = self.getNodeByName(MSFS_ShaderNodes.normalTex.value)
@@ -1043,11 +1319,15 @@ class MSFS_Material:
 
         # emissive
         if nodeEmissiveTex.image:
-            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[self.inputs2])
-            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[self.inputs1])
+            self.link(nodeEmissiveScale.outputs[0], nodeMulEmissive.inputs[0])
+            # was inputs2 then 1 chenged to agree with ASOBO
+            self.link(nodeEmissiveColor.outputs[0], nodeMulEmissive.inputs[self.inputs1])
+            self.link(nodeEmissiveTex.outputs[0], nodeMulEmissive.inputs[self.inputs2])
             self.link(nodeMulEmissive.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])
         else:
             self.link(nodeEmissiveColor.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emission.value])
+            self.unLinkNodeInput(nodeMulEmissive, 0)
+            self.unLinkNodeInput(nodeMulEmissive, 1)
 
         self.link(nodeEmissiveScale.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.emissionStrength.value])
 
@@ -1057,19 +1337,16 @@ class MSFS_Material:
         nodeRoughnessScale = self.getNodeByName(MSFS_ShaderNodes.roughnessScale.value)
         nodeMetallicScale = self.getNodeByName(MSFS_ShaderNodes.metallicScale.value)
         nodeBlendCompMap = self.getNodeByName(MSFS_ShaderNodes.blendCompMap.value)
+        nodeClampDetailOMR = self.getNodeByName(MSFS_ShaderNodes.detailOMRClamp.value)
         nodeSeparateComp = self.getNodeByName(MSFS_ShaderNodes.compSeparate.value)
         nodeMulMetallic = self.getNodeByName(MSFS_ShaderNodes.metallicMul.value)
         nodeMulRoughness = self.getNodeByName(MSFS_ShaderNodes.roughnessMul.value)
         nodeGltfSettings = self.getNodeByName(MSFS_ShaderNodes.glTFSettings.value)
         nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
 
-        # blend comp
-        # !!!! input orders matters for the exporter here
-        self.link(nodeCompTex.outputs[0], nodeBlendCompMap.inputs[self.inputs1])
-        self.link(nodeDetailCompTex.outputs[0], nodeBlendCompMap.inputs[self.inputs2])
-
         # occlMetalRough
-        self.link(nodeBlendCompMap.outputs[self.outputs0], nodeSeparateComp.inputs[0])
+        # change link order
+        #self.link(nodeBlendCompMap.outputs[0], nodeSeparateComp.inputs[0])
         self.link(nodeMetallicScale.outputs[0], nodeMulMetallic.inputs[0])
         self.link(nodeRoughnessScale.outputs[0], nodeMulRoughness.inputs[0])
         self.link(nodeSeparateComp.outputs[1], nodeMulRoughness.inputs[1])
@@ -1080,17 +1357,17 @@ class MSFS_Material:
             self.link(nodeMetallicScale.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
 
             self.unLinkNodeInput(nodeGltfSettings, 0)
-        else: # nodeCompTex.image or nodeDetailCompTex.image (if we have both images or only one of them)
+        elif nodeCompTex.image and not nodeDetailCompTex.image:
+            self.link(nodeSeparateComp.inputs[0], nodeCompTex.outputs[0])
             self.link(nodeSeparateComp.outputs[0], nodeGltfSettings.inputs[0])
             self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
             self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
-
-            # if nodeCompTex.image and nodeDetailCompTex.image:
-                # nodeBlendCompMap.blend_type = "MULTIPLY"
-            # else: # we have only one of the two images
-                # nodeBlendCompMap.blend_type = "ADD"
-
-
+        else: # nodeCompTex.image or nodeDetailCompTex.image (if we have both images or only one of them)
+            self.link(nodeBlendCompMap.inputs[0], nodeCompTex.outputs[0])
+            self.link(nodeClampDetailOMR.outputs[1], nodeSeparateComp.inputs[0])
+            self.link(nodeSeparateComp.outputs[0], nodeGltfSettings.inputs[0])
+            self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
+            self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
 
     def setBlendMode(self, blendMode):
         if blendMode == "BLEND":
@@ -1105,17 +1382,14 @@ class MSFS_Material:
     def toggleVertexBlendMapMask(self, useVertex=True):
         nodeVertexColor = self.getNodeByName(MSFS_ShaderNodes.vertexColor.value)
         nodeBlendColorMap = self.getNodeByName(MSFS_ShaderNodes.blendColorMap.value)
-        nodeBlendCompMap = self.getNodeByName(MSFS_ShaderNodes.blendCompMap.value)
         nodeBlendNormalMap = self.getNodeByName(MSFS_ShaderNodes.blendNormalMap.value)
         nodeBlendMaskTex = self.getNodeByName(MSFS_ShaderNodes.blendMaskTex.value)
         # vertexcolor mask
         if useVertex:
             self.link(nodeVertexColor.outputs[1], nodeBlendColorMap.inputs[self.inputs0])
-            self.link(nodeVertexColor.outputs[1], nodeBlendCompMap.inputs[self.inputs0])
             self.link(nodeVertexColor.outputs[1], nodeBlendNormalMap.inputs[0])
         else:
             self.link(nodeBlendMaskTex.outputs[0], nodeBlendColorMap.inputs[self.inputs0])
-            self.link(nodeBlendMaskTex.outputs[0], nodeBlendCompMap.inputs[self.inputs0])
             self.link(nodeBlendMaskTex.outputs[0], nodeBlendNormalMap.inputs[0])
 
     def makeOpaque(self):
@@ -1131,7 +1405,6 @@ class MSFS_Material:
         # Since Eevee doesn't provide a dither mode, we'll just use alpha-blend instead.
         # It sucks, but what else is there to do?
         self.material.blend_method = "BLEND"
-
 
     #########################################################################
     def addNode(self, name = "", typeNode = "", location = (0.0, 0.0), hidden = True, width = 150.0, frame = None, color = (1.0, 1.0, 1.0), 
@@ -1201,7 +1474,8 @@ class MSFS_Material:
                             print("update_base_color_texture - found mesh object with material base color texture - update", obj, mat.name, mat.msfs_base_color_texture, mat.msfs_detail_color_texture)
                             color_attribute = obj.data.color_attributes.new(
                                                   name='Col',
-                                                  type='BYTE_COLOR',
+                                                  #type='BYTE_COLOR',
+                                                  type='FLOAT_COLOR',
                                                   domain='CORNER',
                                               )
 

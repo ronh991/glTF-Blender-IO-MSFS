@@ -21,4 +21,4 @@ class MSFS_Windshield(MSFS_Material):
 
     def customShaderTree(self):
         super(MSFS_Windshield, self).defaultShadersTree()
-        super(MSFS_Windshield, self).createVertextFrame(True)
+        #super(MSFS_Windshield, self).createVertexFrame(True)
