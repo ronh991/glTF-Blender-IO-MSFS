@@ -198,7 +198,7 @@ class MSFS_OT_MultiExportGLTF2(bpy.types.Operator):
     
     @staticmethod
     def export(file_path):
-        settings = get_prefs()
+        settings = bpy.context.scene.msfs_multi_exporter_settings
         bpy.context.scene.msfs_exporter_settings.use_unique_id = settings.use_unique_id
         gltf = None
         if (bpy.app.version < (3, 3, 0)):
