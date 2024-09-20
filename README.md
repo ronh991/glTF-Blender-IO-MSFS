@@ -89,7 +89,7 @@ v2.2.7 (Blender 4.2.x LTS Beta and later)
 
 :warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
-:warning: The version 2.0.2.x is only compatible with Blender 4.0.x. Other versions are not supported.
+:warning: The version 2.2.x is only compatible with Blender 4.2.x LTS. Other versions are not supported.
 
 *******
 
