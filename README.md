@@ -67,6 +67,8 @@ v2.2.7 (Blender 4.2.x LTS Beta and later)
 
   #16 FBW import issues - bad COMP and Emissive texture importing fixed
 
+  #17 Neutral Bone is added by KHronos however their spec allows duplicate bone names, ASOBO extensions do not - code to re name Neutral bones
+
 # Enhancements
 
   Blender 4.2 has had numerous changes and updates for the Beta - new extensions install for addons is required
