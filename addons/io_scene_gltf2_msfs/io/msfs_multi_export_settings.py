@@ -293,7 +293,6 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         min=0,
         max=100
     )
-
     ## JPEG Quality
     export_jpeg_quality: bpy.props.IntProperty(
         name='JPEG quality',
@@ -404,7 +403,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False,
     )
     
-    ##* Export Animation Options Check
+    ## Export Animation Options Check
     export_animations: bpy.props.BoolProperty(
         name="Animations",
         description="Exports active actions and NLA tracks as glTF animations",
@@ -636,7 +635,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False
     )
     
-    ##* Skinning Option Check
+    ## Skinning Option Check
     export_skins: bpy.props.BoolProperty(
         name="Skinning", description="Export skinning (armature) data", default=True
     )

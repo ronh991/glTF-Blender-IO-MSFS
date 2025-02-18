@@ -132,7 +132,7 @@ class Export:
         # print("gather_gltf_encoded_hook - started")
 
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
-        #print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
+        # print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
         # for ex in export_settings["gltf_user_extensions"]:
             # print("ex", ex, ex.Extension, ex.properties, ex.properties.enabled, ex.properties.enable_msfs_extension, ex.properties.use_unique_id)
 
@@ -149,7 +149,6 @@ class Export:
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
 
     def gather_node_hook(self, gltf2_object, blender_object, export_settings):
-        #print("gather node hook", gltf2_object.name)
         if self.properties.enable_msfs_extension:
             if gltf2_object.extensions is None:
                 gltf2_object.extensions = {}
@@ -159,9 +158,8 @@ class Export:
 
             if blender_object.type == 'LIGHT':
                 MSFSLight.export(gltf2_object, blender_object)
-
+    
     def gather_joint_hook(self, gltf2_node, blender_bone, export_settings):
-        #print("gather joint hook")
         if self.properties.enable_msfs_extension:
 
             if gltf2_node.extensions is None:
@@ -171,7 +169,6 @@ class Export:
                 MSFS_unique_id.export(gltf2_node, blender_bone)
 
     def gather_scene_hook(self, gltf2_scene, blender_scene, export_settings):
-        #print("gather Scene Vtree", export_settings["vtree"])
         if self.properties.enable_msfs_extension and MSFSGizmo:
             #print("gather_scene_hook - properties enabled", MSFSGizmo)
             MSFSGizmo.export(gltf2_scene.nodes, blender_scene, export_settings)
