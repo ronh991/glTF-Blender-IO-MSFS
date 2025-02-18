@@ -590,7 +590,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False
     )
     
-    ##* Skinning Option Check
+    ## Skinning Option Check
     export_skins: bpy.props.BoolProperty(
         name="Skinning", description="Export skinning (armature) data", default=True
     )

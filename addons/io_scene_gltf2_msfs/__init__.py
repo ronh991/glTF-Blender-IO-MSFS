@@ -25,11 +25,14 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (3, 3, 0),
-    "version": (1, 6, 12, 0),
+    "version": (1, 6, 13, 0),
     "location": "File > Import-Export",
     "category": "Import-Export",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
 }
+
+def get_version_string():
+    return str(bl_info['version'][0]) + '.' + str(bl_info['version'][1]) + '.' + str(bl_info['version'][2])
 
 #get the folder path for the .py file containing this function
 def get_path():
@@ -110,9 +113,6 @@ class addSettingsPanel(bpy.types.AddonPreferences):
 
         ## default vertex color project
         col.prop(self, "export_vertexcolor_project", text="This Project uses Vertex Color Nodes")
-
-def get_version_string():
-    return str(bl_info['version'][0]) + '.' + str(bl_info['version'][1]) + '.' + str(bl_info['version'][2])
 
 class MSFS_ImporterProperties(bpy.types.PropertyGroup):
     enable_msfs_extension: bpy.props.BoolProperty(
@@ -238,6 +238,7 @@ def register():
         try:
             bpy.utils.register_class(cls)
         except ValueError:
+            print("ERROR in register classes", cls)
             pass
 
     for module in modules():
@@ -248,6 +249,7 @@ def register():
         try:
             bpy.utils.register_class(cls)
         except Exception:
+            print("ERROR in register extension classes", cls)
             pass
 
     bpy.types.Scene.msfs_importer_properties = bpy.props.PointerProperty(type=MSFS_ImporterProperties)
@@ -318,5 +320,6 @@ class glTF2ExportUserExtension(Export):
         # We need to wait until we create the gltf2UserExtension to import the gltf2 modules
         # Otherwise, it may fail because the gltf2 may not be loaded yet
         from io_scene_gltf2.io.com.gltf2_io_extensions import Extension
+        #print("glTF2ExportUserExtension - __init__ start")
         self.Extension = Extension
         self.properties = bpy.context.scene.msfs_exporter_settings

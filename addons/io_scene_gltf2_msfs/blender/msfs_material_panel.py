@@ -518,8 +518,8 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
                             print("old_albedo_tint_color_diff - execute - simple values BSDF to msfs_*")
                             print("5")
                             mat.msfs_base_color_factor = principled.inputs["Base Color"].default_value
-                            mat.mat.msfs_metallic_factor = principled.inputs[6].default_value
-                            mat.mat.msfs_roughness_factor = principled.inputs[9].default_value
+                            mat.msfs_metallic_factor = principled.inputs[6].default_value
+                            mat.msfs_roughness_factor = principled.inputs[9].default_value
                             print("6")
                         except:
                             print("old_albedo_tint_color_diff - execute - old_properties - Error - BSDF properties found skipping")

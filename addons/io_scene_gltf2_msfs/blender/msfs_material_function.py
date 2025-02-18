@@ -1207,6 +1207,9 @@ class MSFS_Material:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
             else:
                 self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+            # for some reason PBR Painter texture that are baked will set the node image to Linear.Rec709 and channelpacked alpha_mode B4.2+
+            nodeBaseColorTex.image.alpha_mode = "STRAIGHT"
+            nodeBaseColorTex.image.colorspace_settings.name = "sRGB"
 
         # no basecolor - has detailColor - Is this a thing????
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
@@ -1221,6 +1224,8 @@ class MSFS_Material:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
             else:
                 self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+            nodeDetailColorTex.image.alpha_mode = "STRAIGHT"
+            nodeDetailColorTex.image.colorspace_settings.name = "sRGB"
 
         # has both tex
         else:
@@ -1233,6 +1238,10 @@ class MSFS_Material:
                 self.link(nodeVertexColorBaseColorRGB.inputs[self.inputs1], nodeMulBaseColorRGB.outputs[self.outputs0])
             else:
                 self.link(nodeMulBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
+            nodeBaseColorTex.image.alpha_mode = "STRAIGHT"
+            nodeDetailColorTex.image.alpha_mode = "STRAIGHT"
+            nodeBaseColorTex.image.colorspace_settings.name = "sRGB"
+            nodeDetailColorTex.image.colorspace_settings.name = "sRGB"
 
     def updateNormalLinks(self):
         nodeNormalTex = self.getNodeByName(MSFS_ShaderNodes.normalTex.value)
