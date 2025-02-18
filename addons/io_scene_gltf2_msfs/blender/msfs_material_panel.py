@@ -234,7 +234,7 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
 
         # To Do: check if new material type and Base Color and Base Color A nodes present then just assume good
         try:
-            if mat.msfs_material_type != "NONE" and mat.node_tree.nodes["Base Color"] is not None and mat.node_tree.nodes["Base Color A"] is not None:
+            if mat.msfs_material_type != "NONE" and mat.node_tree.nodes["Base Color RGB"] is not None and mat.node_tree.nodes["Base Color A"] is not None:
                 return False
         except:
             pass

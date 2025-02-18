@@ -45,3 +45,16 @@ class MSFS_unique_id:
             extension=extension,
             required=False
         )
+
+    @staticmethod
+    def export_no_blender_object(gltf2_object):
+        extension = {}
+            
+        uniqueID = gltf2_object.name
+        extension["id"] = uniqueID
+
+        gltf2_object.extensions[MSFS_unique_id.extension_name] = Extension(
+            name=MSFS_unique_id.extension_name,
+            extension=extension,
+            required=False
+        )
