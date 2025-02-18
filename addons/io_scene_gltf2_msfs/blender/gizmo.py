@@ -14,7 +14,7 @@
 
 from math import radians
 
-import bgl
+#import bgl   bgl is depricated in Blender 4.0 use gpu
 import bmesh
 import bpy
 import gpu

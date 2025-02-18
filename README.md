@@ -70,6 +70,8 @@ Blender 4.2.1 RC has not been tested.
 
   #16 FBW import issues - bad COMP and Emissive texture importing fixed
 
+  #17 Neutral Bone is added by KHronos however their spec allows duplicate bone names, ASOBO extensions do not - code to re name Neutral bones
+
 # Enhancements
 
   Blender 4.2.0 LTS has had numerous changes and updates for the Beta - new extensions install for addons is required
@@ -81,16 +83,16 @@ Blender 4.2.1 RC has not been tested.
 
   Added more functionality to the migration of materials. If you import a glTF file using the fbw (Fly-By-Wire) importer, you will get material nodes that are not one for one in synch with the ASOBO exporter and a Pre-Migration will be required. The fbw materials will now carry over it's data to the new ASOBO shaders with better accuracy.  You will still need to monitor the migration of those materials.
 
->ASOBO and me would especially like to thank the following people:
+>ASOBO and I would especially like to thank the following people:
 >Vitus of [Wing42](https://wing42.com/), [tml1024](https://github.com/tml1024), [ronh991](https://github.com/ronh991), [pepperoni505](https://github.com/pepperoni505) of [FlyByWire](https://flybywiresim.com/)
 
 :warning: This plugin cannot import glTF files that have been built into a Microsoft Flight Simulator package through the Sim's Package Builder.
 
 :warning: This plugin is NOT compatible with the legacy exporter developed for FSX and P3D and MSFS.  Remove these plugin (Prefered) or disabled these plugins.
 
-:warning: The version 1.6.8 is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
+:warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
-:warning: The version 2.2.13 is only compatible with Blender 4.2.0 LTS Release - Other versions are not supported.
+:warning: The version 2.2.x is only compatible with Blender 4.2.x LTS. Other versions are not supported.
 
 *******
 
