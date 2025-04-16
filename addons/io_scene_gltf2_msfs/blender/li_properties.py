@@ -21,7 +21,6 @@ class MSFS_attached_behavior(bpy.types.PropertyGroup):
     source_filename: bpy.props.StringProperty(name = "filename", subtype='FILE_NAME', default = "")
     kf_start: bpy.props.IntProperty(name = "kf_start", min=0,  default = 0)
     kf_end: bpy.props.IntProperty(name = "kf_end", min=0,  default = 1)
-
 bpy.utils.register_class(MSFS_attached_behavior)
 
 class MSFS_LI_object_properties():

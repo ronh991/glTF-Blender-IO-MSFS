@@ -972,12 +972,12 @@ class MSFS_PT_export_material(bpy.types.Panel):
 
         settings = context.scene.msfs_multi_exporter_settings
 
-        layout.prop(settings, 'export_materials')
+        layout.prop(settings, "export_materials")
         col = layout.column()
         col.active = settings.export_materials == "EXPORT"
-        col.prop(settings, 'export_image_format')
+        col.prop(settings, "export_image_format")
         if settings.export_image_format in ["AUTO", "JPEG", "WEBP"]:
-            col.prop(settings, 'export_image_quality')
+            col.prop(settings, "export_image_quality")
         col = layout.column()
         col.active = settings.export_image_format != "WEBP"
         col.prop(settings, "export_image_add_webp")
@@ -989,9 +989,9 @@ class MSFS_PT_export_material(bpy.types.Panel):
         header.label(text="Unused Textures & Images")
         if sub_body:
             row = sub_body.row()
-            row.prop(settings, 'export_unused_images')
+            row.prop(settings, "export_unused_images")
             row = sub_body.row()
-            row.prop(settings, 'export_unused_textures')
+            row.prop(settings, "export_unused_textures")
 
 class MSFS_PT_export_shapekeys(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'

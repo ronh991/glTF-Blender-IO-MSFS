@@ -26,14 +26,12 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 2, 0),
-    "version": (2, 2, 17),
+    "version": (2, 2, 18),
     "location": "File > Export > glTF 2.0",
     "category": "Import-Export",
     "developer":"Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
 }
-
-#from os import path as p
 
 def get_version_string():
     SCRIPT_DIR = os.path.dirname(__file__)
@@ -252,7 +250,8 @@ def register():
         try:
             bpy.utils.register_class(cls)
         except ValueError:
-            print("ERROR in register classes", cls)
+            if "MSFS_attached_behavior" in str(inspect.getmro(cls)[1]):
+                print("ERROR in register classes", cls)
             pass
 
     for module in modules():

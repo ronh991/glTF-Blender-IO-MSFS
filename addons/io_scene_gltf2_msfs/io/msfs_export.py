@@ -191,35 +191,22 @@ class Export:
                     MSFS_unique_id.export_no_blender_object(gltf2_object)
 
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
-        # blender 4.0 issue with detail textures added twice once correct and once as a regular basecolor texture
+        # blender 4.0 and now 3.6 issue with detail textures added twice once correct and once as a regular basecolor texture
         # if it has a detail color texture then set basecolor texture to none
         #print("*** MSFS WARNING *** - gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
         #print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        print("gather_material_hook - bmat list", blender_material.msfs_base_color_texture, blender_material.msfs_detail_color_texture, blender_material.msfs_occlusion_metallic_roughness_texture)
+        print("gather_material_hook - gmat list", gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.metallic_roughness_texture)
         if blender_material.msfs_detail_color_texture is not None and blender_material.msfs_base_color_texture is None:
             gltf2_material.pbr_metallic_roughness.base_color_texture = None
-            #print("*** MSFS WARNING *** - gather_material_hook - blender material ", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
             print("*** MSFS WARNING *** - blender material - delete the base color", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
-        #print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
-
-        # # blender 3.3 removes base color values with base color texture - have to add back in
-        # #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
-        # base_color = blender_material.msfs_base_color_factor
-        # gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
-        # #print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3], gltf2_base_color)
-        # if base_color is not None and gltf2_base_color is None:
-            # print("*** MSFS WARNING *** - changing base_color_factor because none", blender_material, base_color[0], base_color[1], base_color[2], base_color[3])
-            # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        # if gltf2_base_color is not None:
-            # if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
-                # print("*** MSFS WARNING *** - changing base_color_factor because different in node", blender_material, base_color, gltf2_base_color)
-                # if base_color[0] == 1.0 and base_color[1] == 1.0 and base_color[2] == 1.0 and base_color[3] == 1.0:
-                    # gltf2_material.pbr_metallic_roughness.base_color_factor = gltf2_base_color
-                # else:
-                    # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        # #print("gather_material_hook - blender material - set base color after", blender_material, gltf2_material.pbr_metallic_roughness.base_color_factor)
-
-
-        # and this for normal and occlusion too ???????????
+        if gltf2_material.pbr_metallic_roughness.base_color_texture is not None and blender_material.msfs_base_color_texture is None:
+            gltf2_material.pbr_metallic_roughness.base_color_texture = None
+            print("*** MSFS WARNING *** - blender material - delete the base color - has gltf2 base color no blender texture", blender_material, gltf2_material.pbr_metallic_roughness.base_color_texture, blender_material.msfs_base_color_texture)
+        if (gltf2_material.pbr_metallic_roughness.metallic_roughness_texture is not None or gltf2_material.occlusion_texture is not None) and blender_material.msfs_occlusion_metallic_roughness_texture is None:
+            gltf2_material.pbr_metallic_roughness.metallic_roughness_texture = None
+            gltf2_material.occlusion_texture = None
+            print("*** MSFS WARNING *** - blender material - delete the OMR color - has gltf2 OMR color no blender texture", blender_material, gltf2_material.pbr_metallic_roughness.metallic_roughness_texture, blender_material.msfs_occlusion_metallic_roughness_texture)
 
         # late 4.2 change alphamode always set to BLEND
         # blender 4.2 June 6 beta - there is no longer a Blender Blend_mode variable - this was used to set the gltf alphaMode json
