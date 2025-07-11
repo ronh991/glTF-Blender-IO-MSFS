@@ -85,6 +85,7 @@ class Export:
     def gather_asset_hook(self, gltf2_asset, export_settings):
         #print("gather_asset_hook")
         if self.properties.enable_msfs_extension == True:
+            #print("gather_asset_hook - ext true")
             if gltf2_asset.extensions is None:
                 gltf2_asset.extensions = {}
             gltf2_asset.extensions["ASOBO_normal_map_convention"] = self.Extension(
@@ -93,6 +94,7 @@ class Export:
                 required=False
             )
 
+            #print("gather_asset_hook - write version")
             gltf2_asset.generator += " and Asobo Studio MSFS Blender I/O v" + get_version_string()
 
         # for the vetex color rainbow

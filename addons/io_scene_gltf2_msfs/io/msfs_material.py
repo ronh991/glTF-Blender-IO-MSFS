@@ -14,33 +14,67 @@
 
 import bpy
 
-if bpy.app.version >= (3, 6, 0):
-    from io_scene_gltf2.blender.exp.material.gltf2_blender_gather_texture_info import (
+# for Blender 4.5 - reanme Khronos files for import- ronh
+
+
+if bpy.app.version >= (4, 5, 0):
+    from io_scene_gltf2.blender.imp.image import BlenderImage
+    from io_scene_gltf2.blender.exp.material.search_node_tree import (
+        NodeSocket
+    )
+    from io_scene_gltf2.blender.exp.material.texture_info import (
         gather_material_normal_texture_info_class,
-        gather_material_occlusion_texture_info_class, gather_texture_info)
+        gather_material_occlusion_texture_info_class,
+        gather_texture_info
+    )
+    from io_scene_gltf2.blender.com.material_helpers import get_gltf_old_group_node_name
+elif bpy.app.version >= (4, 2, 0):
+
+    if bpy.app.version < (4, 2, 99):
+        from io_scene_gltf2.blender.exp.material.gltf2_blender_search_node_tree import (
+            NodeSocket
+        )
+elif bpy.app.version >= (3, 6, 0):
+
+    if bpy.app.version < (4, 2, 0):
+        from io_scene_gltf2.blender.com.gltf2_blender_material_helpers import get_gltf_old_group_node_name
+        from io_scene_gltf2.blender.imp.gltf2_blender_image import BlenderImage
+        from io_scene_gltf2.blender.exp.material.gltf2_blender_gather_texture_info import (
+            gather_material_normal_texture_info_class,
+        	gather_material_occlusion_texture_info_class,
+            gather_texture_info
+        )
+        from io_scene_gltf2.blender.exp.material.gltf2_blender_search_node_tree import \
+            get_texture_node_from_socket, \
+            from_socket, \
+            FilterByType, \
+            previous_node, \
+            get_const_from_socket, \
+            NodeSocket, \
+            get_socket, \
+            get_texture_transform_from_mapping_node, \
+            check_if_is_linked_to_active_output
 else:
+    from io_scene_gltf2.blender.com.gltf2_blender_material_helpers import get_gltf_old_group_node_name
+    from io_scene_gltf2.blender.imp.gltf2_blender_image import BlenderImage
     from io_scene_gltf2.blender.exp.gltf2_blender_gather_texture_info import (
         gather_material_normal_texture_info_class,
-        gather_material_occlusion_texture_info_class, gather_texture_info
+        gather_material_occlusion_texture_info_class,
+        gather_texture_info
     )
-
-from io_scene_gltf2.blender.imp.gltf2_blender_image import BlenderImage
+    from io_scene_gltf2.blender.exp.material.gltf2_blender_search_node_tree import \
+        get_texture_node_from_socket, \
+        from_socket, \
+        FilterByType, \
+        previous_node, \
+        get_const_from_socket, \
+        NodeSocket, \
+        get_socket, \
+        get_texture_transform_from_mapping_node, \
+        check_if_is_linked_to_active_output
 
 from ..com import msfs_material_props as MSFSMaterialExtensions
 import typing
-
-from io_scene_gltf2.blender.com.gltf2_blender_material_helpers import get_gltf_old_group_node_name
-from io_scene_gltf2.blender.exp.material.gltf2_blender_search_node_tree import \
-    get_texture_node_from_socket, \
-    from_socket, \
-    FilterByType, \
-    previous_node, \
-    get_const_from_socket, \
-    NodeSocket, \
-    get_socket, \
-    get_texture_transform_from_mapping_node, \
-    check_if_is_linked_to_active_output
-
 
 # this is from Khronos code
 

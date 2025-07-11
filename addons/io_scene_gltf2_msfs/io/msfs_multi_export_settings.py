@@ -1108,8 +1108,13 @@ class MSFS_PT_export_geometry_compression(bpy.types.Panel):
     bl_parent_id = "MSFS_PT_export_geometry"
     bl_options = {'DEFAULT_CLOSED'}
 
+    # added by ronh
     def __init__(self):
-        from io_scene_gltf2.io.com import gltf2_io_draco_compression_extension
+        if bpy.app.version < (4, 2, 99):
+            from io_scene_gltf2.io.com import gltf2_io_draco_compression_extension
+        else:
+            from io_scene_gltf2.io.com import draco
+        #from io_scene_gltf2.io.com import gltf2_io_draco_compression_extension
         self.is_draco_available = gltf2_io_draco_compression_extension.dll_exists(quiet=True)
 
     @classmethod

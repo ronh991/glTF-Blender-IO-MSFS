@@ -19,14 +19,14 @@ from pathlib import Path
 
 import bpy
 import os
-import toml
+import tomllib
 
 bl_info = {
     "name": "Microsoft Flight Simulator glTF Extension",
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 2, 0),
-    "version": (2, 2, 18),
+    "version": (2, 2, 19),
     "location": "File > Export > glTF 2.0",
     "category": "Import-Export",
     "developer":"Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
@@ -36,8 +36,14 @@ bl_info = {
 def get_version_string():
     SCRIPT_DIR = os.path.dirname(__file__)
     manifest_file = os.path.join(SCRIPT_DIR, "blender_manifest.toml")
-    bl_info=toml.load(manifest_file)
-    return bl_info["version"]
+    try:
+        with open(manifest_file, "rb") as f:
+            bl_info = tomllib.load(f)
+        #bl_info=tomllib.load(manifest_file)
+        #print("get_version_string", bl_info)
+        return bl_info["version"]
+    except:
+        return str(bl_info['version'][0]) + '.' + str(bl_info['version'][1]) + '.' + str(bl_info['version'][2])
 
 #get the folder path for the .py file containing this function
 def get_path():

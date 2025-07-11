@@ -4,7 +4,9 @@
 
 ## NOTE:
 
-THIS WILL NOT Work with 4.1.x or earlier - Blender 4.2.x LTS is a large breaking change update.
+THIS WILL NOT Work with 3.5.x or earlier - Blender 4.2.x LTS is a large breaking change update.
+
+Blender 4.5.x LTS also has large breaking changes to the Khronos file naming.
 
 If you use this unofficial version of the ASOBO exporter, be aware that you will need to or it is highly recommended that you migrate your MSFS materials. They will NOT display with the Migrate Data button.  However this exporter has a number of shader node, shader node link changes and default factor value changes.  These changes will only be utilized if you reselect the MSFS material.  That is, reselect the same MSFS material from the drop down - DO NOT SELECT DISABLED in the drop down.  Please make a backup of your original work before migration.
 
@@ -20,7 +22,9 @@ v1.6.8.x (Blender 3.3.x and 3.6.x)
 
 v2.2.13 (Blender 4.2.0 LTS Release ONLY - 4.2 Beta does not work with this version as there are too many late breaking changes)
 
-Blender 4.2.1 RC has not been tested.
+v2.2.18 Blender 4.2.1 LTS.
+
+v2.2.19 Blender 4.5.x LTS RC - has not been fully tested.
 
 # ASOBO issues and enhancements
 
@@ -72,13 +76,17 @@ Blender 4.2.1 RC has not been tested.
 
   #17 Neutral Bone is added by KHronos however their spec allows duplicate bone names, ASOBO extensions do not - code to re name Neutral bones
 
+  #18 Interpretation of ORM and Detail OMR application was incorrect
+
 # Enhancements
 
-  Blender 4.2.0 LTS has had numerous changes and updates for the Beta - new extensions install for addons is required
+  Blender 4.2.0 LTS has had numerous changes and updates - new extensions install for addons is required
+
+  Blender 4.5.0 LTS (RC) has had numerous changes and updates - Khronos file naming
 
   Some default values for Metallic, Roughness, Emissive, Base Color have been reset
   Max emissive strength now 100 (not the same a Emissive Factor)
-  Vertex Color added to exported data and now shows in Blender - Shader nodes added with links
+  Vertex Color added to exported data and now shows in Blender - Shader nodes added with links (removed)
   Normal - Blue Channel set to default to 1 (White)
 
   Added more functionality to the migration of materials. If you import a glTF file using the fbw (Fly-By-Wire) importer, you will get material nodes that are not one for one in synch with the ASOBO exporter and a Pre-Migration will be required. The fbw materials will now carry over it's data to the new ASOBO shaders with better accuracy.  You will still need to monitor the migration of those materials.
@@ -92,7 +100,7 @@ Blender 4.2.1 RC has not been tested.
 
 :warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
-:warning: The version 2.2.x is only compatible with Blender 4.2.x LTS. Other versions are not supported.
+:warning: The version 2.2.x is only compatible with Blender 4.2.x LTS and 4.5.x LTS. Other versions are not supported.
 
 *******
 
@@ -111,13 +119,13 @@ Blender 4.2.1 RC has not been tested.
 
 There are two ways to install the MSFS Blender exporter. Either using the Edit Preferences Menu and Install tab, or copy/paste the addon files to your %APPDATA% folder. Installation steps are explained down bellow :
 
-4.2.0 LTS install - uses new extensions and is drag and drop - see video
+4.2.0 LTS and 4.5.x install - uses new extensions and is drag and drop - see video
 
 https://youtu.be/Csdrq3izEQA
 
 ## How to Install the ASOBO Blender MSFS Importer/Exporter using Blender:
 
-1. Go to the Releases section of the https://github.com/ronh991/glTF-Blender-IO-MSFS/releases repository. Then download the zip file `io_scene_gltf2_msfs_for36.zip` for Blender 3.6.x or the pre-release version `io_scene_gltf2_msfs_for40.zip` for Blender 4.0.x.
+1. Go to the Releases section of the https://github.com/ronh991/glTF-Blender-IO-MSFS/releases repository. Then download the zip file `io_scene_gltf2_msfs_for36.zip` for Blender 3.6.x or the pre-release version `io_scene_gltf2_msfs_for42to45.zip` for Blender 4.2.x LTS and 4.5.x LTS RC.
 
 ![Download Release](misc/Install/Download_rel.png)
 
@@ -127,7 +135,7 @@ https://youtu.be/Csdrq3izEQA
 
 3. Go to Add-ons and click on Install an add-on. This will bring up a file dialog, where you navigate to the folder where you have your `io_scene_gltf2_msfs.zip` downloaded file.
 
-4. Select the `io_scene_gltf2_msfs.zip` file.  And click on the Install Add-on button.
+4. Select the `io_scene_gltf2_msfs_for42to45.zip` file.  And click on the Install Add-on button.
 
  ![Edit Preferences - Install](misc/Install/Edit_Pref_install.png)
 
@@ -135,11 +143,11 @@ https://youtu.be/Csdrq3izEQA
 
  ![Edit Preferences - Enable](misc/Install/Enable_checkbox_addon.png)
 
-## How to Install the ASOBO Blender msfs exporter by Copy/Paste to AppData
+## How to Install the ASOBO Blender msfs exporter by Copy/Paste to AppData (not preferred method)
 
 1. Close Blender if you have it open.
 
-2. Go to the Releases section of the https://github.com/ronh991/glTF-Blender-IO-MSFS/releases repository. Then download the zip file `io_scene_gltf2_msfs_for36.zip` for Blender 3.6.x or the pre-release version `io_scene_gltf2_msfs_for40.zip` for Blender 4.0.x.
+2. Go to the Releases section of the https://github.com/ronh991/glTF-Blender-IO-MSFS/releases repository. Then download the zip file `io_scene_gltf2_msfs_for36.zip` for Blender 3.6.x or the pre-release version `io_scene_gltf2_msfs_for42to45.zip` for Blender 4.2.x LTS and 4.5 LTS RC.
 
 3. Decompress the contents of the file to a temporary location.
 

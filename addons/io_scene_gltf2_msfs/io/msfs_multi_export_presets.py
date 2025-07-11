@@ -24,8 +24,8 @@ class MultiExporterPresetLayer(bpy.types.PropertyGroup):
 
 class MultiExporterPreset(bpy.types.PropertyGroup):
 
-    def __init__(self) -> None:
-        super().__init__()
+    #def __init__(self) -> None:
+    #    super().__init__()
         
     def update_relative_path(self, context):
         if self.folder_path == "//":
