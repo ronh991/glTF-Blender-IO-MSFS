@@ -767,24 +767,21 @@ class MSFS_Material:
             color = (0.1, 0.4, 0.6)
         )
 
-        # Node removed - only subtract 0.5
-
         ## Multiply Detail OMR
         # In[0] : Detail OMR texture
         # Out[0] : Substract Detail OMR
-        # multiplyDetailOMR = self.addNode(
-            # name = MSFS_ShaderNodes.detailOMRMul.value,
-            # typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
-            # operation = "MULTIPLY",
-            # location = (-500.0, 200.0),
-            # width = 200.0,
-            # frame = omrFrame
-        # )
-        # multiplyDetailOMR.inputs[1].default_value = (2.0, 2.0, 2.0)
+        multiplyDetailOMR = self.addNode(
+            name = MSFS_ShaderNodes.detailOMRMul.value,
+            typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
+            operation = "MULTIPLY",
+            location = (-500.0, 200.0),
+            width = 200.0,
+            frame = omrFrame
+        )
+        multiplyDetailOMR.inputs[1].default_value = (2.0, 2.0, 2.0)
 
         ## Links
-        # multiplyDetailOMR node removed
-        #self.link(detailCompTexNode.outputs[0], multiplyDetailOMR.inputs[0])
+        self.link(detailCompTexNode.outputs[0], multiplyDetailOMR.inputs[0])
 
         ## Substract Detail OMR
         # In[0] : Multiply Detail OMR
@@ -793,19 +790,14 @@ class MSFS_Material:
             name = MSFS_ShaderNodes.detailOMRSubtract.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
             operation = "SUBTRACT",
-            location = (-500.0, 200.0),
+            location = (-500.0, 150.0),
             width = 200.0,
             frame = omrFrame
         )
-        #subtractDetailOMR.inputs[1].default_value = (1.0, 1.0, 1.0)
-        # bias by 0.5
-        subtractDetailOMR.inputs[1].default_value = (0.5, 0.5, 0.5)
+        subtractDetailOMR.inputs[1].default_value = (1.0, 1.0, 1.0)
 
         ## Links
-        # multiplyDetailOMR node removed
-        #self.link(multiplyDetailOMR.outputs[0], subtractDetailOMR.inputs[0])
-        # detail comp tex to subtract subtractDetailOMR bias
-        self.link(detailCompTexNode.outputs[0], subtractDetailOMR.inputs[0])
+        self.link(multiplyDetailOMR.outputs[0], subtractDetailOMR.inputs[0])
 
         ## Map to clamp detail OMR
         # In[0] : Substract Detail OMR
@@ -813,7 +805,7 @@ class MSFS_Material:
         clampDetailOMR = self.addNode(
             name = MSFS_ShaderNodes.detailOMRClamp.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeMapRange.value,
-            location = (-150.0, 200.0),
+            location = (-500.0, 100.0),
             width = 200.0,
             frame = omrFrame
         )
@@ -821,9 +813,7 @@ class MSFS_Material:
         clampDetailOMR.interpolation_type = "LINEAR"
 
         ## Links
-        # now clampDetailOMR
-        # link moved to after add
-        #self.link(subtractDetailOMR.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
+        self.link(subtractDetailOMR.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
 
         ## Metallic scale
         # Out[0] : Metallic Multiplier -> In[0] 
@@ -854,22 +844,14 @@ class MSFS_Material:
             name = MSFS_ShaderNodes.blendCompMap.value,
             typeNode = MSFS_ShaderNodesTypes.shaderNodeVectorMath.value,
             operation = "ADD",
-            location = (-500.0, 100.0),
+            location = (-150.0, 200.0),
             width = 300.0,
             frame = omrFrame
         )
-        # Factor input
-        #blendCompMapNode.inputs[self.inputs0].default_value = 1.0
         
         ## Links
-        # now clampDetailOMR out to splitOccMetalRoughNode in
-        #self.link(clampDetailOMR.outputs[1], blendCompMapNode.inputs[1])
-        # subtract bias to add
-        self.link(subtractDetailOMR.outputs[0], blendCompMapNode.inputs[1])
-        self.link(blendCompMapNode.outputs[0], clampDetailOMR.inputs[6]) ## input[6] == "Vector"
-        # From To min max
-        clampDetailOMR.inputs[7].default_value = (-0.5, -0.5, -0.5)
-        clampDetailOMR.inputs[8].default_value = (1.5, 1.5, 1.5)
+        self.link(compTexNode.outputs[0], blendCompMapNode.inputs[0])
+        self.link(clampDetailOMR.outputs[1], blendCompMapNode.inputs[1])
 
         ## Split Occlusion Metallic Roughness
         # In[0] : Blend Comp Map -> Out[0]
@@ -894,7 +876,7 @@ class MSFS_Material:
             )
         
         ## Links
-        #self.link(splitOccMetalRoughNode.inputs[0], blendCompMapNode.outputs[0])
+        self.link(splitOccMetalRoughNode.inputs[0], blendCompMapNode.outputs[0])
         
         ## Roughness Multiplier
         # In[1] : Split Occ Metal Rough -> Out[1]
@@ -1217,6 +1199,7 @@ class MSFS_Material:
         nodeBlendColorMap = self.getNodeByName(MSFS_ShaderNodes.blendColorMap.value)
         nodeBlendAlphaMap = self.getNodeByName(MSFS_ShaderNodes.blendAlphaMap.value)
         nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
+        # vertex color nodes - extra
         nodeVertexColorBaseColorRGB = self.getNodeByName(MSFS_ShaderNodes.vertexBaseColorMul.value)
         nodeVertexColor = self.getNodeByName(MSFS_ShaderNodes.vertexColor.value)
 
@@ -1229,12 +1212,14 @@ class MSFS_Material:
         self.link(nodeDetailColorTex.outputs[1], nodeBlendAlphaMap.inputs[1])
         self.link(nodeBaseColorA.outputs[0], nodeMulBaseColorA.inputs[1])
         self.link(nodeBaseColorRGB.outputs[0], nodeMulBaseColorRGB.inputs[self.inputs1])
+        # vertex color nodes - extra
         if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
             self.link(nodeVertexColor.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs2])
             self.link(nodeVertexColorBaseColorRGB.outputs[self.outputs0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
 
         # no tex
         if not nodeBaseColorTex.image and not nodeDetailColorTex.image:
+            # vertex color nodes - extra
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
                 self.link(nodeBaseColorRGB.outputs[0], nodeVertexColorBaseColorRGB.inputs[self.inputs1])
             else:
@@ -1244,6 +1229,8 @@ class MSFS_Material:
         # has basecolor - no detailColor
         elif nodeBaseColorTex.image and not nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
+            # moved to if below
+            #self.link(nodeMulBaseColorRGB.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             self.link(nodeBaseColorTex.outputs[1], nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
@@ -1258,6 +1245,8 @@ class MSFS_Material:
         # Blender 4.0+ issue with finding a texture here on alpha channel - puts DetailColor in BaseColor slot also along with ASOBO extension
         elif not nodeBaseColorTex.image and nodeDetailColorTex.image:
             nodeBlendColorMap.blend_type = "ADD"
+            # moved to if below
+            #self.link(nodeMulBaseColorRGB.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             # Alpha links
             self.link(nodeDetailColorTex.outputs[1],nodeMulBaseColorA.inputs[0])
             self.link(nodeMulBaseColorA.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.alpha.value])
@@ -1271,6 +1260,8 @@ class MSFS_Material:
         # has both tex
         else:
             nodeBlendColorMap.blend_type = "MULTIPLY"
+            # moved to if below
+            #self.link(nodeMulBaseColorRGB.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.baseColor.value])
             nodeMulBaseColorRGB.blend_type = "MULTIPLY"
             self.link(nodeBlendAlphaMap.outputs[0], nodeMulBaseColorA.inputs[0])
             if nodeVertexColorBaseColorRGB is not None and settings.export_vertexcolor_project:
@@ -1337,7 +1328,6 @@ class MSFS_Material:
         nodeRoughnessScale = self.getNodeByName(MSFS_ShaderNodes.roughnessScale.value)
         nodeMetallicScale = self.getNodeByName(MSFS_ShaderNodes.metallicScale.value)
         nodeBlendCompMap = self.getNodeByName(MSFS_ShaderNodes.blendCompMap.value)
-        nodeClampDetailOMR = self.getNodeByName(MSFS_ShaderNodes.detailOMRClamp.value)
         nodeSeparateComp = self.getNodeByName(MSFS_ShaderNodes.compSeparate.value)
         nodeMulMetallic = self.getNodeByName(MSFS_ShaderNodes.metallicMul.value)
         nodeMulRoughness = self.getNodeByName(MSFS_ShaderNodes.roughnessMul.value)
@@ -1345,8 +1335,7 @@ class MSFS_Material:
         nodePrincipledBSDF = self.getNodeByName(MSFS_ShaderNodes.principledBSDF.value)
 
         # occlMetalRough
-        # change link order
-        #self.link(nodeBlendCompMap.outputs[0], nodeSeparateComp.inputs[0])
+        self.link(nodeBlendCompMap.outputs[0], nodeSeparateComp.inputs[0])
         self.link(nodeMetallicScale.outputs[0], nodeMulMetallic.inputs[0])
         self.link(nodeRoughnessScale.outputs[0], nodeMulRoughness.inputs[0])
         self.link(nodeSeparateComp.outputs[1], nodeMulRoughness.inputs[1])
@@ -1357,14 +1346,14 @@ class MSFS_Material:
             self.link(nodeMetallicScale.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
 
             self.unLinkNodeInput(nodeGltfSettings, 0)
-        elif nodeCompTex.image and not nodeDetailCompTex.image:
-            self.link(nodeSeparateComp.inputs[0], nodeCompTex.outputs[0])
-            self.link(nodeSeparateComp.outputs[0], nodeGltfSettings.inputs[0])
-            self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
-            self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
+        #elif nodeCompTex.image and not nodeDetailCompTex.image:
+        #    self.link(nodeSeparateComp.inputs[0], nodeCompTex.outputs[0])
+        #    self.link(nodeSeparateComp.outputs[0], nodeGltfSettings.inputs[0])
+        #    self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
+        #    self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])
         else: # nodeCompTex.image or nodeDetailCompTex.image (if we have both images or only one of them)
-            self.link(nodeBlendCompMap.inputs[0], nodeCompTex.outputs[0])
-            self.link(nodeClampDetailOMR.outputs[1], nodeSeparateComp.inputs[0])
+        #    self.link(nodeBlendCompMap.inputs[0], nodeCompTex.outputs[0])
+        #    self.link(nodeClampDetailOMR.outputs[1], nodeSeparateComp.inputs[0])
             self.link(nodeSeparateComp.outputs[0], nodeGltfSettings.inputs[0])
             self.link(nodeMulRoughness.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.roughness.value])
             self.link(nodeMulMetallic.outputs[0], nodePrincipledBSDF.inputs[MSFS_PrincipledBSDFInputs.metallic.value])

@@ -16,8 +16,8 @@ This repository contains the current version of a non-official Microsoft Flight 
 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.3 - and has the following mods/fixes
 
-v1.6.3.x (Blender 3.3.x and 3.6.x) 
-v2.2.7 (Blender 4.2.x LTS Beta and later)
+v1.6.14 (Blender 3.3.x and 3.6.x) 
+v2.2.20 (Blender 4.2.x LTS Beta and later)
 
 # ASOBO issues and enhancements
 
@@ -68,6 +68,10 @@ v2.2.7 (Blender 4.2.x LTS Beta and later)
   #16 FBW import issues - bad COMP and Emissive texture importing fixed
 
   #17 Neutral Bone is added by KHronos however their spec allows duplicate bone names, ASOBO extensions do not - code to re name Neutral bones
+  
+  #25 Neutral Bone issue - duplicate naming and missing Unique ID - fixed
+  
+  #26 error on import - line change fix
 
 # Enhancements
 
@@ -87,7 +91,7 @@ v2.2.7 (Blender 4.2.x LTS Beta and later)
 
 :warning: This plugin is NOT compatible with the legacy exporter developed for FSX and P3D and MSFS.  Remove these plugin (Prefered) or disabled these plugins.
 
-:warning: The version 1.6.2.x is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
+:warning: The version 1.6.14 is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
 :warning: The version 2.2.x is only compatible with Blender 4.2.x LTS. Other versions are not supported.
 

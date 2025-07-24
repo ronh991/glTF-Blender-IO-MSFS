@@ -409,7 +409,6 @@ class AsoboMaterialCommon:
         update=MSFS_Material_Property_Update.update_detail_normal_texture,
     )
 
-
     @staticmethod
     def from_dict(
         blender_material, gltf2_material, import_settings
@@ -732,7 +731,7 @@ class AsoboDayNightCycle:
             and blender_material.msfs_day_night_cycle
         ):
             gltf2_material.extensions[AsoboDayNightCycle.SerializedName] = Extension(
-                name=AsoboDayNightCycle.SerializedName, extension={'dummy': None}, required=False
+                name=AsoboDayNightCycle.SerializedName, extension={'dummy': None} , required=False
             )
 
 

@@ -19,27 +19,31 @@ from pathlib import Path
 
 import bpy
 import os
-import toml
+import tomllib
 
 bl_info = {
     "name": "Microsoft Flight Simulator glTF Extension",
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 2, 0),
-    "version": (2, 2, 15),
+    "version": (2, 2, 20),
     "location": "File > Export > glTF 2.0",
     "category": "Import-Export",
     "developer":"Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "tracker_url": "https://github.com/ronh991/glTF-Blender-IO-MSFS"
 }
 
-#from os import path as p
-
 def get_version_string():
     SCRIPT_DIR = os.path.dirname(__file__)
     manifest_file = os.path.join(SCRIPT_DIR, "blender_manifest.toml")
-    bl_info=toml.load(manifest_file)
-    return bl_info["version"]
+    try:
+        with open(manifest_file, "rb") as f:
+            bl_info = tomllib.load(f)
+        #bl_info=tomllib.load(manifest_file)
+        #print("get_version_string", bl_info)
+        return bl_info["version"]
+    except:
+        return str(bl_info['version'][0]) + '.' + str(bl_info['version'][1]) + '.' + str(bl_info['version'][2])
 
 #get the folder path for the .py file containing this function
 def get_path():
@@ -252,7 +256,8 @@ def register():
         try:
             bpy.utils.register_class(cls)
         except ValueError:
-            print("ERROR in register classes", cls)
+            if "MSFS_attached_behavior" in str(inspect.getmro(cls)[1]):
+                print("ERROR in register classes", cls)
             pass
 
     for module in modules():
@@ -305,7 +310,8 @@ from .io.msfs_import import Import
 
 class glTF2ImportUserExtension(Import):
     def __init__(self):
-        self.properties = bpy.context.scene.msfs_importer_properties
+        #self.properties = bpy.context.scene.msfs_importer_properties
+        self.properties = bpy.context.scene.MSFS_ImporterProperties
 
 
 ##################################################################################

@@ -293,7 +293,6 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         min=0,
         max=100
     )
-
     ## JPEG Quality
     export_jpeg_quality: bpy.props.IntProperty(
         name='JPEG quality',
@@ -404,7 +403,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False,
     )
     
-    ##* Export Animation Options Check
+    ## Export Animation Options Check
     export_animations: bpy.props.BoolProperty(
         name="Animations",
         description="Exports active actions and NLA tracks as glTF animations",
@@ -636,7 +635,7 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
         default=False
     )
     
-    ##* Skinning Option Check
+    ## Skinning Option Check
     export_skins: bpy.props.BoolProperty(
         name="Skinning", description="Export skinning (armature) data", default=True
     )
@@ -973,12 +972,12 @@ class MSFS_PT_export_material(bpy.types.Panel):
 
         settings = context.scene.msfs_multi_exporter_settings
 
-        layout.prop(settings, 'export_materials')
+        layout.prop(settings, "export_materials")
         col = layout.column()
         col.active = settings.export_materials == "EXPORT"
-        col.prop(settings, 'export_image_format')
+        col.prop(settings, "export_image_format")
         if settings.export_image_format in ["AUTO", "JPEG", "WEBP"]:
-            col.prop(settings, 'export_image_quality')
+            col.prop(settings, "export_image_quality")
         col = layout.column()
         col.active = settings.export_image_format != "WEBP"
         col.prop(settings, "export_image_add_webp")
@@ -990,9 +989,9 @@ class MSFS_PT_export_material(bpy.types.Panel):
         header.label(text="Unused Textures & Images")
         if sub_body:
             row = sub_body.row()
-            row.prop(settings, 'export_unused_images')
+            row.prop(settings, "export_unused_images")
             row = sub_body.row()
-            row.prop(settings, 'export_unused_textures')
+            row.prop(settings, "export_unused_textures")
 
 class MSFS_PT_export_shapekeys(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
@@ -1109,8 +1108,13 @@ class MSFS_PT_export_geometry_compression(bpy.types.Panel):
     bl_parent_id = "MSFS_PT_export_geometry"
     bl_options = {'DEFAULT_CLOSED'}
 
+    # added by ronh
     def __init__(self):
-        from io_scene_gltf2.io.com import gltf2_io_draco_compression_extension
+        if bpy.app.version < (4, 2, 99):
+            from io_scene_gltf2.io.com import gltf2_io_draco_compression_extension
+        else:
+            from io_scene_gltf2.io.com import draco
+        #from io_scene_gltf2.io.com import gltf2_io_draco_compression_extension
         self.is_draco_available = gltf2_io_draco_compression_extension.dll_exists(quiet=True)
 
     @classmethod

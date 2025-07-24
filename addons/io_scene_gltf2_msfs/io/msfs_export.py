@@ -15,6 +15,7 @@
 import os
 import urllib
 import bpy
+import random
 
 from .. import get_version_string
 from .msfs_gizmo import MSFSGizmo
@@ -44,19 +45,26 @@ def global_time(blender_object):
 class Export:
 
     def fix_neutral_bone(self, gltf2_node):
+        print("fix_neutral_bone START - ", gltf2_node.name)
         neutral_bone = None
         # base
         if gltf2_node is None:
+            print("fix_neutral_bone - return None")
             return None
         if gltf2_node.children is None:
-            print("fix no children", gltf2_node.name)
-            return None
+            print("fix_neutral_bone - no children", gltf2_node.name)
+            if "neutral_bone" in gltf2_node.name:
+                gltf2_node.name = "neutral_bone" + str(random.randrange(1, 100)) 
+                print("fix_neutral_bone - Neutral Bone no child fixed", gltf2_node.name)
+            #return None
         else:
             # node is orange armature, skin is green armature, joints is bones
             for c in gltf2_node.children:
+                print("fix_neutral_bone - start c", c)
                 if c.mesh is not None and c.skin is not None:
-                    print("child", c.name, c.mesh.name, c.skin.name)
+                    print("fix_neutral_bone - child c and skin not None", c.name, c.mesh.name, c.skin.name)
                 if c.skin is None:
+                    print("fix_neutral_bone - child skin is none", c.name)
                     neutral_bone = self.fix_neutral_bone(c)
                     if neutral_bone is None:
                         continue
@@ -64,27 +72,32 @@ class Export:
                         #pass
                         return neutral_bone
                 else:
-                    print("Skin name c", c.skin.name)
+                    print("fix_neutral_bone - Skin name c", c.skin.name)
                     if c.skin.joints is not None:
                         for neutral_bone in c.skin.joints:
-                            print("joints-bones found", neutral_bone.name)
+                            print("fix_neutral_bone - Joints-bones found", neutral_bone.name)
                             if "neutral_bone" in neutral_bone.name:
                                 neutral_bone.name = c.skin.name + "_neutral_bone"
-                                print("Neutral Bone fixed", neutral_bone.name)
+                                print("fix_neutral_bone - Neutral Bone fixed", neutral_bone.name)
                                 #return neutral_bone
                     else:
                         continue
 
-                if neutral_bone is not None and neutral_bone.extensions is None:
-                    neutral_bone.extensions = {}
-                if self.properties.use_unique_id and neutral_bone is not None:
-                    MSFS_unique_id.export_no_blender_object(neutral_bone)
+        print("fix_neutral_bone - try extension", gltf2_node.name, neutral_bone, neutral_bone.extensions if neutral_bone is not None else None)
+        if "neutral_bone" in gltf2_node.name:
+            if gltf2_node.extensions is None:
+                print("fix_neutral_bone - no unique extension")
+                gltf2_node.extensions = {}
+            if self.properties.use_unique_id:
+                print("fix_neutral_bone - add unique extension")
+                MSFS_unique_id.export_no_blender_object(gltf2_node)
 
-        return None
+        return neutral_bone
 
     def gather_asset_hook(self, gltf2_asset, export_settings):
         #print("gather_asset_hook")
         if self.properties.enable_msfs_extension == True:
+            #print("gather_asset_hook - ext true")
             if gltf2_asset.extensions is None:
                 gltf2_asset.extensions = {}
             gltf2_asset.extensions["ASOBO_normal_map_convention"] = self.Extension(
@@ -93,6 +106,7 @@ class Export:
                 required=False
             )
 
+            #print("gather_asset_hook - write version")
             gltf2_asset.generator += " and Asobo Studio MSFS Blender I/O v" + get_version_string()
 
         # for the vetex color rainbow
@@ -132,7 +146,7 @@ class Export:
         # print("gather_gltf_encoded_hook - started")
 
     def gather_gltf_extensions_hook(self, gltf2_plan, export_settings):
-        #print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
+        # print("gather_gltf_extensions_hook - export_settings", export_settings["gltf_user_extensions"])
         # for ex in export_settings["gltf_user_extensions"]:
             # print("ex", ex, ex.Extension, ex.properties, ex.properties.enabled, ex.properties.enable_msfs_extension, ex.properties.use_unique_id)
 
@@ -149,7 +163,6 @@ class Export:
                 image.uri = os.path.basename(urllib.parse.unquote(image.uri))
 
     def gather_node_hook(self, gltf2_object, blender_object, export_settings):
-        #print("gather node hook", gltf2_object.name)
         if self.properties.enable_msfs_extension:
             if gltf2_object.extensions is None:
                 gltf2_object.extensions = {}
@@ -159,9 +172,8 @@ class Export:
 
             if blender_object.type == 'LIGHT':
                 MSFSLight.export(gltf2_object, blender_object)
-
+    
     def gather_joint_hook(self, gltf2_node, blender_bone, export_settings):
-        #print("gather joint hook")
         if self.properties.enable_msfs_extension:
 
             if gltf2_node.extensions is None:
@@ -171,7 +183,6 @@ class Export:
                 MSFS_unique_id.export(gltf2_node, blender_bone)
 
     def gather_scene_hook(self, gltf2_scene, blender_scene, export_settings):
-        #print("gather Scene Vtree", export_settings["vtree"])
         if self.properties.enable_msfs_extension and MSFSGizmo:
             #print("gather_scene_hook - properties enabled", MSFSGizmo)
             MSFSGizmo.export(gltf2_scene.nodes, blender_scene, export_settings)
@@ -181,11 +192,11 @@ class Export:
             for gltf2_node in gltf2_scene.nodes: 
                 if gltf2_node is None:
                     continue
-                if gltf2_node.children is None:
-                    continue
+                #if gltf2_node.children is None:
+                #    continue
                 print("Scene node loop", gltf2_node.name)
                 gltf2_object = self.fix_neutral_bone(gltf2_node)
-                print("return Scene object", gltf2_object, gltf2_object.name if gltf2_object is not None else None)
+                print("return Scene object", gltf2_node.name, gltf2_object, gltf2_object.name if gltf2_object is not None else None)
                 # there is no blender_object because of Khronos stupid neutral_bone thing
 
                 if gltf2_object is not None and gltf2_object.extensions is None:
@@ -194,35 +205,22 @@ class Export:
                     MSFS_unique_id.export_no_blender_object(gltf2_object)
 
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
-        # blender 4.0 issue with detail textures added twice once correct and once as a regular basecolor texture
+        # blender 4.0 and now 3.6 issue with detail textures added twice once correct and once as a regular basecolor texture
         # if it has a detail color texture then set basecolor texture to none
         #print("*** MSFS WARNING *** - gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
         #print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        print("gather_material_hook - bmat list", blender_material.msfs_base_color_texture, blender_material.msfs_detail_color_texture, blender_material.msfs_occlusion_metallic_roughness_texture)
+        print("gather_material_hook - gmat list", gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.metallic_roughness_texture)
         if blender_material.msfs_detail_color_texture is not None and blender_material.msfs_base_color_texture is None:
             gltf2_material.pbr_metallic_roughness.base_color_texture = None
-            #print("*** MSFS WARNING *** - gather_material_hook - blender material ", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
             print("*** MSFS WARNING *** - blender material - delete the base color", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
-        #print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color after", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
-
-        # # blender 3.3 removes base color values with base color texture - have to add back in
-        # #print("gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.base_color_factor)
-        # base_color = blender_material.msfs_base_color_factor
-        # gltf2_base_color = gltf2_material.pbr_metallic_roughness.base_color_factor
-        # #print("gather_material_hook - blender material - set base color factor before", blender_material, blender_material.msfs_base_color_texture, base_color[0], base_color[1], base_color[2], base_color[3], gltf2_base_color)
-        # if base_color is not None and gltf2_base_color is None:
-            # print("*** MSFS WARNING *** - changing base_color_factor because none", blender_material, base_color[0], base_color[1], base_color[2], base_color[3])
-            # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        # if gltf2_base_color is not None:
-            # if not equality_check(base_color, gltf2_base_color, len(base_color), len(gltf2_base_color)):
-                # print("*** MSFS WARNING *** - changing base_color_factor because different in node", blender_material, base_color, gltf2_base_color)
-                # if base_color[0] == 1.0 and base_color[1] == 1.0 and base_color[2] == 1.0 and base_color[3] == 1.0:
-                    # gltf2_material.pbr_metallic_roughness.base_color_factor = gltf2_base_color
-                # else:
-                    # gltf2_material.pbr_metallic_roughness.base_color_factor = [base_color[0],base_color[1],base_color[2],base_color[3]]
-        # #print("gather_material_hook - blender material - set base color after", blender_material, gltf2_material.pbr_metallic_roughness.base_color_factor)
-
-
-        # and this for normal and occlusion too ???????????
+        if gltf2_material.pbr_metallic_roughness.base_color_texture is not None and blender_material.msfs_base_color_texture is None:
+            gltf2_material.pbr_metallic_roughness.base_color_texture = None
+            print("*** MSFS WARNING *** - blender material - delete the base color - has gltf2 base color no blender texture", blender_material, gltf2_material.pbr_metallic_roughness.base_color_texture, blender_material.msfs_base_color_texture)
+        if (gltf2_material.pbr_metallic_roughness.metallic_roughness_texture is not None or gltf2_material.occlusion_texture is not None) and blender_material.msfs_occlusion_metallic_roughness_texture is None:
+            gltf2_material.pbr_metallic_roughness.metallic_roughness_texture = None
+            gltf2_material.occlusion_texture = None
+            print("*** MSFS WARNING *** - blender material - delete the OMR color - has gltf2 OMR color no blender texture", blender_material, gltf2_material.pbr_metallic_roughness.metallic_roughness_texture, blender_material.msfs_occlusion_metallic_roughness_texture)
 
         # late 4.2 change alphamode always set to BLEND
         # blender 4.2 June 6 beta - there is no longer a Blender Blend_mode variable - this was used to set the gltf alphaMode json

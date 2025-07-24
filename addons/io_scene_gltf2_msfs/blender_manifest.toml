@@ -2,9 +2,9 @@ schema_version = "1.0.0"
 
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
-id = "gltf_exporter_extension"
-version = "2.2.15"
-name = "MSFS glTF 2.0 Exporter"
+id = "io_scene_gltf2_msfs"
+version = "2.2.20-ronh"
+name = "MSFS 2020 glTF 2.0 Exporter"
 tagline = "Microsoft Flight Simulator gLTf Exporter"
 maintainer = "Ron Haertel gs614rcac@gmail.com from work done by Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others"
 # Supported types: "add-on", "theme"
@@ -19,7 +19,7 @@ tags = ["Material", "Import-Export"]
 
 blender_version_min = "4.2.0"
 # Optional: maximum supported Blender version
-# blender_version_max = "5.1.0"
+blender_version_max = "4.5.99"
 
 # License conforming to https://spdx.org/licenses/ (use "SPDX: prefix)
 # https://docs.blender.org/manual/en/dev/extensions/licenses.html
@@ -30,7 +30,7 @@ license = [
 # Optional: required by some licenses.
 copyright = [
    "2020-2024 ASOBO",
-   "2022-2024 GS614",
+   "2022-2025 GS614",
  ]
 
 # Optional list of supported platforms. If ommitted, the extension will be available in all operating systems.
