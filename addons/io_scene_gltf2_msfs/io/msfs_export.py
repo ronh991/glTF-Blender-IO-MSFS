@@ -15,6 +15,7 @@
 import os
 import urllib
 import bpy
+import random
 
 from .. import get_version_string
 from .msfs_gizmo import MSFSGizmo
@@ -44,19 +45,26 @@ def global_time(blender_object):
 class Export:
 
     def fix_neutral_bone(self, gltf2_node):
+        print("fix_neutral_bone START - ", gltf2_node.name)
         neutral_bone = None
         # base
         if gltf2_node is None:
+            print("fix_neutral_bone - return None")
             return None
         if gltf2_node.children is None:
-            print("fix no children", gltf2_node.name)
-            return None
+            print("fix_neutral_bone - no children", gltf2_node.name)
+            if "neutral_bone" in gltf2_node.name:
+                gltf2_node.name = "neutral_bone" + str(random.randrange(1, 100)) 
+                print("fix_neutral_bone - Neutral Bone no child fixed", gltf2_node.name)
+            #return None
         else:
             # node is orange armature, skin is green armature, joints is bones
             for c in gltf2_node.children:
+                print("fix_neutral_bone - start c", c)
                 if c.mesh is not None and c.skin is not None:
-                    print("child", c.name, c.mesh.name, c.skin.name)
+                    print("fix_neutral_bone - child c and skin not None", c.name, c.mesh.name, c.skin.name)
                 if c.skin is None:
+                    print("fix_neutral_bone - child skin is none", c.name)
                     neutral_bone = self.fix_neutral_bone(c)
                     if neutral_bone is None:
                         continue
@@ -64,27 +72,32 @@ class Export:
                         #pass
                         return neutral_bone
                 else:
-                    print("Skin name c", c.skin.name)
+                    print("fix_neutral_bone - Skin name c", c.skin.name)
                     if c.skin.joints is not None:
                         for neutral_bone in c.skin.joints:
-                            print("joints-bones found", neutral_bone.name)
+                            print("fix_neutral_bone - Joints-bones found", neutral_bone.name)
                             if "neutral_bone" in neutral_bone.name:
                                 neutral_bone.name = c.skin.name + "_neutral_bone"
-                                print("Neutral Bone fixed", neutral_bone.name)
+                                print("fix_neutral_bone - Neutral Bone fixed", neutral_bone.name)
                                 #return neutral_bone
                     else:
                         continue
 
-                if neutral_bone is not None and neutral_bone.extensions is None:
-                    neutral_bone.extensions = {}
-                if self.properties.use_unique_id and neutral_bone is not None:
-                    MSFS_unique_id.export_no_blender_object(neutral_bone)
+        print("fix_neutral_bone - try extension", gltf2_node.name, neutral_bone, neutral_bone.extensions if neutral_bone is not None else None)
+        if "neutral_bone" in gltf2_node.name:
+            if gltf2_node.extensions is None:
+                print("fix_neutral_bone - no unique extension")
+                gltf2_node.extensions = {}
+            if self.properties.use_unique_id:
+                print("fix_neutral_bone - add unique extension")
+                MSFS_unique_id.export_no_blender_object(gltf2_node)
 
-        return None
+        return neutral_bone
 
     def gather_asset_hook(self, gltf2_asset, export_settings):
         #print("gather_asset_hook")
         if self.properties.enable_msfs_extension == True:
+            #print("gather_asset_hook - ext true")
             if gltf2_asset.extensions is None:
                 gltf2_asset.extensions = {}
             gltf2_asset.extensions["ASOBO_normal_map_convention"] = self.Extension(
@@ -93,6 +106,7 @@ class Export:
                 required=False
             )
 
+            #print("gather_asset_hook - write version")
             gltf2_asset.generator += " and Asobo Studio MSFS Blender I/O v" + get_version_string()
 
         # for the vetex color rainbow
@@ -178,11 +192,11 @@ class Export:
             for gltf2_node in gltf2_scene.nodes: 
                 if gltf2_node is None:
                     continue
-                if gltf2_node.children is None:
-                    continue
+                #if gltf2_node.children is None:
+                #    continue
                 print("Scene node loop", gltf2_node.name)
                 gltf2_object = self.fix_neutral_bone(gltf2_node)
-                print("return Scene object", gltf2_object, gltf2_object.name if gltf2_object is not None else None)
+                print("return Scene object", gltf2_node.name, gltf2_object, gltf2_object.name if gltf2_object is not None else None)
                 # there is no blender_object because of Khronos stupid neutral_bone thing
 
                 if gltf2_object is not None and gltf2_object.extensions is None:
@@ -191,6 +205,38 @@ class Export:
                     MSFS_unique_id.export_no_blender_object(gltf2_object)
 
     def gather_material_hook(self, gltf2_material, blender_material, export_settings):
+        # blender 4.0 and now 3.6 issue with detail textures added twice once correct and once as a regular basecolor texture
+        # if it has a detail color texture then set basecolor texture to none
+        #print("*** MSFS WARNING *** - gather_material_hook - Started with gltf2_material", gltf2_material, gltf2_material.pbr_metallic_roughness, gltf2_material.pbr_metallic_roughness.base_color_texture)
+        #print("*** MSFS WARNING *** - gather_material_hook - blender material - delete base color before", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        print("gather_material_hook - bmat list", blender_material.msfs_base_color_texture, blender_material.msfs_detail_color_texture, blender_material.msfs_occlusion_metallic_roughness_texture)
+        print("gather_material_hook - gmat list", gltf2_material.pbr_metallic_roughness.base_color_texture, gltf2_material.pbr_metallic_roughness.metallic_roughness_texture)
+        if blender_material.msfs_detail_color_texture is not None and blender_material.msfs_base_color_texture is None:
+            gltf2_material.pbr_metallic_roughness.base_color_texture = None
+            print("*** MSFS WARNING *** - blender material - delete the base color", blender_material, blender_material.msfs_detail_color_texture, blender_material.msfs_base_color_texture)
+        if gltf2_material.pbr_metallic_roughness.base_color_texture is not None and blender_material.msfs_base_color_texture is None:
+            gltf2_material.pbr_metallic_roughness.base_color_texture = None
+            print("*** MSFS WARNING *** - blender material - delete the base color - has gltf2 base color no blender texture", blender_material, gltf2_material.pbr_metallic_roughness.base_color_texture, blender_material.msfs_base_color_texture)
+        if (gltf2_material.pbr_metallic_roughness.metallic_roughness_texture is not None or gltf2_material.occlusion_texture is not None) and blender_material.msfs_occlusion_metallic_roughness_texture is None:
+            gltf2_material.pbr_metallic_roughness.metallic_roughness_texture = None
+            gltf2_material.occlusion_texture = None
+            print("*** MSFS WARNING *** - blender material - delete the OMR color - has gltf2 OMR color no blender texture", blender_material, gltf2_material.pbr_metallic_roughness.metallic_roughness_texture, blender_material.msfs_occlusion_metallic_roughness_texture)
+
+        # late 4.2 change alphamode always set to BLEND
+        # blender 4.2 June 6 beta - there is no longer a Blender Blend_mode variable - this was used to set the gltf alphaMode json
+        # variable - since ASOBO now controls the msfs_alpha_mode - we must push this setting to the gltf and bypass the Khronos code - settings to BLEND
+        # this BLEND setting causes the sim flickering of all textures. - what a mess
+        #print("*** MSFS WARNING *** - alpha mode mat",blender_material.msfs_material_type, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
+        if blender_material.msfs_alpha_mode != gltf2_material.alpha_mode and gltf2_material.alpha_mode is not None:
+            if blender_material.msfs_alpha_mode == "OPAQUE":
+                before_gltf_alpha_mode = gltf2_material.alpha_mode
+                if gltf2_material.alpha_mode != None:
+                    gltf2_material.alpha_mode = None
+                    print("*** MSFS WARNING *** - Force Khronos alpha mode changed to Opaque/None",blender_material.msfs_material_type, blender_material.name, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode, "gltf alpha mode was", before_gltf_alpha_mode)
+            else:
+                gltf2_material.alpha_mode = blender_material.msfs_alpha_mode
+                print("*** MSFS WARNING *** - Force Khrons alpha mode changed",blender_material.msfs_material_type, blender_material.name, blender_material.msfs_alpha_mode, gltf2_material.alpha_mode)
+
         if self.properties.enable_msfs_extension:
             #print("*** MSFS WARNING *** - gather_material_hook - extenson export")
             MSFSMaterial.export(gltf2_material, blender_material, export_settings)

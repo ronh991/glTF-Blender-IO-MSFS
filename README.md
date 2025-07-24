@@ -14,7 +14,7 @@ This repository contains the current version of a non-official Microsoft Flight 
 
 :warning: This plugin is a fork of the ASOBO plugin version 1.3.3 - and has the following mods/fixes
 
-v1.6.9 (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
+v1.6.14 (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
 
 # ASOBO issues and enhancements
 
@@ -63,6 +63,8 @@ v1.6.9 (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
   #15 Detail ORM node structure update - see ASOBO #330
 
   #14 - unique_id error in multi export (was reintroduced in bad commit)  - fixed
+  
+  #25 - Nuetral bone - duplicate naming and missing unique id on it - fixed to add random number to neutral bone name and add unique id
 
 # Enhancements
 
@@ -80,7 +82,7 @@ v1.6.9 (Blender 3.3.x and 3.6.x) v2.2.0.x (Blender 4.2.x)
 
 :warning: This plugin is NOT compatible with the legacy exporter developed for FSX and P3D and MSFS.  Remove these plugin (Prefered) or disabled these plugins.
 
-:warning: The version 1.6.9 is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
+:warning: The version 1.6.14 is only compatible with Blender 3.3.x LTS up to 3.6.x LTS. Other versions are not supported.
 
 :warning: The version 2.0.x is only compatible with Blender 4.2 LTS release. Other versions are not supported.
 

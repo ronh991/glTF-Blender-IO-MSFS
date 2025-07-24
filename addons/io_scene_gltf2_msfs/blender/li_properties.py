@@ -22,7 +22,9 @@ class MSFS_attached_behavior(bpy.types.PropertyGroup):
     kf_start: bpy.props.IntProperty(name = "kf_start", min=0,  default = 0)
     kf_end: bpy.props.IntProperty(name = "kf_end", min=0,  default = 1)
 
+print("registering MSFS_attached_behavior")
 bpy.utils.register_class(MSFS_attached_behavior)
+print("registering MSFS_attached_behavior - done")
 
 class MSFS_LI_object_properties():
     bpy.types.Object.msfs_behavior = bpy.props.CollectionProperty(type = MSFS_attached_behavior)

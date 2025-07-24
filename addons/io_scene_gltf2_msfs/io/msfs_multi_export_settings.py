@@ -366,12 +366,12 @@ class MSFS_MultiExporterSettings(bpy.types.PropertyGroup):
     #### Animation Options
     ## Use Current Frame Check
     export_current_frame: bpy.props.BoolProperty(
-        name="Use Current Frame",
+        name="Use Current Frame as Object Rest Transformations",
         description="Export the scene in the current animation frame",
         default=False,
     )
     
-    ##* Export Animation Options Check
+    ## Export Animation Options Check
     export_animations: bpy.props.BoolProperty(
         name="Animations",
         description="Exports active actions and NLA tracks as glTF animations",
