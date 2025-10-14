@@ -26,7 +26,7 @@ bl_info = {
     "author": "Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
     "description": "This toolkit prepares your 3D assets to be used for Microsoft Flight Simulator",
     "blender": (4, 2, 0),
-    "version": (2, 2, 20),
+    "version": (2, 2, 21),
     "location": "File > Export > glTF 2.0",
     "category": "Import-Export",
     "developer":"Luca Pierabella, Yasmine Khodja, Wing42, pepperoni505, ronh991, and others",
@@ -310,8 +310,7 @@ from .io.msfs_import import Import
 
 class glTF2ImportUserExtension(Import):
     def __init__(self):
-        #self.properties = bpy.context.scene.msfs_importer_properties
-        self.properties = bpy.context.scene.MSFS_importer_properties
+        self.properties = bpy.context.scene.msfs_importer_properties
 
 
 ##################################################################################

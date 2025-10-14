@@ -374,6 +374,7 @@ class MSFS_OT_MultiExportGLTF2(bpy.types.Operator):
                         
                         if export_folder_path != "":
                             exportPath = bpy.path.ensure_ext(os.path.join(export_folder_path, os.path.splitext(lod.file_name)[0]), ".gltf")
+                            print("Export folder path - length", exportPath, " is this long ", len(exportPath))
                             MSFS_OT_MultiExportGLTF2.export(exportPath)
                         else:
                             self.report({'ERROR'}, "[EXPORT][ERROR] Object : " + lod.file_name + " does not have an export path set.")
