@@ -74,7 +74,9 @@ class MSFSMaterial:
             return bpy.data.images[blender_image_name]
 
     @staticmethod
-    def export_image(blender_material, blender_image, type, export_settings, normal_scale=None):
+    def export_image(
+        blender_material, blender_image, type, export_settings, normal_scale=None
+    ):
         nodes = blender_material.node_tree.nodes
         links = blender_material.node_tree.links
         

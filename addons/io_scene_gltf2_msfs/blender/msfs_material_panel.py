@@ -448,6 +448,27 @@ class MSFS_OT_MigrateColorFixData(bpy.types.Operator): # TODO: Remove eventually
         bsdfnodes = [n for n in nodes 
                 if isinstance(n, bpy.types.ShaderNodeBsdfPrincipled)]
         temp_alpha = 1.0
+        try:
+            nodes = mat.node_tree.nodes
+            bsdfnodes = [n for n in nodes 
+                    if isinstance(n, bpy.types.ShaderNodeBsdfPrincipled)]
+            temp_alpha = 1.0
+            if mat.msfs_material_mode == "NONE" and mat.msfs_material_type == "NONE":
+                base_color_default = [0.8,0.8,0.8,1.0]
+                try:
+                    for principled in bsdfnodes:
+                        # check base color not default
+                        # get BSDF base Color value
+                        BSDF_Base_Color = principled.inputs[0].default_value
+                        #print(BSDF_Base_Color[0], base_color_default[0], BSDF_Base_Color[1], base_color_default[1], BSDF_Base_Color[2], base_color_default[2], BSDF_Base_Color[3], base_color_default[3])
+                        mat.msfs_base_color_factor = principled.inputs["Base Color"].default_value
+                        mat.msfs_metallic_factor = principled.inputs[6].default_value
+                        mat.msfs_roughness_factor = principled.inputs[9].default_value
+                except:
+                    print("*** MSFS Warning *** vertex color white attribute error")
+        except:
+            print("*** MSFS Warning *** old material values error")
+
         for principled in bsdfnodes:
             print("old_albedo_tint_color_diff - execute - principled", principled)
             #if not principled.inputs[0].links:
