@@ -1,8 +1,10 @@
 [![MSFS](misc/Logos/msfs_logo.png)](https://www.flightsimulator.com/)[![ASOBO](misc/Logos/asobo_logo.png)](https://www.asobostudio.com/)[![GS614](misc/Logos/gs614_logo.png)](https://www.gs614.ca/) <img src="misc/Logos/glTF_logo.png" width="180" height="90">
 
-# Unofficial Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
+# OBSOLETE - Unofficial Microsoft Flight Simulator glTF 2.0 Importer and Exporter for Blender
 
 ## NOTE:
+
+OBSOLETE - Use the latest ASOBO exporter in the downloadable SDK - 
 
 THIS WILL NOT Work with 3.5.x or earlier - Blender 4.2.x LTS is a large breaking change update.
 
